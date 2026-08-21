@@ -4,123 +4,67 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Nginx Proxy Manager AI Agent Skill 手冊 · WoowTech</title>
-<meta name="description" content="Nginx Proxy Manager/Tailscale 私有網段相關的 AI agent skill 型錄：精選實用 skill 與生態工具、安裝速查、SKILL.md 規格與安全守則（2026-08 調查）。" />
+<meta name="description" content="Nginx Proxy Manager 的 AI Agent Skill 實作手冊：資產盤點、憑證到期、Access List 稽核、備份、日誌診斷與安全自動化。" />
 <meta name="theme-color" content="#6183FC" />
 <link rel="canonical" href="https://nginx-guide.woowtech.io/skills.html" />
-<link rel="preconnect" href="https://fonts.googleapis.com" />
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&family=Poppins:wght@400;500;600;700&family=Noto+Sans+TC:wght@400;500;600;700&family=Yellowtail&display=swap" />
 <style>
-:root{--blue:#6183FC;--blue7:#3F63E8;--blue5:#EEF2FF;--ink:#1B2033;--ink7:#3A4054;--ink5:#6B7186;--paper:#F7F8FC;--surface:#fff;--alt:#F1F3FA;--hair:#E2E5EF;--rs:12px;--pill:999px;}
-*{box-sizing:border-box}body{margin:0;font-family:Poppins,-apple-system,"Noto Sans TC",sans-serif;color:var(--ink);background:var(--paper);line-height:1.7}h1,h2,h3{font-family:Outfit,Poppins,"Noto Sans TC",sans-serif}a{color:var(--blue7);text-decoration:none}a:hover{text-decoration:underline}
-.layout{display:grid;grid-template-columns:268px 1fr;min-height:100vh}
-.sidebar{background:var(--surface);border-right:1px solid var(--hair);padding:28px 22px;position:sticky;top:0;height:100vh;overflow:auto}
-.sidebar .brand{display:block;font-size:20px;font-weight:700;color:var(--ink);margin-bottom:4px}.sidebar .brand-sub{font-size:13px;color:var(--ink5);margin-bottom:6px}.sidebar .hub-link{display:inline-block;font-size:12.5px;color:var(--ink5);margin-bottom:22px}.sidebar h2{font-size:12px;color:var(--ink5);text-transform:uppercase;letter-spacing:.1em;font-weight:600;margin:0 0 12px}.sidebar a.toc{display:block;padding:7px 12px;border-radius:8px;color:var(--ink7);font-size:13.5px}.sidebar a.toc:hover{background:var(--alt)}
-.content{padding:56px 64px 96px;max-width:900px}
-.kicker-script{font-family:Yellowtail,cursive;font-size:30px;color:var(--blue);display:block;margin-bottom:10px}.kicker{color:var(--blue);font-size:12px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;margin-bottom:10px}h1{font-size:38px;font-weight:700;margin:0 0 14px;line-height:1.25}.lead{font-size:17px;color:var(--ink7);margin:0 0 30px}
-section{margin-bottom:44px}section h2{font-size:22px;margin:0 0 16px;padding-left:14px;border-left:4px solid var(--blue)}
-.callout{padding:14px 18px;border-radius:var(--rs);background:var(--alt);border:1px solid var(--hair);margin:16px 0;font-size:14.5px}.callout.warn{background:#FEF3EE;border-color:rgba(230,109,62,.35)}.callout.danger{background:#FEEEEF;border-color:rgba(244,93,109,.35)}
-.skill{background:var(--surface);border:1px solid var(--hair);border-radius:var(--rs);padding:16px 18px;margin-bottom:14px}.skill h3{margin:0 0 4px;font-size:16px}.skill .meta{font-size:12.5px;color:var(--ink5);margin-bottom:8px}.skill p{margin:0;font-size:14px;color:var(--ink7)}
-table{width:100%;border-collapse:collapse;margin:16px 0;font-size:14px;background:var(--surface);border:1px solid var(--hair);border-radius:var(--rs);overflow:hidden}th,td{padding:12px 16px;text-align:left;border-bottom:1px solid var(--hair)}th{background:var(--blue5);font-weight:600}tr:last-child td{border-bottom:0}
-pre.code{background:#F7F8FC;border:1px solid var(--hair);border-radius:8px;padding:14px;font-family:"SF Mono",Menlo,Consolas,monospace;font-size:13px;overflow-x:auto}
-footer{margin-top:40px;padding-top:24px;border-top:1px solid var(--hair);font-size:13px;color:var(--ink5)}
-@media(max-width:900px){.layout{grid-template-columns:1fr}.sidebar{position:static;height:auto}.content{padding:32px 20px 64px}}
+:root{--blue:#6183FC;--blue7:#3F63E8;--blue5:#EEF2FF;--ink:#1B2033;--ink7:#3A4054;--ink5:#6B7186;--paper:#F7F8FC;--surface:#fff;--alt:#F1F3FA;--hair:#E2E5EF;--rs:12px}*{box-sizing:border-box}body{margin:0;font-family:Poppins,-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans TC",sans-serif;color:var(--ink);background:var(--paper);line-height:1.7}h1,h2,h3{font-family:Outfit,Poppins,"Noto Sans TC",sans-serif}a{color:var(--blue7);text-decoration:none}a:hover{text-decoration:underline}.layout{display:grid;grid-template-columns:268px 1fr;min-height:100vh}.sidebar{background:var(--surface);border-right:1px solid var(--hair);padding:28px 22px;position:sticky;top:0;height:100vh;overflow:auto}.brand{display:block;font-size:20px;font-weight:700;color:var(--ink);margin-bottom:4px}.brand-sub{font-size:13px;color:var(--ink5);margin-bottom:6px}.hub-link{display:inline-block;font-size:12.5px;color:var(--ink5);margin-bottom:22px}.sidebar h2{font-size:12px;color:var(--ink5);text-transform:uppercase;letter-spacing:.1em;font-weight:600;margin:0 0 12px}.toc{display:block;padding:7px 12px;border-radius:8px;color:var(--ink7);font-size:13.5px}.toc:hover{background:var(--alt)}.content{padding:56px 64px 96px;max-width:940px}.kicker-script{font-family:cursive;font-size:28px;color:var(--blue);display:block;margin-bottom:10px}.kicker{color:var(--blue);font-size:12px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;margin-bottom:10px}h1{font-size:38px;margin:0 0 14px;line-height:1.25}.lead{font-size:17px;color:var(--ink7);margin:0 0 30px}section{margin-bottom:44px}section h2{font-size:22px;margin:0 0 16px;padding-left:14px;border-left:4px solid var(--blue)}.callout{padding:14px 18px;border-radius:var(--rs);background:var(--alt);border:1px solid var(--hair);margin:16px 0;font-size:14.5px}.warn{background:#FEF3EE;border-color:rgba(230,109,62,.35)}.danger{background:#FEEEEF;border-color:rgba(244,93,109,.35)}.skill{background:var(--surface);border:1px solid var(--hair);border-radius:var(--rs);padding:18px 20px;margin-bottom:14px}.skill h3{margin:0 0 4px;font-size:17px}.meta{font-size:12.5px;color:var(--ink5);margin-bottom:8px}.skill p{margin:0 0 8px;font-size:14px;color:var(--ink7)}.skill ul{margin:6px 0;font-size:14px}table{width:100%;border-collapse:collapse;margin:16px 0;font-size:14px;background:var(--surface);border:1px solid var(--hair)}th,td{padding:12px 16px;text-align:left;border-bottom:1px solid var(--hair);vertical-align:top}th{background:var(--blue5);font-weight:600}tr:last-child td{border-bottom:0}pre{background:#F7F8FC;border:1px solid var(--hair);border-radius:8px;padding:14px;font-family:"SFMono-Regular",Menlo,Consolas,monospace;font-size:13px;overflow-x:auto;white-space:pre-wrap}code{font-family:"SFMono-Regular",Menlo,Consolas,monospace}footer{margin-top:40px;padding-top:24px;border-top:1px solid var(--hair);font-size:13px;color:var(--ink5)}@media(max-width:900px){.layout{grid-template-columns:1fr}.sidebar{position:static;height:auto}.content{padding:32px 20px 64px}}
 </style>
 </head>
 <body>
 <div class="layout">
-<aside class="sidebar">
-<a class="brand" href="tutorial.html">Nginx Proxy Manager 指南</a>
-<div class="brand-sub">把家中服務安全帶上網</div>
-<a class="hub-link" href="index.html">◂ 資源總覽</a>
-<h2>本頁</h2>
-<a class="toc" href="#why">Skill 是什麼</a>
-<a class="toc" href="#install">怎麼裝</a>
-<a class="toc" href="#picks">精選 skill</a>
-<a class="toc" href="#tools">生態工具</a>
-<a class="toc" href="#compat">相容性須知</a>
-<a class="toc" href="#safety">安全守則</a>
-<a class="toc" href="#spec">SKILL.md 規格</a>
-<a class="toc" href="#faq">常見問題</a>
-</aside>
+<aside class="sidebar"><a class="brand" href="tutorial.html">Nginx Proxy Manager 指南</a><div class="brand-sub">AI Agent 的安全維運手冊</div><a class="hub-link" href="index.html">返回資源總覽</a><h2>本頁</h2><a class="toc" href="#model">Skill 的定位</a><a class="toc" href="#sources">工具與證據</a><a class="toc" href="#patterns">六種 Skill 模式</a><a class="toc" href="#contract">安全合約</a><a class="toc" href="#workflow">自動化層級</a><a class="toc" href="#template">Skill 範本</a><a class="toc" href="#review">導入檢查表</a></aside>
 <main class="content">
-<div class="chapter-header">
-<span class="kicker-script">teach your agent networking</span>
-<div class="kicker">WoowTech · Nginx Proxy Manager Skill 手冊</div>
-<h1>讓 AI agent 會管你的私有網段</h1>
-<p class="lead">Skill 是教 AI agent 一項專門手藝的「說明書」。裝上網段管理相關的 skill，你的 agent 就會照最佳做法管節點、盤點金鑰、顧 ACL 與備份。這本收錄精選 skill、生態工具與安裝速查（2026-08 調查）。</p>
-</div>
-<section id="why" data-nav="why"><h2>Skill 是什麼，為什麼要裝</h2>
-<p>Skill 可以想成「給 AI 的 SOP 手冊」：一份 <code>SKILL.md</code> 寫明「遇到什麼任務、照什麼步驟、用什麼工具、注意什麼」。agent 讀到它就多會一件事，做法穩定、不會憑空亂猜。</p>
-<p>對 Nginx Proxy Manager 來說，常見 skill 場景：節點盤點、preauth key 管理、ACL 稽核、備份與還原演練。裝了對應 skill，這些事你只要下指令，agent 就照 SOP 做。</p>
-</section>
-<section id="install" data-nav="install"><h2>怎麼裝（3 分鐘版）</h2>
-<div class="callout"><strong>前提：</strong>你的 agent 要支援 skill（例如 Pi Agent、Claude Code 等）。概念相同：把 skill 資料夾放進 skills 目錄。</div>
-<ul>
-<li>找到 skill 的 GitHub repo，記下網址。</li>
-<li>在 agent 的 skill 安裝面板貼上 repo 網址或選目錄。</li>
-<li>安裝後確認 skill 出現在可用清單（或系統提示裡）。</li>
-</ul>
-</section>
-<section id="picks" data-nav="picks"><h2>精選網段管理 skill（家庭視角）</h2>
-<p>依「自架 VPN 網段管理」會遇到的真實需求，整理值得一找的 skill 類型。星數以 GitHub 現況為準（2026-08），安裝前務必確認 repo 仍在維護。</p>
-<div class="skill"><h3>節點盤點</h3><div class="meta">分類：維運 · 觸發 headscale CLI</div><p>列出所有節點、標出離線與過期、產生健康報告，附乾跑模式。</p></div>
-<div class="skill"><h3>preauth key 稽核</h3><div class="meta">分類：安全 · headscale preauthkeys</div><p>盤點所有金鑰、標出未使用／快過期／該撤銷的，並可批次撤銷（先回報再動手）。</p></div>
-<div class="skill"><h3>ACL 最小化</h3><div class="meta">分類：安全 · policy</div><p>讀取 policy 檔、白話解釋、找出開太寬的規則、建議收緊並給出 diff。</p></div>
-<div class="skill"><h3>備份與還原演練</h3><div class="meta">分類：維運 · 設定檔</div><p>備份 policy、金鑰與設定，產出災難還原步驟。</p></div>
-<div class="skill"><h3>路由與 exit node 管理</h3><div class="meta">分類：管理 · routes</div><p>盤點 subnet route 與 exit node、標出未啟用的、協助啟用或收回。</p></div>
-<div class="callout warn"><strong>名稱與星數以 GitHub 現況為準：</strong>生態變化快，本頁列的「類型」是穩定需求，實際 repo 名稱與星數請安裝前重新查證。</div>
-</section>
-<section id="tools" data-nav="tools"><h2>生態工具（不只 skill）</h2>
-<table>
-<tr><th>工具</th><th>用途</th><th>何時用</th></tr>
-<tr><td><strong>juanfont/headscale</strong></td><td>官方控制層 repo</td><td>查文件、看更新、回報 issue</td></tr>
-<tr><td><strong>tailscale client</strong></td><td>裝置端連線軟體</td><td>各裝置加入網段（第 5 章）</td></tr>
-<tr><td><strong>headscale-ui</strong></td><td>第三方 Web 管理介面</td><td>想要圖形化管理時</td></tr>
-<tr><td><strong>prometheus 監控</strong></td><td>指標與告警</td><td>監控控制層健康</td></tr>
-<tr><td><strong>Home Assistant 整合</strong></td><td>把網段接進 HA</td><td>節點狀態、自動化觸發</td></tr>
-</table>
-</section>
-<section id="compat" data-nav="compat"><h2>相容性須知</h2>
-<ul>
-<li><strong>版本對齊：</strong>Nginx Proxy Manager 與 tailscale client 版本要相容，大版本升級前看 release notes。</li>
-<li><strong>權限：</strong>多數操作需要能執行 headscale 命令的環境；agent 要能連到控制層。</li>
-<li><strong>client 端：</strong>裝置端 tailscale client 版本也要顧，太舊可能連不上新控制層。</li>
-</ul>
-</section>
-<section id="safety" data-nav="safety"><h2>安全守則</h2>
-<div class="callout danger"><strong>永不讓 skill 直接刪除：</strong>任何操作走「先回報 → 你確認 → 再執行」，刪除一律先「過期／停用」而非「刪除」。</div>
-<div class="callout warn"><strong>金鑰不外流：</strong>裝第三方 skill 前，檢查它會不會把 preauth key、node id 傳到外部。來路不明的不要裝。</div>
-<div class="callout"><strong>乾跑優先：</strong>批次操作先要求 skill 產出「將影響 N 個項目」的預覽，確認無誤才放行。</div>
-</section>
-<section id="spec" data-nav="spec"><h2>SKILL.md 規格速查</h2>
-<p>想自己寫一個 Nginx Proxy Manager skill，核心就是一份 <code>SKILL.md</code>：</p>
-<pre class="code">---
-name: headscale-node-auditor
-description: 盤點 Nginx Proxy Manager 節點與 preauth key、標出風險項，附乾跑模式
----
-# 用途
-用 headscale 命令盤點節點與金鑰，找出離線、過期、該撤銷的項目。
+<header><span class="kicker-script">repeatable, reviewable, reversible</span><div class="kicker">WoowTech · Nginx Proxy Manager Skill 手冊</div><h1>教 AI Agent 維運 NPM，但不交出失控的權限</h1><p class="lead">好的 Skill 不是一組神奇指令，而是可重複、可稽核、可回復的工作流程。這本手冊用六種模式，讓 Agent 協助你盤點資產、追蹤憑證、稽核存取、驗證備份、診斷日誌與安全自動化。</p></header>
 
-## 步驟
-1. 執行 headscale nodes list 與 preauthkeys list
-2. 標記風險項，產生「預覽清單」（影響 N 筆）
-3. 等使用者確認後才批次過期／撤銷
-4. 回報結果與例外
+<section id="model" data-nav="model"><h2>先分清楚：模式不是現成工具</h2><p>本頁的「Skill 模式」是可重複使用的 SOP：定義輸入、允許的資料來源、分析步驟、輸出格式與安全閘門。你可以把它寫進 Agent 支援的 Skill／指令檔，也可以當人工 Runbook 使用。</p><div class="callout"><strong>本頁沒有推薦未查證的第三方 Skill 套件。</strong>沒有虛構 repo、下載數或星數。Nginx Proxy Manager 官方網站、官方文件與官方 GitHub 專案可作為產品行為的查證來源；你實際採用的 Agent、備份工具、監控平台與第三方整合，仍要自行驗證版本、來源與權限。</div><table><tr><th>類型</th><th>代表內容</th><th>信任方式</th></tr><tr><td><strong>可重複 Skill 模式</strong></td><td>本頁的盤點、到期稽核、備份驗證與診斷流程</td><td>先在你的環境實作並測試；不是可直接安裝的產品</td></tr><tr><td><strong>已驗證產品來源</strong></td><td>NPM 官方網站、官方文件、官方 GitHub 專案與你正在執行的版本</td><td>核對網址、版本標籤、發布資訊與原始碼</td></tr><tr><td><strong>環境工具</strong></td><td>容器執行環境、HAOS add-on、備份系統、日誌平台、DNS 供應商</td><td>以實際部署文件及唯讀測試驗證，不從名稱推測功能</td></tr></table></section>
 
-## 安全
-- 永不直接刪除，先過期／停用
-- 批次操作前先回報影響範圍
-- 敏感值（key、node id）用佔位符</pre>
-<p>詳細規格請參考你使用的 agent 的 skill 文件。</p>
+<section id="sources" data-nav="sources"><h2>證據來源與 API 界線</h2><p>Agent 每次執行前都要辨識 NPM 版本與部署方式。NPM 的網頁前端會呼叫介面，但路徑與 schema 可能隨版本改變，不能把網路文章中的 endpoint 當成穩定公開 API。只有在該版本官方原始碼、實際 schema 或你核准的整合文件能驗證方法、欄位、回應與授權時，Skill 才能呼叫；否則退回唯讀網頁操作指引或經核准的資料匯出。</p><table><tr><th>來源</th><th>可做的事</th><th>限制</th></tr><tr><td>NPM 網頁介面</td><td>人工確認清冊、關聯與設定狀態</td><td>不要讓 Agent 以脆弱的畫面自動化直接做大量寫入</td></tr><tr><td>版本相符且已驗證的介面</td><td>結構化唯讀盤點；核准後執行有限變更</td><td>固定版本與 schema，最小權限，記錄請求結果，不記錄祕密</td></tr><tr><td>主機／容器日誌</td><td>建立錯誤時間線、比對 upstream 與 TLS 問題</td><td>先遮罩 Cookie、Token、查詢字串與個資</td></tr><tr><td>備份檔</td><td>驗證清單、校驗值、可解密與隔離還原</td><td>不得把資料庫或私鑰送到外部模型</td></tr><tr><td>DNS 與網路探測</td><td>查 A／AAAA／CNAME、TLS、允許範圍內的連通性</td><td>NPM 不管理一般 DNS；探測範圍需事先授權</td></tr></table></section>
+
+<section id="patterns" data-nav="patterns"><h2>六種可重複的 Skill 模式</h2>
+<div class="skill"><h3>1. NPM 資產清冊</h3><div class="meta">預設權限：唯讀 · 建議頻率：每日或每週</div><p>把 Proxy Hosts、Redirection Hosts、Streams、Access Lists、憑證與 NPM 使用者整理成同一份清冊，讓你知道公開了什麼、轉到哪裡、誰能管理。</p><ul><li><strong>輸入：</strong>核准的 NPM 實例、環境標籤與唯讀資料來源。</li><li><strong>輸出：</strong>資源 ID／名稱、網域或連接埠、後端、TLS、Access List、啟用狀態及資料時間。</li><li><strong>檢查：</strong>重複網域、連接埠衝突、無憑證公開主機、孤兒 Access List 與未知擁有者。</li><li><strong>禁止：</strong>盤點流程不得順手修正、停用或刪除。</li></ul></div>
+<div class="skill"><h3>2. 憑證到期守望</h3><div class="meta">預設權限：唯讀 · 建議頻率：每日</div><p>依到期天數分級，不只看日期，也確認網域解析、憑證涵蓋名稱、使用中的主機與最近續期錯誤。</p><ul><li><strong>輸出：</strong>7／14／30 天門檻、SAN、簽發者、引用主機、續期前置條件。</li><li><strong>告警去重：</strong>以憑證識別值與到期日形成事件鍵，避免每天重複製造新事件。</li><li><strong>安全：</strong>永不輸出私鑰或 DNS API Token；自動重試前要限制次數，避免 CA rate limit。</li></ul></div>
+<div class="skill"><h3>3. Access List 與帳號稽核</h3><div class="meta">預設權限：唯讀 · 建議頻率：每週及每次變更後</div><p>分開檢查 NPM 管理使用者、Access List 的來源規則，以及 Access List 內的 HTTP 基本驗證帳號，避免把三者混為一談。</p><ul><li><strong>檢查：</strong>過寬 CIDR、規則順序、未套用清單、共用管理帳號、停用狀態與責任人。</li><li><strong>輸出：</strong>證據、風險等級、受影響主機、建議差異與鎖住自己的風險。</li><li><strong>限制：</strong>不讀出密碼；收緊規則前必須確認備援管理路徑。</li></ul></div>
+<div class="skill"><h3>4. 備份與還原驗證</h3><div class="meta">預設權限：備份儲存區唯讀 · 建議頻率：每次備份後驗證，每季演練</div><p>依部署方式辨識資料庫、設定與憑證持久化範圍，檢查加密、校驗值、保留期及離機副本，並在隔離環境演練還原。</p><ul><li><strong>成功條件：</strong>可解密、內容完整、版本相容、隔離實例可啟動、代表性主機設定可讀。</li><li><strong>輸出：</strong>RPO／RTO、最後成功時間、校驗結果、缺漏與演練證據。</li><li><strong>禁止：</strong>未確認環境識別與快照前，絕不覆寫正式資料。</li></ul></div>
+<div class="skill"><h3>5. 日誌診斷</h3><div class="meta">預設權限：日誌唯讀 · 觸發：502、504、TLS 或轉址事件</div><p>先建立時間線，再按 DNS、入口、NPM、網路與後端分層。診斷必須把「觀察到的事實」與「待驗證假設」分開。</p><ul><li><strong>502：</strong>優先核對 upstream 位址、連接埠、協定、名稱解析、TLS 與後端拒絕。</li><li><strong>504：</strong>比對後端耗時、網路遺失與逾時；不能只用放大 timeout 掩蓋根因。</li><li><strong>隱私：</strong>輸出前遮罩 Authorization、Cookie、Token、查詢字串個資與內部祕密。</li></ul></div>
+<div class="skill"><h3>6. 安全變更自動化</h3><div class="meta">預設權限：唯讀；單項短效寫入權限需另行核准</div><p>把「偵測、提案、核准、執行、驗證、回復」做成狀態機。每次只處理明確資源，使用 idempotency 檢查避免重複建立。</p><ul><li><strong>提案：</strong>顯示資源識別、修改前後差異、影響、依賴、回復與驗證方式。</li><li><strong>核准：</strong>確認文字需綁定目標、差異雜湊與有效期限；舊核准不能套到新差異。</li><li><strong>執行：</strong>只用已驗證介面與最小權限；寫入後立即讀回比對。</li><li><strong>失敗：</strong>停止後續批次、保留證據、依核准方案回復，不自行擴大修復。</li></ul></div>
 </section>
-<section id="faq" data-nav="faq"><h2>常見問題</h2>
-<div class="callout"><strong>Skill 和 App／整合有什麼不同？</strong><br>App 是「有介面的程式」，整合是「兩個服務串接」，Skill 是「教 AI 怎麼做」的說明書，裝了讓 agent 自己會操作。</div>
-<div class="callout"><strong>裝錯 skill 會弄壞網段嗎？</strong><br>有可能。所以安全守則最重要：只裝可信來源、永遠先乾跑、先過期不直接刪、金鑰不外流。</div>
-<div class="callout"><strong>我能自己寫 skill 嗎？</strong><br>能。照上面的 SKILL.md 骨架，把「步驟」和「安全」寫清楚即可。</div>
-<div class="callout"><strong>哪個 skill 最值得先裝？</strong><br>「節點盤點」與「preauth key 稽核」最有感，能立刻掌握網段健康與金鑰風險。</div>
-</section>
-<footer>《Nginx Proxy Manager 自架 VPN 控制層指南》由 <a href="https://github.com/WOOWTECH/Woow_nginx_proxy_manager_tutorial_site" rel="noopener">WoowTech</a> 製作，以 CC BY 4.0 授權釋出。Nginx Proxy Manager 與 Tailscale 為其各自權利人的商標，本站與其無隸屬關係。</footer>
+
+<section id="contract" data-nav="contract"><h2>每個 Skill 都要有安全合約</h2><table><tr><th>合約項目</th><th>最低要求</th></tr><tr><td>範圍</td><td>列出允許的 NPM 實例、資源類型、網域與環境；預設拒絕未列項目。</td></tr><tr><td>身分與權限</td><td>獨立 Agent 身分、最低權限、短效祕密；不可共用你的管理 Cookie。</td></tr><tr><td>資料處理</td><td>祕密不進提示詞、不進日誌、不送外部模型；報告先遮罩再保存。</td></tr><tr><td>變更閘門</td><td>預覽差異、影響、回復、明確人工確認；刪除與還原需更強的指定名稱確認。</td></tr><tr><td>可稽核性</td><td>記錄誰、何時、對哪個資源、依哪份核准、得到什麼結果；不要記錄密碼與 Token。</td></tr><tr><td>停止條件</td><td>版本不符、schema 無法驗證、備份失敗、目標漂移或驗證失敗時立即停止。</td></tr></table><div class="callout danger"><strong>高風險動作不應全自動：</strong>刪除 Proxy Host／憑證／使用者、覆寫資料庫、正式環境還原、批次變更 Access List，以及升級主要版本，都必須由你核准並保留可回復點。</div></section>
+
+<section id="workflow" data-nav="workflow"><h2>從唯讀開始的四個自動化層級</h2><table><tr><th>層級</th><th>Agent 可以做什麼</th><th>升級條件</th></tr><tr><td><strong>L0 建議</strong></td><td>閱讀你提供的脫敏資料，產生清單與操作步驟。</td><td>輸出穩定，沒有杜撰欄位或工具。</td></tr><tr><td><strong>L1 唯讀</strong></td><td>定期盤點、到期檢查、日誌查詢與告警。</td><td>來源已驗證、權限隔離、敏感資訊遮罩、誤報可接受。</td></tr><tr><td><strong>L2 核准後寫入</strong></td><td>針對單一資源執行已預覽、可回復的變更。</td><td>測試環境通過、差異綁定核准、寫後驗證與回復演練完成。</td></tr><tr><td><strong>L3 低風險自動修復</strong></td><td>只處理預先核准、範圍狹窄且冪等的事件。</td><td>有錯誤預算、速率限制、停止開關與人工值班；高風險動作仍排除。</td></tr></table></section>
+
+<section id="template" data-nav="template"><h2>可攜式 Skill 規格範本</h2><p>不同 Agent 的檔名與 metadata 格式不一定相同，以下是中立範本，不代表任何特定產品的安裝規格：</p><pre>名稱：npm-certificate-auditor
+目的：唯讀盤點 NPM 憑證，依到期日與引用關係產生報告
+
+輸入：
+- NPM 實例識別與環境標籤
+- 經驗證、版本相符的唯讀資料取得方式
+- 告警門檻：7、14、30 天
+
+前置檢查：
+1. 驗證目標實例、版本、部署方式與唯讀權限
+2. 驗證介面 schema；不能驗證就停止，不猜 endpoint
+3. 確認輸出位置不會洩漏祕密
+
+步驟：
+1. 取得憑證中繼資料與主機引用關係
+2. 計算到期天數，核對網域名稱與最近續期錯誤
+3. 依門檻分級，產生含資料時間與證據的報告
+4. 遮罩 Token、Cookie、私鑰與不必要個資
+
+輸出：
+- 摘要、風險項、證據、建議人工處置
+- 不直接申請、續期、刪除或重新指派憑證
+
+停止條件：
+- 版本或 schema 不符
+- 回應缺少必要欄位
+- 目標不是核准的實例
+- 取得資料時要求提升權限</pre></section>
+
+<section id="review" data-nav="review"><h2>導入前檢查表</h2><ul><li>你能指出每個資料欄位來自哪個已驗證來源，而不是 Agent 猜測。</li><li>Agent 有獨立、最低權限身分；祕密使用核准的祕密管理方式且可輪替。</li><li>清冊、憑證、Access List、備份與日誌報告都會標示實例及資料時間。</li><li>測試資料涵蓋 API 失敗、版本漂移、部分回應、重複執行與超時。</li><li>所有寫入都有具體 diff、人工核准、寫後驗證、稽核記錄與回復方案。</li><li>刪除、正式還原與批次權限變更永遠不在無人值守自動化範圍。</li><li>你已設定停止開關，且知道 Agent 失敗時由誰接手。</li></ul><div class="callout warn"><strong>先跑 L1 至少一個完整維運週期。</strong>確認報告準確、沒有洩密且誤報可控後，再挑一項低風險、可回復的任務進入 L2，不要一次把所有管理權交給 Agent。</div></section>
+<footer>《Nginx Proxy Manager 指南》由 <a href="https://github.com/WOOWTECH/Woow_nginx_proxy_manager_tutorial_site" rel="noopener">WoowTech</a> 製作，以 CC BY 4.0 授權釋出。本頁提供可重複 Skill 模式，不背書未列明、未驗證的第三方工具。</footer>
 </main>
 </div>
 </body>

@@ -3,16 +3,16 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Nginx Proxy Manager 資源總覽 · 教學、銷售手冊、提示詞庫、Skill 手冊 · WoowTech</title>
-  <meta name="description" content="Nginx Proxy Manager 自架 VPN 控制層的四本手冊集中地：12 章入住教學、給客戶的銷售手冊、CLI/API 提示詞庫、Skill 型錄手冊。三本手冊提供單檔 HTML 下載，離線可讀。" />
+  <title>Nginx Proxy Manager 資源總覽 · WoowTech</title>
+  <meta name="description" content="WoowTech 製作的 Nginx Proxy Manager 台灣繁體中文資源總站：12 章教學、銷售手冊、操作提示詞庫與 AI Agent Skill 手冊。" />
   <meta name="author" content="WoowTech" />
   <link rel="canonical" href="https://nginx-guide.woowtech.io/" />
   <meta name="robots" content="index, follow" />
   <meta property="og:type" content="website" />
-  <meta property="og:site_name" content="Nginx Proxy Manager 自架雲端指南" />
+  <meta property="og:site_name" content="Nginx Proxy Manager 指南" />
   <meta property="og:locale" content="zh_TW" />
   <meta property="og:title" content="Nginx Proxy Manager 資源總覽 · WoowTech" />
-  <meta property="og:description" content="教學、銷售手冊、提示詞庫、Skill 手冊，一頁入口。三本手冊提供單檔 HTML 下載。" />
+  <meta property="og:description" content="從安裝與反向代理，到憑證、存取控管與安全自動化，四張卡片帶你找到需要的手冊。" />
   <meta property="og:url" content="https://nginx-guide.woowtech.io/" />
   <meta name="theme-color" content="#6183FC" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -20,101 +20,57 @@
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&family=Poppins:wght@400;500;600;700&family=Noto+Sans+TC:wght@400;500;600;700&family=Yellowtail&display=swap" />
   <link rel="stylesheet" href="assets/css/style.css" />
   <style>
-    .res-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 22px; }
-    .res-card { display: flex; flex-direction: column; padding: 28px 26px; border: 1px solid var(--hairline); border-radius: var(--radius); background: var(--surface-card); box-shadow: var(--shadow-sm); }
-    .res-card .tile { display: inline-flex; width: 48px; height: 48px; border-radius: 16px; background: var(--ww-blue-050); align-items: center; justify-content: center; margin-bottom: 14px; }
-    .res-card .tile svg { display: block; }
-    .res-card h3 { margin: 0 0 6px; font-family: Poppins, sans-serif; font-size: 20px; font-weight: 700; }
-    .res-card .aud { font-size: 12.5px; color: var(--text-secondary); margin-bottom: 10px; }
-    .res-card p { margin: 0 0 18px; color: var(--ww-black); font-size: 14.5px; flex: 1; }
-    .res-actions { display: flex; gap: 10px; flex-wrap: wrap; }
-    .btn-pill, .btn-ghost { display: inline-flex; align-items: center; gap: 6px; font-family: Poppins, sans-serif; font-weight: 600; font-size: 14px; padding: 10px 22px; border-radius: 999px; text-decoration: none; transition: background 0.15s, border-color 0.15s, transform 0.15s; }
-    .btn-pill { background: var(--ww-blue); color: #fff; }
-    .btn-pill:hover { background: var(--ww-blue-700); color: #fff; text-decoration: none; transform: translateY(-1px); }
-    .btn-ghost { background: var(--surface-card); color: var(--ww-black); border: 1.5px solid var(--hairline); }
-    .btn-ghost:hover { border-color: var(--ww-blue); color: var(--ww-blue-700); text-decoration: none; }
-    .btn-ghost svg, .btn-pill svg { flex-shrink: 0; }
-    .dl-note { margin: 26px 0 0; padding: 14px 18px; border-radius: var(--radius-sm); background: var(--ww-blue-050); border: 1px solid rgba(97,131,252,0.18); font-size: 13.5px; color: var(--ww-black); }
-    .link-row { display: flex; gap: 22px; flex-wrap: wrap; margin-top: 14px; font-size: 14px; }
-    @media (max-width: 720px) { .res-grid { grid-template-columns: 1fr; } }
+    .res-grid{display:grid;grid-template-columns:1fr 1fr;gap:22px}.res-card{display:flex;flex-direction:column;padding:28px 26px;border:1px solid var(--hairline);border-radius:var(--radius);background:var(--surface-card);box-shadow:var(--shadow-sm)}.res-card .tile{display:inline-flex;width:48px;height:48px;border-radius:16px;background:var(--ww-blue-050);align-items:center;justify-content:center;margin-bottom:14px}.res-card h3{margin:0 0 6px;font-family:Poppins,sans-serif;font-size:20px;font-weight:700}.res-card .aud{font-size:12.5px;color:var(--text-secondary);margin-bottom:10px}.res-card p{margin:0 0 18px;color:var(--ww-black);font-size:14.5px;flex:1}.res-actions{display:flex;gap:10px;flex-wrap:wrap}.btn-pill,.btn-ghost{display:inline-flex;align-items:center;gap:6px;font-family:Poppins,sans-serif;font-weight:600;font-size:14px;padding:10px 22px;border-radius:999px;text-decoration:none}.btn-pill{background:var(--ww-blue);color:#fff}.btn-pill:hover{background:var(--ww-blue-700);color:#fff;text-decoration:none}.btn-ghost{background:var(--surface-card);color:var(--ww-black);border:1.5px solid var(--hairline)}.btn-ghost:hover{border-color:var(--ww-blue);color:var(--ww-blue-700);text-decoration:none}.dl-note{margin:26px 0 0;padding:14px 18px;border-radius:var(--radius-sm);background:var(--ww-blue-050);border:1px solid rgba(97,131,252,.18);font-size:13.5px;color:var(--ww-black)}.link-row{display:flex;gap:22px;flex-wrap:wrap;margin-top:14px;font-size:14px}@media(max-width:720px){.res-grid{grid-template-columns:1fr}}
   </style>
 </head>
 <body>
   <main class="home">
     <div class="hero">
-      <span class="kicker-script">everything headscale</span>
+      <span class="kicker-script">publish with confidence</span>
       <div class="kicker">WoowTech · Nginx Proxy Manager</div>
       <h1>Nginx Proxy Manager 資源總覽</h1>
-      <p>自架 VPN 控制層，四本手冊一次備齊：怎麼用、怎麼賣、怎麼用 CLI 開口、怎麼加裝技能。三本手冊提供單檔 HTML 下載，存下來離線也能讀。</p>
+      <p>用友善的網頁介面管理反向代理、自訂網域、HTTPS 憑證與存取限制。你可以從 12 章教學開始，也可以直接查銷售說明、操作提示詞或 AI Agent Skill 手冊。</p>
     </div>
 
-    <section class="chapter-index">
+    <section class="chapter-index" id="guides" data-nav="guides">
       <h2 class="index-title">四本手冊</h2>
       <div class="res-grid">
-
-        <div class="res-card">
-          <span class="tile"><svg viewBox="0 0 24 24" width="26" height="26" aria-hidden="true"><path fill="#6183FC" d="M19 2L14 6.5V17.5L19 13V2M6.5 5C4.55 5 2.45 5.4 1 6.5V21.16C1 21.41 1.25 21.66 1.5 21.66C1.6 21.66 1.65 21.59 1.75 21.59C3.1 20.94 5.05 20.5 6.5 20.5C8.45 20.5 10.55 20.9 12 22C13.35 21.15 15.8 20.5 17.5 20.5C19.15 20.5 20.85 20.81 22.25 21.56C22.35 21.61 22.4 21.59 22.5 21.59C22.75 21.59 23 21.34 23 21.09V6.5C22.4 6.05 21.75 5.75 21 5.5V19C19.9 18.65 18.7 18.5 17.5 18.5C15.8 18.5 13.35 19.15 12 20V6.5C10.55 5.4 8.45 5 6.5 5Z"/></svg></span>
-          <h3>入住教學</h3>
-          <div class="aud">給用戶 · 12 章</div>
-          <p>從安裝、建立使用者與 preauth key、加入裝置，一路帶到節點管理、ACL、路由、DNS、管理員設定與排錯。每章 10 分鐘。</p>
-          <div class="res-actions">
-            <a class="btn-pill" href="tutorial.html">線上閱讀 <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path fill="#FFFFFF" d="M4,11V13H16L10.5,18.5L11.92,19.92L19.84,12L11.92,4.08L10.5,5.5L16,11H4Z"/></svg></a>
-            <a class="btn-ghost" href="https://github.com/WOOWTECH/Woow_nginx_proxy_manager_tutorial_site/archive/refs/heads/main.zip"><svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path fill="#3F63E8" d="M5,20H19V18H5M19,9H15V3H9V9H5L12,16L19,9Z"/></svg> 整站 zip</a>
-          </div>
-        </div>
-
-        <div class="res-card">
-          <span class="tile"><svg viewBox="0 0 24 24" width="26" height="26" aria-hidden="true"><path fill="#6183FC" d="M11 6H14L17.29 2.7A1 1 0 0 1 18.71 2.7L21.29 5.29A1 1 0 0 1 21.29 6.7L19 9H11V11A1 1 0 0 1 10 12A1 1 0 0 1 9 11V8A2 2 0 0 1 11 6M5 11V15L2.71 17.29A1 1 0 0 0 2.71 18.7L5.29 21.29A1 1 0 0 0 6.71 21.29L11 17H15A1 1 0 0 0 16 16V15H17A1 1 0 0 0 18 14V13H19A1 1 0 0 0 20 12V11H13V12A2 2 0 0 1 11 14H9A2 2 0 0 1 7 12V9Z"/></svg></span>
-          <h3>銷售手冊</h3>
-          <div class="aud">給客戶與經銷商 · 單頁</div>
-          <p>把全家裝置串成自己的私有網段：Nginx Proxy Manager 的能力、HAOS 內建與雲端 PaaS 兩種方案、一天使用情境與方案比較，白話講給客戶聽。</p>
-          <div class="res-actions">
-            <a class="btn-pill" href="sales.html">線上閱讀 <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path fill="#FFFFFF" d="M4,11V13H16L10.5,18.5L11.92,19.92L19.84,12L11.92,4.08L10.5,5.5L16,11H4Z"/></svg></a>
-            <a class="btn-ghost" href="sales.html" download="headscale-銷售手冊.html"><svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path fill="#3F63E8" d="M5,20H19V18H5M19,9H15V3H9V9H5L12,16L19,9Z"/></svg> 下載 HTML</a>
-          </div>
-        </div>
-
-        <div class="res-card">
-          <span class="tile"><svg viewBox="0 0 24 24" width="26" height="26" aria-hidden="true"><path fill="#6183FC" d="M20 2H4C2.9 2 2 2.9 2 4V22L6 18H20C21.1 18 22 17.1 22 16V4C22 2.9 21.1 2 20 2M20 16H5.2L4 17.2V4H20V16M17 11H15V9H17M13 11H11V9H13M9 11H7V9H9"/></svg></span>
-          <h3>提示詞庫</h3>
-          <div class="aud">給用戶 · 40+ 條可複製</div>
-          <p>不知道怎麼用 CLI/API 控制 Nginx Proxy Manager？user 與 preauth key 管理、節點盤點、ACL、路由、DNS、備份、排錯——每條都能複製貼上再改。</p>
-          <div class="res-actions">
-            <a class="btn-pill" href="prompts.html">線上閱讀 <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path fill="#FFFFFF" d="M4,11V13H16L10.5,18.5L11.92,19.92L19.84,12L11.92,4.08L10.5,5.5L16,11H4Z"/></svg></a>
-            <a class="btn-ghost" href="prompts.html" download="headscale-提示詞庫.html"><svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path fill="#3F63E8" d="M5,20H19V18H5M19,9H15V3H9V9H5L12,16L19,9Z"/></svg> 下載 HTML</a>
-          </div>
-        </div>
-
-        <div class="res-card">
-          <span class="tile"><svg viewBox="0 0 24 24" width="26" height="26" aria-hidden="true"><path fill="#6183FC" d="M22,13.5C22,15.26 20.7,16.72 19,16.96V20A2,2 0 0,1 17,22H13.2V21.7A2.7,2.7 0 0,0 10.5,19C9,19 7.8,20.21 7.8,21.7V22H4A2,2 0 0,1 2,20V16.2H2.3C3.79,16.2 5,15 5,13.5C5,12 3.79,10.8 2.3,10.8H2V7A2,2 0 0,1 4,5H7.04C7.28,3.3 8.74,2 10.5,2C12.26,2 13.72,3.3 13.96,5H17A2,2 0 0,1 19,7V10.04C20.7,10.28 22,11.74 22,13.5M17,15H18.5A1.5,1.5 0 0,0 20,13.5A1.5,1.5 0 0,0 18.5,12H17V7H12V5.5A1.5,1.5 0 0,0 10.5,4A1.5,1.5 0 0,0 9,5.5V7H4V9.12C5.76,9.8 7,11.5 7,13.5C7,15.5 5.75,17.2 4,17.88V20H6.12C6.8,18.25 8.5,17 10.5,17C12.5,17 14.2,18.25 14.88,20H17V15Z"/></svg></span>
-          <h3>Skill 手冊</h3>
-          <div class="aud">給進階用戶 · 型錄＋速查</div>
-          <p>裝別人做好的 skill，讓 AI agent 會管節點、盤點金鑰、顧 ACL 與備份。精選實用 skill 與生態工具，附安裝速查與安全須知（2026-08 調查）。</p>
-          <div class="res-actions">
-            <a class="btn-pill" href="skills.html">線上閱讀 <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path fill="#FFFFFF" d="M4,11V13H16L10.5,18.5L11.92,19.92L19.84,12L11.92,4.08L10.5,5.5L16,11H4Z"/></svg></a>
-            <a class="btn-ghost" href="skills.html" download="headscale-skill手冊.html"><svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path fill="#3F63E8" d="M5,20H19V18H5M19,9H15V3H9V9H5L12,16L19,9Z"/></svg> 下載 HTML</a>
-          </div>
-        </div>
-
+        <article class="res-card">
+          <span class="tile" aria-hidden="true"><svg viewBox="0 0 24 24" width="26" height="26"><path fill="#6183FC" d="M19 2L14 6.5V17.5L19 13V2M6.5 5C4.55 5 2.45 5.4 1 6.5V21.16C1 21.66 1.5 21.75 1.75 21.59C4.8 20.1 9.45 20.5 12 22C14.55 20.5 19.2 20.1 22.25 21.56C22.6 21.73 23 21.5 23 21.09V6.5C22.4 6.05 21.75 5.75 21 5.5V19C17.7 17.95 14.35 19.15 12 20V6.5C10.55 5.4 8.45 5 6.5 5Z"/></svg></span>
+          <h3>入住教學</h3><div class="aud">給初次架設的你 · 12 章</div>
+          <p>從環境準備、HAOS 安裝與登入開始，逐步完成 Proxy Host、DNS、HTTPS、Access List、進階設定、備份與疑難排解。</p>
+          <div class="res-actions"><a class="btn-pill" href="tutorial.html">線上閱讀</a><a class="btn-ghost" href="https://github.com/WOOWTECH/Woow_nginx_proxy_manager_tutorial_site/archive/refs/heads/main.zip" download>下載整站 ZIP</a></div>
+        </article>
+        <article class="res-card">
+          <span class="tile" aria-hidden="true"><svg viewBox="0 0 24 24" width="26" height="26"><path fill="#6183FC" d="M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2m1 17.93A8 8 0 0 1 4.07 11H8l2 2v1h4v-3l-2-2V7l2-2h1.74A8 8 0 0 1 13 19.93Z"/></svg></span>
+          <h3>銷售手冊</h3><div class="aud">給評估方案的你 · 單頁</div>
+          <p>白話理解反向代理、自訂網域、HTTPS 與存取控制的價值，並比較 HAOS 自架、代管與 Cloudflare Tunnel 的取捨。</p>
+          <div class="res-actions"><a class="btn-pill" href="sales.html">線上閱讀</a><a class="btn-ghost" href="sales.html" download="nginx-proxy-manager-sales-zh-TW.html">下載 HTML</a></div>
+        </article>
+        <article class="res-card">
+          <span class="tile" aria-hidden="true"><svg viewBox="0 0 24 24" width="26" height="26"><path fill="#6183FC" d="M20 2H4a2 2 0 0 0-2 2v18l4-4h14a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2m-3 9h-2V9h2m-4 2h-2V9h2m-4 2H7V9h2Z"/></svg></span>
+          <h3>提示詞庫</h3><div class="aud">給操作與維運的你 · 45 條</div>
+          <p>可複製的自然語言提示詞，涵蓋 Proxy Hosts、DNS 與憑證、Access Lists、Redirection Hosts、Streams、備份與診斷。</p>
+          <div class="res-actions"><a class="btn-pill" href="prompts.html">線上閱讀</a><a class="btn-ghost" href="prompts.html" download="nginx-proxy-manager-prompts-zh-TW.html">下載 HTML</a></div>
+        </article>
+        <article class="res-card">
+          <span class="tile" aria-hidden="true"><svg viewBox="0 0 24 24" width="26" height="26"><path fill="#6183FC" d="M22 13.5a3.5 3.5 0 0 1-3 3.46V20a2 2 0 0 1-2 2h-3.8v-.3a2.7 2.7 0 0 0-5.4 0v.3H4a2 2 0 0 1-2-2v-3.8h.3a2.7 2.7 0 1 0 0-5.4H2V7a2 2 0 0 1 2-2h3.04a3.5 3.5 0 0 1 6.92 0H17a2 2 0 0 1 2 2v3.04a3.5 3.5 0 0 1 3 3.46Z"/></svg></span>
+          <h3>Skill 手冊</h3><div class="aud">給導入 AI Agent 的你 · 安全速查</div>
+          <p>用可重複的 Skill 模式盤點主機、追蹤憑證到期、稽核 Access List、驗證備份、診斷日誌並安全自動化。</p>
+          <div class="res-actions"><a class="btn-pill" href="skills.html">線上閱讀</a><a class="btn-ghost" href="skills.html" download="nginx-proxy-manager-skills-zh-TW.html">下載 HTML</a></div>
+        </article>
       </div>
-
-      <div class="dl-note">
-        銷售手冊、提示詞庫、Skill 手冊都是<strong>自包含單檔 HTML</strong>：圖示全部內嵌，下載後離線可開、可直接轉寄。教學為多頁站，建議線上閱讀，需要離線請下載整站 zip。
-      </div>
+      <div class="dl-note">銷售手冊、提示詞庫與 Skill 手冊的樣式、圖示及程式碼都在各自的單一 HTML 檔內；下載後可離線開啟。12 章教學是多頁網站，離線閱讀請下載整站 ZIP。</div>
     </section>
 
-    <section class="chapter-index" style="margin-top:56px;">
+    <section class="chapter-index" id="links" data-nav="links" style="margin-top:56px">
       <h2 class="index-title">相關連結</h2>
-      <div class="link-row">
-        <a href="https://headscale.net/" rel="noopener">Nginx Proxy Manager 官網</a>
-        <a href="https://github.com/WOOWTECH/Woow_nginx_proxy_manager_tutorial_site" rel="noopener">本站原始碼與勘誤</a>
-        <a href="https://woowtech.github.io/Woow_ha_tutorial_site/" rel="noopener">姊妹站：HA 新居入住指南</a>
-      </div>
+      <div class="link-row"><a href="https://nginxproxymanager.com/" rel="noopener">Nginx Proxy Manager 官方網站</a><a href="https://github.com/NginxProxyManager/nginx-proxy-manager" rel="noopener">官方原始碼</a><a href="https://github.com/WOOWTECH/Woow_nginx_proxy_manager_tutorial_site" rel="noopener">本站原始碼與勘誤</a></div>
     </section>
 
     <footer class="site-footer">
-      <p>《Nginx Proxy Manager 自架雲端指南》由 <a href="https://github.com/WOOWTECH/Woow_nginx_proxy_manager_tutorial_site" rel="noopener">WoowTech</a> 製作，以 <a rel="license noopener" href="https://creativecommons.org/licenses/by/4.0/deed.zh-hant">CC BY 4.0</a> 授權釋出 — 可自由分享與改作，請保留出處。</p>
-      <p class="footer-meta">截圖取自 Nginx Proxy Manager 官方介面。Nginx Proxy Manager 為其權利人的商標，本站與其無隸屬關係。 · <a href="https://github.com/WOOWTECH/Woow_nginx_proxy_manager_tutorial_site" rel="noopener">原始碼與勘誤</a></p>
+      <p>《Nginx Proxy Manager 指南》由 <a href="https://github.com/WOOWTECH/Woow_nginx_proxy_manager_tutorial_site" rel="noopener">WoowTech</a> 製作，以 <a rel="license noopener" href="https://creativecommons.org/licenses/by/4.0/deed.zh-hant">CC BY 4.0</a> 授權釋出。</p>
+      <p class="footer-meta">Nginx Proxy Manager 為其權利人的商標；本站是獨立社群教學，與專案官方無隸屬關係。</p>
     </footer>
   </main>
 </body>

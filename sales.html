@@ -3,137 +3,43 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Nginx Proxy Manager 自架 VPN 方案 · 銷售手冊 · WoowTech</title>
-<meta name="description" content="把全家裝置串成自己的私有網段：Nginx Proxy Manager 自架 VPN 控制層方案，點對點加密、ACL 存取控制、跨裝置互連，控制層資料留在你家。" />
+<title>Nginx Proxy Manager 方案價值與部署選擇 · WoowTech</title>
+<meta name="description" content="以台灣繁體中文說明 Nginx Proxy Manager 的反向代理、自訂網域、HTTPS 憑證、存取控制，以及 HAOS、代管與 Cloudflare Tunnel 部署取捨。" />
 <meta name="theme-color" content="#6183FC" />
 <link rel="canonical" href="https://nginx-guide.woowtech.io/sales.html" />
-<link rel="preconnect" href="https://fonts.googleapis.com" />
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&family=Poppins:wght@400;500;600;700&family=Noto+Sans+TC:wght@400;500;600;700&family=Yellowtail&display=swap" />
 <style>
-:root{--blue:#6183FC;--blue7:#3F63E8;--blue5:#EEF2FF;--ink:#1B2033;--ink7:#3A4054;--ink5:#6B7186;--paper:#F7F8FC;--surface:#fff;--alt:#F1F3FA;--hair:#E2E5EF;--r:20px;--rs:12px;--pill:999px;--shadow:0 26px 60px -18px rgba(97,131,252,.28);}
-*{box-sizing:border-box}body{margin:0;font-family:Poppins,-apple-system,"Noto Sans TC",sans-serif;color:var(--ink);background:var(--paper);line-height:1.7}h1,h2,h3{font-family:Outfit,Poppins,"Noto Sans TC",sans-serif}a{color:var(--blue7);text-decoration:none}
-.layout{display:grid;grid-template-columns:268px 1fr;min-height:100vh}
-.sidebar{background:var(--surface);border-right:1px solid var(--hair);padding:28px 22px;position:sticky;top:0;height:100vh;overflow:auto}
-.sidebar .brand{display:block;font-size:20px;font-weight:700;color:var(--ink);margin-bottom:4px}
-.sidebar .brand-sub{font-size:13px;color:var(--ink5);margin-bottom:6px}
-.sidebar .hub-link{display:inline-block;font-size:12.5px;color:var(--ink5);margin-bottom:22px}
-.sidebar h2{font-size:12px;color:var(--ink5);text-transform:uppercase;letter-spacing:.1em;font-weight:600;margin:0 0 12px}
-.sidebar a.toc{display:block;padding:7px 12px;border-radius:8px;color:var(--ink7);font-size:13.5px}.sidebar a.toc:hover{background:var(--alt)}
-.content{padding:56px 64px 96px;max-width:900px}
-.kicker-script{font-family:Yellowtail,cursive;font-size:30px;color:var(--blue);display:block;margin-bottom:10px}
-.kicker{color:var(--blue);font-size:12px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;margin-bottom:10px}
-h1{font-size:38px;font-weight:700;margin:0 0 14px;line-height:1.25}
-.lead{font-size:17px;color:var(--ink7);margin:0 0 30px}
-.kpis{display:grid;grid-template-columns:repeat(3,1fr);background:var(--surface);border:1px solid var(--hair);border-radius:var(--r);box-shadow:var(--shadow);margin-bottom:30px;overflow:hidden}
-.kpi{padding:22px;text-align:center}.kpi+.kpi{border-left:1px solid var(--hair)}.kpi b{display:block;font-size:26px;color:var(--blue)}.kpi span{font-size:13px;color:var(--ink5)}
-section{margin-bottom:44px}section h2{font-size:22px;margin:0 0 16px;padding-left:14px;border-left:4px solid var(--blue)}
-.callout{padding:14px 18px;border-radius:var(--rs);background:var(--alt);border:1px solid var(--hair);margin:16px 0;font-size:14.5px}.callout.tip{background:#F0FAEE}.callout.warn{background:#FEF3EE;border-color:rgba(230,109,62,.35)}
-table{width:100%;border-collapse:collapse;margin:16px 0;font-size:14px;background:var(--surface);border:1px solid var(--hair);border-radius:var(--rs);overflow:hidden}th,td{padding:12px 16px;text-align:left;border-bottom:1px solid var(--hair)}th{background:var(--blue5);font-weight:600}tr:last-child td{border-bottom:0}
-.steps{list-style:none;counter-reset:s;margin:16px 0;padding:0}.steps li{counter-increment:s;position:relative;padding:0 0 14px 50px}.steps li::before{content:counter(s);position:absolute;left:0;top:0;width:34px;height:34px;border-radius:50%;background:var(--blue);color:#fff;font-weight:700;display:flex;align-items:center;justify-content:center}.steps h3{margin:0 0 4px;font-size:16px}.steps p{margin:0;color:var(--ink7);font-size:14.5px}
-.cta{background:linear-gradient(135deg,#6183FC,#4A6DE8);color:#fff;border-radius:var(--r);padding:36px;box-shadow:var(--shadow)}.cta h2{color:#fff;border:0;padding:0}.cta a.btn{display:inline-block;background:#fff;color:var(--blue7);font-weight:700;padding:12px 26px;border-radius:var(--pill);margin-top:10px}
-footer{margin-top:40px;padding-top:24px;border-top:1px solid var(--hair);font-size:13px;color:var(--ink5)}
-@media(max-width:900px){.layout{grid-template-columns:1fr}.sidebar{position:static;height:auto}.content{padding:32px 20px 64px}.kpis{grid-template-columns:1fr}}
+:root{--blue:#6183FC;--blue7:#3F63E8;--blue5:#EEF2FF;--ink:#1B2033;--ink7:#3A4054;--ink5:#6B7186;--paper:#F7F8FC;--surface:#fff;--alt:#F1F3FA;--hair:#E2E5EF;--r:20px;--rs:12px;--pill:999px;--shadow:0 26px 60px -18px rgba(97,131,252,.28)}*{box-sizing:border-box}body{margin:0;font-family:Poppins,-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans TC",sans-serif;color:var(--ink);background:var(--paper);line-height:1.7}h1,h2,h3{font-family:Outfit,Poppins,"Noto Sans TC",sans-serif}a{color:var(--blue7);text-decoration:none}.layout{display:grid;grid-template-columns:268px 1fr;min-height:100vh}.sidebar{background:var(--surface);border-right:1px solid var(--hair);padding:28px 22px;position:sticky;top:0;height:100vh;overflow:auto}.brand{display:block;font-size:20px;font-weight:700;color:var(--ink);margin-bottom:4px}.brand-sub{font-size:13px;color:var(--ink5);margin-bottom:6px}.hub-link{display:inline-block;font-size:12.5px;color:var(--ink5);margin-bottom:22px}.sidebar h2{font-size:12px;color:var(--ink5);text-transform:uppercase;letter-spacing:.1em;font-weight:600;margin:0 0 12px}.toc{display:block;padding:7px 12px;border-radius:8px;color:var(--ink7);font-size:13.5px}.toc:hover{background:var(--alt)}.content{padding:56px 64px 96px;max-width:940px}.kicker-script{font-family:cursive;font-size:28px;color:var(--blue);display:block;margin-bottom:10px}.kicker{color:var(--blue);font-size:12px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;margin-bottom:10px}h1{font-size:38px;margin:0 0 14px;line-height:1.25}.lead{font-size:17px;color:var(--ink7);margin:0 0 30px}.kpis{display:grid;grid-template-columns:repeat(4,1fr);background:var(--surface);border:1px solid var(--hair);border-radius:var(--r);box-shadow:var(--shadow);margin-bottom:30px;overflow:hidden}.kpi{padding:22px 12px;text-align:center}.kpi+.kpi{border-left:1px solid var(--hair)}.kpi b{display:block;font-size:18px;color:var(--blue)}.kpi span{font-size:12.5px;color:var(--ink5)}section{margin-bottom:44px}section h2{font-size:22px;margin:0 0 16px;padding-left:14px;border-left:4px solid var(--blue)}.callout{padding:14px 18px;border-radius:var(--rs);background:var(--alt);border:1px solid var(--hair);margin:16px 0;font-size:14.5px}.tip{background:#F0FAEE}.warn{background:#FEF3EE;border-color:rgba(230,109,62,.35)}table{width:100%;border-collapse:collapse;margin:16px 0;font-size:14px;background:var(--surface);border:1px solid var(--hair)}th,td{padding:12px 16px;text-align:left;border-bottom:1px solid var(--hair);vertical-align:top}th{background:var(--blue5);font-weight:600}tr:last-child td{border-bottom:0}.steps{list-style:none;counter-reset:s;margin:16px 0;padding:0}.steps li{counter-increment:s;position:relative;padding:0 0 18px 50px}.steps li:before{content:counter(s);position:absolute;left:0;top:0;width:34px;height:34px;border-radius:50%;background:var(--blue);color:#fff;font-weight:700;display:flex;align-items:center;justify-content:center}.steps h3{margin:0 0 4px;font-size:16px}.steps p{margin:0;color:var(--ink7);font-size:14.5px}.cta{background:linear-gradient(135deg,#6183FC,#4A6DE8);color:#fff;border-radius:var(--r);padding:36px;box-shadow:var(--shadow)}.cta h2{color:#fff;border:0;padding:0}.btn{display:inline-block;background:#fff;color:var(--blue7);font-weight:700;padding:12px 26px;border-radius:var(--pill);margin-top:10px}footer{margin-top:40px;padding-top:24px;border-top:1px solid var(--hair);font-size:13px;color:var(--ink5)}@media(max-width:900px){.layout{grid-template-columns:1fr}.sidebar{position:static;height:auto}.content{padding:32px 20px 64px}.kpis{grid-template-columns:1fr 1fr}.kpi+.kpi{border-left:0;border-top:1px solid var(--hair)}}
 </style>
 </head>
 <body>
 <div class="layout">
 <aside class="sidebar">
-<a class="brand" href="tutorial.html">Nginx Proxy Manager 指南</a>
-<div class="brand-sub">把家中服務安全帶上網</div>
-<a class="hub-link" href="index.html">◂ 資源總覽</a>
+<a class="brand" href="tutorial.html">Nginx Proxy Manager 指南</a><div class="brand-sub">把內部服務整理成好記、安全的入口</div><a class="hub-link" href="index.html">返回資源總覽</a>
 <h2>本頁</h2>
-<a class="toc" href="#why">為什麼需要它</a>
-<a class="toc" href="#what">它是什麼</a>
-<a class="toc" href="#abilities">四大核心能力</a>
-<a class="toc" href="#privacy">控制層在你家</a>
-<a class="toc" href="#day">一天的使用</a>
-<a class="toc" href="#compare">兩種方案比一比</a>
-<a class="toc" href="#faq">常見問題</a>
-<a class="toc" href="#cta">下一步</a>
+<a class="toc" href="#why">為什麼需要它</a><a class="toc" href="#value">四項核心價值</a><a class="toc" href="#flow">連線怎麼走</a><a class="toc" href="#haos">HAOS 架設</a><a class="toc" href="#options">代管與 Tunnel</a><a class="toc" href="#security">安全取捨</a><a class="toc" href="#fit">適用情境</a><a class="toc" href="#faq">常見問題</a><a class="toc" href="#next">下一步</a>
 </aside>
 <main class="content">
-<div class="chapter-header">
-<span class="kicker-script">your network, your home</span>
-<div class="kicker">WoowTech 渥屋科技 · 銷售手冊</div>
-<h1>把全家裝置，串成自己的私有網段</h1>
-<p class="lead">Nginx Proxy Manager 自架 VPN 控制層方案：點對點加密連線、ACL 存取控制、跨裝置互連，兩種部署方式任你選，而你的網路控制權，永遠在自己手上。</p>
-</div>
-<div class="kpis">
-<div class="kpi"><b>100%</b><span>控制層在自己家</span></div>
-<div class="kpi"><b>點對點</b><span>裝置間加密直連</span></div>
-<div class="kpi"><b>ACL</b><span>誰能連誰，你說了算</span></div>
-</div>
+<header><span class="kicker-script">one friendly front door</span><div class="kicker">WoowTech · 方案說明</div><h1>讓每個內部服務，都有好記又安全的網址</h1><p class="lead">Nginx Proxy Manager（NPM）把 Nginx 常見的反向代理與憑證設定做成網頁介面。你不必為每個服務背連接埠，也能集中管理網域、HTTPS 與基本存取限制。</p></header>
+<div class="kpis"><div class="kpi"><b>Proxy Host</b><span>友善反向代理</span></div><div class="kpi"><b>自訂網域</b><span>網址取代 IP 與連接埠</span></div><div class="kpi"><b>HTTPS</b><span>集中申請與更新憑證</span></div><div class="kpi"><b>Access List</b><span>加上一層入口限制</span></div></div>
 
-<section id="why" data-nav="why"><h2>為什麼你家需要自己的 VPN 網段</h2>
-<p>家裡的裝置越買越多：NAS、監視器、印表機、Home Assistant、手機、筆電。想在外網安全存取它們，傳統做法要開一堆 port、記一堆 IP，風險又高。</p>
-<p>Tailscale/Nginx Proxy Manager 用「點對點加密網段」解決：裝置直接互連，不用開對外 port、不用記 IP。差別在於，Nginx Proxy Manager 把「誰能連誰」這個控制權，也交回你手上。</p>
-<div class="callout tip"><strong>一句話講給客戶聽：</strong>「一般 VPN 是租別人的閘道；Nginx Proxy Manager 是蓋自己的閘道。連線一樣順，差在鑰匙在誰手上。」</div>
-</section>
+<section id="why" data-nav="why"><h2>為什麼你會需要 NPM</h2><p>Home Assistant、NAS、相簿、影音或內部工具，往往各有一組 IP 與連接埠。直接把服務逐一暴露到網際網路，不只難記，也會增加設定疏漏與攻擊面。</p><p>NPM 讓網路請求先到同一個入口，再依網域名稱轉送到正確服務。例如 <code>home.example.com</code> 指向 Home Assistant，<code>photos.example.com</code> 指向相簿服務。後端位址改變時，你只需更新代理設定。</p><div class="callout tip"><strong>一句話說明：</strong>NPM 像服務入口的接待台；你給訪客一個清楚的網址，它負責把連線安全地帶到正確服務。</div></section>
 
-<section id="what" data-nav="what"><h2>Nginx Proxy Manager 是什麼</h2>
-<p>Nginx Proxy Manager 是 Tailscale 協調伺服器的開源自架版。它管理整張網的「大腦」（誰在網上、誰能連誰、金鑰與 DNS），但實際流量仍走裝置之間的點對點加密通道（WireGuard）。</p>
-<table>
-<tr><th>需求</th><th>Nginx Proxy Manager 對應能力</th></tr>
-<tr><td>跨裝置私有網段</td><td>各裝置 tailscale client 直連，不需開對外 port</td></tr>
-<tr><td>誰能連誰</td><td>ACL 存取控制，最小暴露</td></tr>
-<tr><td>把整段內網帶回家</td><td>subnet router、exit node（路由）</td></tr>
-<tr><td>好記的名稱互連</td><td>MagicDNS 用裝置名稱解析</td></tr>
-<tr><td>自架掌控</td><td>控制層、節點、policy 全在你手上</td></tr>
-</table>
-<p>WoowTech 把它架在 Home Assistant add-on 裡，與你的智慧家庭整合，成為家中數位基礎設施的一環。</p>
-</section>
-<section id="abilities" data-nav="abilities"><h2>四大核心能力</h2>
-<table>
-<tr><th>能力</th><th>客戶看到的價值</th></tr>
-<tr><td><strong>點對點加密</strong></td><td>裝置直接互連，流量不經第三方，也不用開對外 port</td></tr>
-<tr><td><strong>ACL 存取控制</strong></td><td>精準控制誰能連誰，最小暴露，不怕誤開</td></tr>
-<tr><td><strong>跨裝置互連</strong></td><td>手機、筆電、NAS、HA 通通進同一個私有網段</td></tr>
-<tr><td><strong>自架掌控</strong></td><td>控制層、節點清單、policy 全在自己家，不交第三方</td></tr>
-</table>
-</section>
+<section id="value" data-nav="value"><h2>四項核心價值</h2><table><tr><th>能力</th><th>你得到的價值</th><th>界線</th></tr><tr><td><strong>友善反向代理</strong></td><td>用表單建立 Proxy Host，集中查看轉送目標與常用選項。</td><td>進階標頭、WebSocket 或特殊協定仍需理解後端需求並測試。</td></tr><tr><td><strong>自訂網域</strong></td><td>以容易記憶的網域取代 IP 與連接埠，後端搬遷不影響使用者網址。</td><td>NPM 不是 DNS 代管服務；你仍要在 DNS 供應商建立紀錄。</td></tr><tr><td><strong>HTTPS 憑證</strong></td><td>可透過 Let's Encrypt 申請憑證，也可匯入自有憑證，並指派給主機。</td><td>自動簽發需要正確 DNS、公開驗證路徑或支援的 DNS Challenge 設定。</td></tr><tr><td><strong>存取控制</strong></td><td>Access List 可依來源位址規則或 HTTP 基本驗證限制入口。</td><td>它不是完整身分治理或單一登入平台；高敏感服務應使用應用程式本身的 MFA 與權限。</td></tr></table></section>
 
-<section id="privacy" data-nav="privacy"><h2>控制層在你家，網路你說了算</h2>
-<ul>
-<li>節點清單、ACL、金鑰都存在你自己的伺服器，不經官方協調伺服器。</li>
-<li>preauth key 由你簽發、隨時撤銷，誰能加入網段你全控。</li>
-<li>不必為了多裝置付月費，容量看你的硬體與需求。</li>
-</ul>
-<div class="callout warn"><strong>誠實提醒：</strong>自架的好處是掌控，代價是維護。WoowTech 幫你顧好部署、更新、備份與安全，讓你只享受掌控感，不揹維護壓力。</div>
-</section>
+<section id="flow" data-nav="flow"><h2>一條連線怎麼走</h2><ol class="steps"><li><h3>DNS 找到入口</h3><p>你在 DNS 供應商把服務網域指向家中固定 IP、代管主機，或依 Tunnel 架構交給 Cloudflare。</p></li><li><h3>TLS 建立 HTTPS</h3><p>瀏覽器檢查網域憑證；NPM 終止 TLS 時，會使用你為該 Proxy Host 指派的憑證。</p></li><li><h3>NPM 判斷主機名稱</h3><p>NPM 依網域套用 Proxy Host、Access List 與相關設定，再轉送到後端服務。</p></li><li><h3>後端仍要自我防護</h3><p>應用程式繼續負責帳號、MFA、授權、修補與資料保護，不能只依賴代理入口。</p></li></ol></section>
 
-<section id="day" data-nav="day"><h2>有了它的一天</h2>
-<div class="steps">
-<div><h3>人在外面</h3><p>手機連回家裡的 Home Assistant、NAS，像在內網一樣順，不用開一堆 port。</p></div>
-<div><h3>家人共享</h3><p>家人裝置各自加入網段，ACL 只放行該互連的，各自安全。</p></div>
-<div><h3>把內網帶回家</h3><p>出差時透過 exit node 用家裡的 IP，或經 subnet router 存取整段內網。</p></div>
-</div>
-</section>
-<section id="compare" data-nav="compare"><h2>兩種部署方案</h2>
-<table>
-<tr><th></th><th>HAOS 內建 + 代設定</th><th>雲端 PaaS 租用</th></tr>
-<tr><td><strong>適合</strong></td><td>已有 Home Assistant 主機的家庭</td><td>不想維護硬體、要外網隨時可用</td></tr>
-<tr><td><strong>硬體</strong></td><td>用你現有的 HA 主機</td><td>WoowTech 雲端主機</td></tr>
-<tr><td><strong>設定</strong></td><td>WoowTech 代設定（控制層、ACL、備份）</td><td>WoowTech 代管</td></tr>
-<tr><td><strong>維護</strong></td><td>自己顧硬體，WoowTech 協助</td><td>WoowTech 全權代管</td></tr>
-</table>
-<div class="callout"><strong>費用：</strong>建置費一次 ＋ 依方案不同（節點數或月租），詳洽經銷商。</div>
-</section>
+<section id="haos" data-nav="haos"><h2>HAOS 上的架設方式</h2><p>如果你已使用 Home Assistant OS（HAOS），可評估社群維護的 Nginx Proxy Manager add-on。一般流程是先備份 HAOS，加入可信的 add-on 來源，安裝後設定持久儲存與連接埠，再登入 NPM 建立 Proxy Host。</p><div class="callout warn"><strong>先確認再安裝：</strong>社群 add-on 並非 NPM 或 Home Assistant Core 的官方元件。來源、維護狀態、支援架構與設定鍵可能改變，請以你選用版本的說明文件為準。</div><ul><li>對外直連通常需要路由器把 TCP 80/443 導向 NPM，並確認電信商未使用 CGNAT。</li><li>若只在區域網路使用，可搭配內部 DNS，不必把服務公開到網際網路。</li><li>同一台 HA 主機同時承擔自動化與代理服務，管理方便，但也形成共同故障點；更新前要有可還原備份。</li></ul></section>
 
-<section id="faq" data-nav="faq"><h2>常見問題</h2>
-<div class="callout"><strong>連線會被第三方看到嗎？</strong><br>不會。控制層在你家，資料流量走裝置間點對點加密；連不通時才走 DERP 中繼。</div>
-<div class="callout"><strong>跟一般 VPN 比差在哪？</strong><br>一般 VPN 多是集中式閘道；Nginx Proxy Manager 是網狀點對點，裝置直接互連，更適合多裝置私有網段。</div>
-<div class="callout"><strong>需要會架伺服器嗎？</strong><br>不用。使用端只要裝 tailscale client、會用 App；部署與維護由 WoowTech 負責。</div>
-<div class="callout"><strong>安全嗎？</strong><br>點對點加密 + ACL 最小暴露 + 自架掌控。守住 preauth key 與 ACL，安全性由你主導。</div>
-<div class="callout"><strong>裝置數量有限制嗎？</strong><br>看你方案。自架看硬體，可依需求擴充。</div>
-</section>
+<section id="options" data-nav="options"><h2>自架、代管與 Cloudflare Tunnel</h2><table><tr><th>方案</th><th>適合你在意的事</th><th>主要代價</th></tr><tr><td><strong>HAOS 自架 NPM</strong></td><td>現有主機就近管理，區網後端不必搬家，資料路徑由你規劃。</td><td>你要處理路由器、防火牆、更新、備份、電力與固定 IP 或動態 DNS。</td></tr><tr><td><strong>受管／雲端 NPM</strong></td><td>需要較穩定的公開入口，希望由服務商維護主機與監控。</td><td>有持續費用；雲端 NPM 到家中後端仍需安全通道，並要釐清資料、金鑰、備份與退出機制。</td></tr><tr><td><strong>Cloudflare Tunnel 搭配 NPM</strong></td><td>無法或不想開 inbound 80/443，希望由 outbound tunnel 發布服務。</td><td>流量與 TLS 架構會依賴 Cloudflare；需避免 Tunnel 規則繞過原本預期的 NPM Access List。</td></tr></table><p>Cloudflare Tunnel 可以把公開主機名稱直接送到後端，也可以送到 NPM；兩種拓撲的 TLS 終止點、真實來源 IP、Access List 行為與日誌位置不同。採用前先畫出資料流並做存取測試，不要假設把兩套工具接起來就會自動更安全。</p></section>
 
-<section id="cta" data-nav="cta"><div class="cta"><h2>下一步</h2>
-<p>想親眼看看自架 VPN 控制層長什麼樣、評估你家適合哪種方案，歡迎聯絡 WoowTech 或您的經銷商，我們安排實機展示與方案建議。</p>
-<a class="btn" href="#">聯絡 WoowTech 或您的經銷商</a>
-</div></section>
+<section id="security" data-nav="security"><h2>誠實看待安全取捨</h2><div class="callout warn"><strong>反向代理不是安全保證。</strong>它可減少直接暴露後端連接埠並集中 TLS，但 NPM 本身也成為高價值入口。管理介面不應直接公開，且必須定期更新。</div><ul><li><strong>帳號：</strong>初次登入立即更換預設憑證，為管理者使用唯一長密碼；NPM 版本若支援更強驗證，依官方文件啟用。</li><li><strong>最小暴露：</strong>不需公開的服務留在區網或 VPN；只發布必要網域與連接埠。</li><li><strong>雙層授權：</strong>Access List 適合入口篩選，但應用程式本身仍要啟用 MFA、角色權限與登入稽核。</li><li><strong>來源 IP：</strong>使用 CDN、Tunnel 或上游代理時，只有在可信代理鏈正確設定後才能採信轉送標頭。</li><li><strong>備份：</strong>備份設定、資料庫與憑證私鑰，應加密、限制讀取並實際演練還原。</li><li><strong>可用性：</strong>單一 NPM 故障會影響所有入口；重要情境需準備監控、復原時間與替代連線方式。</li></ul></section>
 
-<footer>《Nginx Proxy Manager 自架 VPN 控制層指南》由 <a href="https://github.com/WOOWTECH/Woow_nginx_proxy_manager_tutorial_site" rel="noopener">WoowTech</a> 製作，以 CC BY 4.0 授權釋出。Nginx Proxy Manager 與 Tailscale 為其各自權利人的商標，本站與其無隸屬關係。</footer>
+<section id="fit" data-nav="fit"><h2>先用需求選方案</h2><table><tr><th>你的情境</th><th>建議起點</th></tr><tr><td>只想在家中用好記網址</td><td>HAOS 或其他主機自架 NPM，加上內部 DNS，不對外開放。</td></tr><tr><td>有固定公開 IP，也願意維運</td><td>自架 NPM；只轉送 80/443，強化管理入口與後端帳號。</td></tr><tr><td>位於 CGNAT 或不想開入站連接埠</td><td>評估 Cloudflare Tunnel，先釐清信任邊界、TLS 與來源 IP。</td></tr><tr><td>需要服務等級、監控與代維護</td><td>比較受管方案的 SLA、備份、事件回應、資料位置與退出程序。</td></tr></table></section>
+
+<section id="faq" data-nav="faq"><h2>常見問題</h2><div class="callout"><strong>NPM 會幫我管理 DNS 嗎？</strong><br />不會。你仍要在 Cloudflare 或其他 DNS 供應商建立 A、AAAA、CNAME 等紀錄；NPM 負責收到請求後的代理與憑證設定。</div><div class="callout"><strong>有 HTTPS 就能放心公開服務嗎？</strong><br />不夠。HTTPS 保護傳輸，不能修補弱密碼、過期軟體或錯誤授權。公開前仍要做更新、MFA、最小權限與備份。</div><div class="callout"><strong>Cloudflare Tunnel 一定比開連接埠安全嗎？</strong><br />它能移除直接入站連接埠，但同時增加第三方依賴與設定層。安全性取決於 Tunnel 路由、Cloudflare Access、NPM 與後端是否一致實施最小權限。</div><div class="callout"><strong>NPM 適合企業單一登入嗎？</strong><br />NPM 的 Access List 不是完整的企業身分平台。需要 SSO、條件式存取或完整稽核時，應另行評估專用身分代理。</div></section>
+
+<section id="next" data-nav="next"><div class="cta"><h2>從一個低風險服務開始</h2><p>先盤點網域、DNS、後端位址與公開需求，再用測試網域完成第一個 Proxy Host。確認 HTTPS、登入、來源 IP、備份與還原都符合預期後，才逐步移轉其他服務。</p><a class="btn" href="tutorial.html">閱讀 12 章入住教學</a></div></section>
+<footer>《Nginx Proxy Manager 指南》由 <a href="https://github.com/WOOWTECH/Woow_nginx_proxy_manager_tutorial_site" rel="noopener">WoowTech</a> 製作，以 CC BY 4.0 授權釋出。Nginx Proxy Manager 為其權利人的商標；本站與專案官方無隸屬關係。</footer>
 </main>
 </div>
 </body>
