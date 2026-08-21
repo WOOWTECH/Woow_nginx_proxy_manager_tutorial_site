@@ -7,7 +7,7 @@
 - 安全：preauth key、API key、節點 ID、IP、ACL policy、DERP 設定與完整 log 都視為敏感資料，寫入前必須遮罩或改寫。
 - 變更：ACL、路由、namespaces、policy 會影響整個網段；必須明確說明影響範圍，且不引導讀者刪除、停用或重設沒有把握的項目。
 - 截圖：Browserless 只做唯讀瀏覽，不建立／刪除 user、不產生金鑰、不變更 policy 或節點。圖片須先人工檢查與遮罩。
-- 事實來源：優先使用 Nginx Proxy Manager 官方文件（headscale.net）與官方 GitHub，其次才是實測結果；介面改版時以最新官方文件為準。
+- 事實來源：優先使用 Nginx Proxy Manager 官方文件（nginxproxymanager.com）與官方 GitHub，其次才是實測結果；介面改版時以最新官方文件為準。
 
 修改後執行：
 

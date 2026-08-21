@@ -220,7 +220,7 @@ ${nextHtml}
 function buildFooter() {
   return `<footer class="site-footer">
       <p>《${esc(site.title)}》由 <a href="${site.repoUrl}" rel="noopener">${esc(site.license.holder)}</a> 製作，以 <a rel="license noopener" href="${site.license.url}">${esc(site.license.name)}</a> 授權釋出 — 可自由分享與改作，請保留出處。</p>
-      <p class="footer-meta">截圖取自 Headscale 與 Tailscale 官方介面。Headscale 與 Tailscale 為其各自權利人的商標，本站與其無隸屬關係。 · <a href="${site.repoUrl}" rel="noopener">原始碼與勘誤</a></p>
+      <p class="footer-meta">畫面與流程依 Nginx Proxy Manager 官方介面整理。Nginx Proxy Manager 為其權利人的商標，本站與其無隸屬關係。 · <a href="${site.repoUrl}" rel="noopener">原始碼與勘誤</a></p>
     </footer>`;
 }
 
