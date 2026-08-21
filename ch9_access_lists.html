@@ -1,0 +1,173 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head></head>
+<body>
+<div class="layout">
+  <aside class="sidebar"></aside>
+
+  <main class="content">
+    <div class="chapter-header">
+      <div class="kicker">第 9 章</div>
+      <h1>Access Lists 與存取限制</h1>
+      <p class="lead">用 HTTP Basic Auth 與 Nginx IP allow／deny 規則替 Proxy Host 加一道門，並理解 NAT、Cloudflare Tunnel、動態 IP 與 Satisfy Any 帶來的限制。</p>
+    </div>
+
+    <section id="goal" data-nav="本章目標">
+      <h2 data-icon="why">Access List 是額外門禁，不是萬靈丹</h2>
+      <p>NPM Access List 可以替一個或多個 Proxy Host 加上 HTTP Basic Authentication，也可以依 Nginx 看見的用戶端 IP 套用 allow／deny。它很適合保護本身沒有登入功能的小工具，但不能取代應用程式更新、多因素驗證或完整的身分管理。</p>
+      <div class="callout"><strong>本章完成條件：</strong>你能建立一份 Access List、套用到測試 Proxy Host，分別驗證未授權、已授權與不同來源網路的結果。</div>
+      <div class="callout danger"><strong>管理安全基線：</strong>先立即更改 <code>admin@example.com</code>／<code>changeme</code>。port 81 只允許可信任管理來源，不可公開到 Internet，也不應拿 Access List 包住後就當作可以公開。</div>
+    </section>
+
+    <section id="model" data-nav="兩種控制方式">
+      <h2 data-icon="concept">Basic Auth 與 IP 規則的差別</h2>
+      <table class="data-table">
+        <thead><tr><th>方式</th><th>判斷依據</th><th>適合</th><th>主要限制</th></tr></thead>
+        <tbody>
+          <tr><td>Basic Auth</td><td>瀏覽器送出的使用者名稱與密碼</td><td>沒有登入功能的簡單 Web 服務</td><td>不是 MFA；部分 App、API 或 WebSocket 用戶端不支援；必須搭配 HTTPS</td></tr>
+          <tr><td>IP allowlist</td><td>Nginx 實際看到的來源位址</td><td>固定管理網段、VPN 出口或單一固定 IP</td><td>住家／行動 IP 會變；NAT 共用身分；經反向代理後可能只看到代理 IP</td></tr>
+          <tr><td>IP denylist</td><td>依序封鎖特定位址，再允許其餘來源</td><td>暫時阻擋已知來源</td><td>攻擊者可換 IP；不是應用層防護或 WAF</td></tr>
+          <tr><td>兩者同時</td><td><code>satisfy all</code> 或 <code>satisfy any</code></td><td>要求雙條件，或讓可信任 IP 略過密碼</td><td>Satisfy Any 常被誤認為更嚴格，實際上是任一條件通過即可</td></tr>
+        </tbody>
+      </table>
+      <div class="callout warn"><strong>先確認 HTTPS：</strong>HTTP Basic Auth 的 Authorization 內容不是端對端加密機制；只有在傳輸層使用 HTTPS 時才可避免憑證在公網被直接攔讀。</div>
+    </section>
+
+    <section id="plan" data-nav="先規劃規則">
+      <h2 data-icon="plan">寫下誰、從哪裡、能進哪個服務</h2>
+      <ol class="steps">
+        <li><h3>只挑一個測試 Proxy Host</h3><p>先對非關鍵服務測試，不要一次把 Access List 套到所有主機，也不要先動 NPM 管理 port 81。</p></li>
+        <li><h3>決定驗證邏輯</h3><p>只要密碼、只要來源 IP、兩者都要，或任一即可，四種邏輯完全不同。預設採最小權限；不確定時不要開 Satisfy Any。</p></li>
+        <li><h3>蒐集實際來源位址</h3><p>從你控制的網路與已遮罩 log 確認 NPM 真正看見的來源。不要直接把網路搜尋到的 Cloudflare IP 清單當作訪客 allowlist。</p></li>
+        <li><h3>準備回復方式</h3><p>保留可信任內網到 NPM port 81 的管理路徑，記錄原本 Proxy Host 使用的 Access List。規則錯誤時只回復該主機，不要刪除不確定用途的清單。</p></li>
+      </ol>
+    </section>
+
+    <section id="basic-auth" data-nav="建立 Basic Auth">
+      <h2 data-icon="persons">建立 Basic Auth 清單</h2>
+      <ol class="steps">
+        <li><h3>新增 Access List</h3><p>到 <strong>Access Lists → Add Access List</strong>，輸入能辨識用途但不含真實網域、使用者姓名或內部 IP 的名稱。</p></li>
+        <li><h3>保持 Satisfy Any 關閉</h3><p>若你要每位訪客都輸入密碼，先保持 <strong>Satisfy Any</strong> 關閉。開啟後，只要 IP 規則或密碼任一通過就能進入。</p></li>
+        <li><h3>新增 Authorization 帳密</h3><p>在 <strong>Authorization</strong> 分頁建立專用、唯一且足夠長的密碼。不要重用 NPM 管理員密碼或上游服務密碼，也不要把帳密放進網域名稱、註解或截圖。</p></li>
+        <li><h3>處理 Woow 版本的最終 deny</h3><p>Woow add-on README 目前標示內含 NPM 2.12.4；該版上游 Access 範本最後會加入 <code>deny all</code>。若清單只靠 Basic Auth，請在 <strong>Access</strong> 分頁先加入 <code>allow all</code>，讓 IP 條件允許所有來源，再由關閉 Satisfy Any 的 Basic Auth 要求密碼。介面升級後仍須以測試結果為準。</p></li>
+        <li><h3>保持 Pass Auth to Host 關閉</h3><p>除非上游應用明確需要收到同一個 Authorization header，否則不要把 NPM 收到的 Basic 憑證傳給上游，以免衝突或擴大密碼暴露範圍。</p></li>
+      </ol>
+      <div class="callout danger"><strong>密碼視為機密：</strong>NPM 管理密碼、Access List 密碼與上游密碼都不可互相重用，也不可出現在公開 log、瀏覽器錄影或工單。</div>
+    </section>
+
+    <section id="ip-rules" data-nav="建立 IP 規則">
+      <h2 data-icon="network">建立 allow／deny 規則</h2>
+      <p>Nginx 官方說明規則依畫面順序檢查，遇到第一個符合項目就停止。NPM 2.12.4 範本最後另有 <code>deny all</code>，因此順序會直接改變結果。</p>
+      <ol class="steps">
+        <li><h3>白名單：先 allow 可信任 CIDR</h3><p>每個固定來源建立一筆 <code>allow</code>，使用最小 CIDR；單一 IPv4 用 <code>/32</code>，單一 IPv6 用 <code>/128</code>。不要把真實 IP 貼到公開文件。</p></li>
+        <li><h3>同時考慮 IPv4 與 IPv6</h3><p>你的裝置可能在不同網路走不同協定。只有 IPv4 allowlist 不代表 IPv6 行為符合預期，必須分別從兩種連線測試。</p></li>
+        <li><h3>黑名單：deny 要放在 allow all 前</h3><p>若需求是「封鎖少數來源，其餘允許」，順序應是特定 <code>deny</code> 在前、<code>allow all</code> 在後；因為第一個符合規則就決定結果。</p></li>
+        <li><h3>不要用超大網段求方便</h3><p><code>allow all</code> 只適合讓 Basic Auth 成為真正門檻，或放在特定 deny 之後形成黑名單。它本身沒有 IP 保護效果。</p></li>
+      </ol>
+      <table class="data-table">
+        <thead><tr><th>需求</th><th>規則順序</th><th>Satisfy Any</th></tr></thead>
+        <tbody>
+          <tr><td>只有固定 IP 可進，不用密碼</td><td><code>allow &lt;可信任 CIDR&gt;</code>，其餘由最終 deny all 擋下</td><td>關閉；不建立 Authorization 使用者</td></tr>
+          <tr><td>所有來源都要密碼</td><td><code>allow all</code>，搭配 Authorization</td><td>關閉，要求 IP 條件與密碼都通過</td></tr>
+          <tr><td>固定 IP 且還要密碼</td><td><code>allow &lt;可信任 CIDR&gt;</code>，搭配 Authorization</td><td>關閉，兩項都要通過</td></tr>
+          <tr><td>固定 IP 可略過密碼，其他人要密碼</td><td>可信任 CIDR 搭配 Authorization</td><td>開啟；這是刻意的繞過，不是更嚴格</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section id="attach" data-nav="套用與測試">
+      <h2 data-icon="test">套用到 Proxy Host 並驗證</h2>
+      <ol class="steps">
+        <li><h3>只套用到測試主機</h3><p>編輯 <strong>Hosts → Proxy Hosts</strong> 的測試項目，在 Access List 選擇剛建立的清單後儲存。</p></li>
+        <li><h3>測試未授權狀態</h3><p>使用無痕視窗或沒有快取帳密的用戶端存取。Basic Auth 應顯示登入提示；IP 不符時應收到拒絕，而不是上游應用頁面。</p></li>
+        <li><h3>測試正確與錯誤密碼</h3><p>確認錯誤密碼無法通過、正確密碼可通過。完成後關閉測試視窗，避免共用電腦保留 Authorization 狀態。</p></li>
+        <li><h3>從允許與拒絕網路各測一次</h3><p>例如可信任 VPN 與行動網路各測試；同時記錄 NPM 真正看到的來源類型，不公開實際 IP 或完整 access log。</p></li>
+        <li><h3>再逐一套用</h3><p>只有測試矩陣全部符合預期，才一次一個 Proxy Host 套用。每次都保留回復路徑，避免批次鎖住所有服務。</p></li>
+      </ol>
+      <div class="callout warn"><strong>不要隨意刪除正在使用的 Access List：</strong>NPM 2.12.4 介面明確警告，刪除後關聯 Proxy Hosts 會變成公開。請先盤點關聯、改套正確清單並逐一驗證。</div>
+    </section>
+
+    <section id="satisfy" data-nav="Satisfy Any">
+      <h2 data-icon="compare">Satisfy Any 到底放寬了什麼</h2>
+      <table class="data-table">
+        <thead><tr><th>設定</th><th>Nginx 邏輯</th><th>結果示例</th></tr></thead>
+        <tbody>
+          <tr><td>Satisfy Any 關閉</td><td><code>satisfy all</code></td><td>有 IP 規則也有 Basic Auth 時，來源 IP 與密碼兩者都必須通過</td></tr>
+          <tr><td>Satisfy Any 開啟</td><td><code>satisfy any</code></td><td>來源 IP 通過就不必輸入密碼；或 IP 不通過但密碼正確仍可進入</td></tr>
+        </tbody>
+      </table>
+      <div class="callout danger"><strong>常見誤解：</strong>勾選 Satisfy Any 不是「多加一種驗證」，而是把 AND 改成 OR。只有你明確需要可信任網段略過密碼時才使用，並記錄影響範圍。</div>
+    </section>
+
+    <section id="proxy-limits" data-nav="代理與 Tunnel 限制">
+      <h2 data-icon="warning">NPM 看到的 IP 未必是訪客 IP</h2>
+      <p>Nginx 的 access module 依連線來源位址判斷，不會自動把任意 HTTP header 當成可信任 IP。當前面還有 Cloudflare Tunnel、其他 reverse proxy、容器網路或 NAT 時，NPM 可能只看到 connector、代理或閘道的位址。</p>
+      <ul>
+        <li><strong>Cloudflare Tunnel：</strong>訪客資訊可出現在 Cloudflare header，但 NPM Access List 預設判斷的仍可能是 cloudflared 連線來源。不要未經驗證就拿訪客公網 IP 做 allowlist。</li>
+        <li><strong>NAT：</strong>同一出口後的多人看起來可能是同一個 IP；允許它等於允許整個出口，而不是一位使用者。</li>
+        <li><strong>動態 IP：</strong>住家與行動網路會變更，規則可能突然把你鎖在外面，或日後把舊 IP 允許給別人。</li>
+        <li><strong>偽造 header：</strong>不要只新增自訂設定就信任 <code>CF-Connecting-IP</code> 或 <code>X-Forwarded-For</code>。必須同時限制可信任代理來源，否則客戶端可能自行偽造。</li>
+      </ul>
+      <div class="callout tip"><strong>Tunnel 建議：</strong>若要依真實使用者身分控管，優先在 Cloudflare Access 建立身分政策，或使用上游應用自己的登入與 MFA。IP allowlist 只在你已確認 NPM 實際來源語意時使用。</div>
+      <div class="callout warn"><strong>Basic Auth 的內網段：</strong>第 8 章若讓 cloudflared 以 HTTP 連 NPM，Authorization header 會出現在這段未加密的內網流量。connector 與 NPM 應位於同一可信任／隔離環境；跨不可信網路時改用可驗證的 HTTPS 回源或 Cloudflare Access。</div>
+    </section>
+
+    <section id="limitations" data-nav="使用邊界">
+      <h2 data-icon="security">哪些情況不要只靠 Access List</h2>
+      <ul>
+        <li><strong>重要帳務或管理系統：</strong>Basic Auth 沒有原生 MFA、裝置信任與細緻工作階段管理，應保留應用自己的身分驗證。</li>
+        <li><strong>公開 API 與行動 App：</strong>用戶端可能無法處理瀏覽器式 Basic Auth 提示，或 Authorization header 已被 API token 使用。</li>
+        <li><strong>密碼防暴力破解：</strong>Access List 本身不是完整的速率限制、鎖定、異常偵測或 WAF。</li>
+        <li><strong>依人員稽核：</strong>共用 IP 無法證明是哪一位使用者；共用 Basic 帳密也無法提供可靠的個人歸屬。</li>
+        <li><strong>NPM 管理介面：</strong>port 81 應留在可信任管理網路，而不是先公開再期待 Access List 補救。</li>
+      </ul>
+    </section>
+
+    <section id="troubleshooting" data-nav="Access List 排錯">
+      <h2 data-icon="troubleshoot">常見問題與處理</h2>
+      <table class="data-table">
+        <thead><tr><th>具體問題</th><th>可能原因</th><th>處理方式</th></tr></thead>
+        <tbody>
+          <tr><td>建立 Basic Auth 後所有密碼都被 403 擋下</td><td>NPM 2.12.4 最終 <code>deny all</code>，卻沒有 IP allow 規則</td><td>加入 <code>allow all</code> 並保持 Satisfy Any 關閉，再重新測試密碼</td></tr>
+          <tr><td>可信任 IP 仍被拒絕</td><td>CIDR 寫錯、IPv4／IPv6 不同，或 NPM 實際看到代理 IP</td><td>用已遮罩 log 確認來源與協定；不要盲目放大網段</td></tr>
+          <tr><td>被 deny 的 IP 仍能進入</td><td><code>allow all</code> 排在 deny 前，第一個符合規則先勝出</td><td>把特定 deny 移到 allow all 前，再從該來源重測</td></tr>
+          <tr><td>開啟 Satisfy Any 後不再詢問密碼</td><td>來源 IP 已通過，所以 OR 邏輯不需要 Basic Auth</td><td>若需求是雙條件，關閉 Satisfy Any</td></tr>
+          <tr><td>上游應用登入失敗或收到錯誤帳密</td><td>Pass Auth to Host 傳遞或清除 Authorization，與上游驗證衝突</td><td>通常保持關閉；若上游需要 Authorization，先在測試主機釐清 header 分工</td></tr>
+          <tr><td>套用清單後 App／WebSocket 不工作</td><td>用戶端不支援 Basic Auth、未持續送 header，或上游使用同一 header</td><td>改用應用原生登入或 Cloudflare Access；不要為了相容直接公開服務</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section id="faq" data-nav="FAQ">
+      <h2 data-icon="faq">Access List 常見問題</h2>
+      <details class="faq"><summary>Basic Auth 可以取代應用程式登入嗎？</summary><div class="body">只適合低複雜度的額外門禁。重要服務應保留應用自己的帳號、MFA、權限與稽核功能。</div></details>
+      <details class="faq"><summary>Satisfy Any 會讓安全性更高嗎？</summary><div class="body">不會。它把條件從「全部通過」改成「任一通過」，通常是放寬，讓可信任 IP 或正確密碼其中一項即可進入。</div></details>
+      <details class="faq"><summary>可以用 Cloudflare 的 IP 範圍當訪客白名單嗎？</summary><div class="body">那只代表請求經過 Cloudflare，不代表特定訪客。Tunnel 或代理後應先確認 NPM 實際判斷哪個位址；依人員控管時優先用 Cloudflare Access 或應用登入。</div></details>
+      <details class="faq"><summary>住家動態 IP 適合 allowlist 嗎？</summary><div class="body">風險較高。IP 改變會把你鎖在外面，舊 IP 也可能重新分配。較適合固定 VPN 出口或穩定的管理網段。</div></details>
+      <details class="faq"><summary>刪除 Access List 會讓 Proxy Host 一起消失嗎？</summary><div class="body">不會；NPM 2.12.4 介面警告關聯主機會變成公開。不要直接刪除，應先逐一改套其他清單並驗證。</div></details>
+    </section>
+
+    <section id="sources" data-nav="官方來源">
+      <h2 data-icon="records">官方來源</h2>
+      <table class="data-table">
+        <thead><tr><th>來源</th><th>本章查證重點</th></tr></thead>
+        <tbody>
+          <tr><td><a href="https://github.com/WOOWTECH/Woow_ha_nginxpm/blob/main/nginxpm/README.md" rel="noopener">Woow Nginx Proxy Manager README</a></td><td>Basic Auth、IP 白名單／黑名單與內含 NPM 版本</td></tr>
+          <tr><td><a href="https://github.com/WOOWTECH/Woow_ha_nginxpm/blob/main/nginxpm/config.yaml" rel="noopener">Woow add-on config.yaml</a></td><td>管理介面 port 81 與服務連接埠</td></tr>
+          <tr><td><a href="https://github.com/NginxProxyManager/nginx-proxy-manager/blob/develop/frontend/src/locale/src/HelpDoc/en/AccessLists.md" rel="noopener">NPM Access Lists Help</a></td><td>單一清單可設定多個 IP 規則、帳密並套到 Proxy Hosts</td></tr>
+          <tr><td><a href="https://github.com/NginxProxyManager/nginx-proxy-manager/blob/v2.12.4/backend/templates/_access.conf" rel="noopener">NPM 2.12.4 Access 範本</a></td><td>Woow 現行基底的 auth、規則順序、最終 deny all 與 satisfy</td></tr>
+          <tr><td><a href="https://github.com/NginxProxyManager/nginx-proxy-manager/blob/develop/backend/templates/_access.conf" rel="noopener">NPM develop Access 範本</a></td><td>目前上游程式行為與版本差異</td></tr>
+          <tr><td><a href="https://nginx.org/en/docs/http/ngx_http_access_module.html" rel="noopener">Nginx Access Module</a></td><td>allow／deny 依序檢查並採第一個符合規則</td></tr>
+          <tr><td><a href="https://nginx.org/en/docs/http/ngx_http_auth_basic_module.html" rel="noopener">Nginx Basic Auth Module</a></td><td>使用者名稱、密碼驗證與 auth_basic_user_file</td></tr>
+          <tr><td><a href="https://nginx.org/en/docs/http/ngx_http_core_module.html#satisfy" rel="noopener">Nginx satisfy 指令</a></td><td>all／any 如何組合位址與密碼限制</td></tr>
+          <tr><td><a href="https://developers.cloudflare.com/fundamentals/reference/http-request-headers/#cf-connecting-ip" rel="noopener">Cloudflare CF-Connecting-IP</a></td><td>代理後訪客 IP header 的語意與信任邊界</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <div class="pager"></div>
+  </main>
+</div>
+<script src="assets/js/toc.js"></script>
+</body>
+</html>

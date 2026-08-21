@@ -1,0 +1,170 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head></head>
+<body>
+<div class="layout">
+  <aside class="sidebar"></aside>
+
+  <main class="content">
+    <div class="chapter-header">
+      <div class="kicker">第 8 章</div>
+      <h1>Cloudflare Tunnel 搭配 NPM</h1>
+      <p class="lead">讓 cloudflared 主動連到 Cloudflare，外部 HTTPS 停在 Cloudflare 邊緣，NPM 留在內網負責依網域轉送，不必在路由器開放 80、443 或 81。</p>
+    </div>
+
+    <section id="goal" data-nav="為什麼推薦 Tunnel">
+      <h2 data-icon="why">不用把家中入口直接放上公網</h2>
+      <p>Cloudflare Tunnel 由內部的 <code>cloudflared</code> 建立 outbound-only 連線，Cloudflare 官方說明不需要 publicly routable IP。這很適合沒有固定公開 IP、位於 CGNAT，或不想維護路由器入站轉送的家庭環境。</p>
+      <div class="callout"><strong>推薦分工：</strong>Cloudflare 接受公網 HTTPS，Tunnel 把請求送到內網 NPM 的 HTTP 入口，NPM 再依 Host 名稱轉送至 Home Assistant、NAS 或其他內部服務。</div>
+      <div class="callout danger"><strong>管理安全基線：</strong>預設 <code>admin@example.com</code>／<code>changeme</code> 必須立即更改。Cloudflare Tunnel 只能發布業務服務，不可發布 NPM port 81；port 81 也不可做路由器轉送。</div>
+    </section>
+
+    <section id="topology" data-nav="推薦拓樸">
+      <h2 data-icon="network">看懂每一段流量</h2>
+      <pre class="code-block"><code>訪客瀏覽器
+  │ HTTPS（Cloudflare 邊緣憑證）
+  ▼
+Cloudflare 邊緣
+  │ Cloudflare Tunnel
+  ▼
+cloudflared
+  │ HTTP，僅在受信任／隔離內網送到 NPM port 80
+  ▼
+NPM Proxy Host
+  │ 依內部服務實際支援的 HTTP 或 HTTPS
+  ▼
+內部服務</code></pre>
+      <table class="data-table">
+        <thead><tr><th>元件</th><th>責任</th><th>不該做的事</th></tr></thead>
+        <tbody>
+          <tr><td>Cloudflare</td><td>公開 DNS、外部 TLS、Tunnel 入口與選用的安全規則</td><td>不可把 NPM 管理介面當公開應用</td></tr>
+          <tr><td>cloudflared</td><td>主動建立 Tunnel，將公開 hostname 送往 NPM</td><td>不可把 tunnel token 放入 Git、截圖或公開 log</td></tr>
+          <tr><td>NPM</td><td>依 hostname 選擇 Proxy Host，再轉送內部服務</td><td>port 81 不可公開；Tunnel HTTP 回源時不要重複 Force SSL</td></tr>
+          <tr><td>路由器</td><td>允許必要的對外連線</td><td>此拓樸不需要公網入站 80／443／81</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section id="prepare" data-nav="建置前準備">
+      <h2 data-icon="plan">建置前的清單</h2>
+      <ol class="steps">
+        <li><h3>確認 Cloudflare 管理該網域</h3><p>你需要能在自己的 Cloudflare 帳號建立 Tunnel 與公開 hostname。網域、帳號 ID、zone ID 都視為敏感資訊。</p></li>
+        <li><h3>準備可長期執行的 connector</h3><p>在與 NPM 網路互通的可信任設備執行 <code>cloudflared</code>。本章不限定特定第三方 add-on；請使用 Cloudflare 官方支援的安裝方式或你已審核的套件。</p></li>
+        <li><h3>確認內網路徑</h3><p>connector 必須能存取 NPM port 80，NPM 必須能存取上游服務。這兩段只需內網可達，不代表要開放給所有 LAN 裝置。</p></li>
+        <li><h3>盤點既有轉送</h3><p>若原本已使用公網 80／443，先記錄依賴與回復方式。確認所有 hostname 已遷移並測試完成後，才依你的變更流程停用舊規則；不要在不確定影響時直接刪除。</p></li>
+      </ol>
+    </section>
+
+    <section id="npm-host" data-nav="先建立 Proxy Host">
+      <h2 data-icon="steps">先讓 NPM 會依網域路由</h2>
+      <ol class="steps">
+        <li><h3>新增 Proxy Host</h3><p>在 NPM 選擇 <strong>Hosts → Proxy Hosts → Add Proxy Host</strong>，Domain Names 填入稍後要在 Tunnel 發布的完整 hostname。真實網域不要出現在教學截圖或公開工單。</p></li>
+        <li><h3>設定內部上游</h3><p>Forward Hostname／IP 與 Forward Port 填入服務的私有位址及連接埠，Scheme 依上游實際提供的 HTTP 或 HTTPS 選擇。私有 IP 仍是敏感拓樸資料。</p></li>
+        <li><h3>暫時不要申請公有憑證</h3><p>推薦 Tunnel Service URL 連 NPM 的 HTTP port 80，外部 TLS 由 Cloudflare 處理；此時 NPM 不需要為外部瀏覽器申請 Let's Encrypt 憑證。</p></li>
+        <li><h3>不要啟用 Force SSL</h3><p>Cloudflare 會以 HTTP 連到 NPM 時，Force SSL 可能讓同一個外部 HTTPS URL 反覆重新導向。先保持關閉，外部 HTTP 轉 HTTPS 由 Cloudflare 邊緣設定處理。</p></li>
+      </ol>
+    </section>
+
+    <section id="create-tunnel" data-nav="建立 Tunnel">
+      <h2 data-icon="remote">建立並啟動 connector</h2>
+      <ol class="steps">
+        <li><h3>在 Cloudflare 建立命名 Tunnel</h3><p>由 Cloudflare Dashboard 的 Zero Trust／Networks／Tunnels 流程建立 Tunnel；介面名稱可能改版，請以當期官方文件為準。</p></li>
+        <li><h3>選擇 connector 環境</h3><p>依執行平台採用 Cloudflare 顯示的官方安裝方式。畫面中的 tunnel token 就是可啟動 connector 的機密，不可貼到聊天、命令記錄、截圖或版本庫。</p></li>
+        <li><h3>安全地提供 token</h3><p>把 token 存入該平台的 secret／受保護設定，限制只有 connector 程序可讀。若曾外洩，立即在 Cloudflare 輪替或撤銷，不要只刪除訊息。</p></li>
+        <li><h3>確認狀態為 Healthy</h3><p>connector 需要對外 DNS，並依 Cloudflare 官方防火牆文件連到 port 7844（QUIC 使用 UDP、HTTP/2 使用 TCP）。不需要任何公網入站規則。</p></li>
+      </ol>
+    </section>
+
+    <section id="publish-hostname" data-nav="發布 hostname">
+      <h2 data-icon="assign">把公開 hostname 指向 NPM</h2>
+      <ol class="steps">
+        <li><h3>新增 Published application</h3><p>在該 Tunnel 新增公開 hostname，Subdomain 與 Domain 合起來必須和 NPM Proxy Host 的 Domain Names 完全相同。</p></li>
+        <li><h3>Service Type 選 HTTP</h3><p>URL 填 NPM 在內網可達的位址與 port 80，例如 <code>http://&lt;NPM 私有位址&gt;:80</code>。這只是格式示意，不要把真實私有 IP 提交到公開文件。</p></li>
+        <li><h3>儲存並確認 DNS</h3><p>Cloudflare 會把 hostname 路由到 Tunnel；官方文件說明其本質是指向 <code>&lt;UUID&gt;.cfargotunnel.com</code> 的 CNAME。同一個 Tunnel 可服務多個 hostname。</p></li>
+        <li><h3>每個 hostname 都在 NPM 建一筆</h3><p>要新增服務時，同時新增 Published application 與對應的 NPM Proxy Host。不要把所有未匹配 hostname 導到管理介面。</p></li>
+      </ol>
+      <div class="callout tip"><strong>路由關鍵：</strong>Cloudflare 以公開 hostname 收到請求，NPM 也以相同 Host 選擇 Proxy Host；兩邊字串不一致時，通常會落到預設頁面或 404。</div>
+    </section>
+
+    <section id="tls-model" data-nav="TLS 與 Force SSL">
+      <h2 data-icon="protocol">分清楚外部 TLS 與內部回源</h2>
+      <table class="data-table">
+        <thead><tr><th>區段</th><th>推薦設定</th><th>理由與限制</th></tr></thead>
+        <tbody>
+          <tr><td>瀏覽器 → Cloudflare</td><td>HTTPS；在 Cloudflare 邊緣將 HTTP 轉 HTTPS</td><td>瀏覽器驗證 Cloudflare 為該 hostname 提供的邊緣憑證</td></tr>
+          <tr><td>Cloudflare Tunnel → NPM</td><td>隔離內網中的 HTTP port 80</td><td>設定簡單且不需 NPM 公有憑證，但這一段未加密，必須限制於可信任網路</td></tr>
+          <tr><td>NPM → 內部服務</td><td>依服務能力選 HTTP 或 HTTPS</td><td>NPM 的 Scheme 必須與上游實際協定一致</td></tr>
+        </tbody>
+      </table>
+      <div class="callout warn"><strong>若內網也要求加密：</strong>可以把 Tunnel Service URL 改為 NPM HTTPS，但必須替 NPM 配置正確、可由 connector 驗證且名稱相符的憑證。不要用停用 TLS 驗證來掩蓋憑證錯誤。</div>
+      <div class="callout warn"><strong>Force SSL 的位置只能清楚分工：</strong>HTTP Service URL 回源時，NPM 保持 Force SSL 關閉；外部 HTTP 轉 HTTPS 在 Cloudflare 處理。不要兩邊憑直覺全開。</div>
+    </section>
+
+    <section id="security" data-nav="安全加固">
+      <h2 data-icon="security">Tunnel 不是完整的身分驗證</h2>
+      <ul>
+        <li><strong>永不發布 port 81：</strong>Tunnel 公開 hostname 只指向 NPM port 80／443 的代理入口，不得指向管理介面。</li>
+        <li><strong>每個 hostname 最小暴露：</strong>只發布真正要從公網使用的服務。資料庫、SSH、NAS 管理頁不應因為 Tunnel 好設定就一併公開。</li>
+        <li><strong>敏感值全程遮罩：</strong>網域、公開／私有 IP、tunnel token、DNS API token、密碼、憑證與完整 log 都不可公開。</li>
+        <li><strong>需要使用者身分時加 Cloudflare Access：</strong>Tunnel 只建立傳輸路徑；服務若不該匿名使用，仍要在應用、Cloudflare Access 或第 9 章的 Access List 加上合適控制。</li>
+        <li><strong>限制 connector 與 NPM 的網路：</strong>只允許必要的 connector 到 NPM、NPM 到上游流量，不要把整個內網視為可信任。</li>
+      </ul>
+    </section>
+
+    <section id="verify" data-nav="分段驗證">
+      <h2 data-icon="test">從內到外逐段驗證</h2>
+      <ol class="steps">
+        <li><h3>測試 NPM 到上游</h3><p>先從內網確認上游服務可達，Scheme 與 port 正確。不要因為 502 就開放更多公網連接埠。</p></li>
+        <li><h3>測試 Host 路由</h3><p>在可信任內網以該 hostname 請求 NPM，確認會落到正確 Proxy Host，而不是預設站台。</p></li>
+        <li><h3>確認 connector 健康</h3><p>在 Cloudflare 檢查 Tunnel 是否有連線中的 connector。只記錄狀態與時間，不公開 UUID、token 或完整 diagnostic log。</p></li>
+        <li><h3>由外部測試 HTTPS</h3><p>使用行動網路開啟公開 hostname，確認 HTTPS、登入、WebSocket 與必要功能；再測 HTTP 是否在 Cloudflare 邊緣轉向 HTTPS。</p></li>
+        <li><h3>確認路由器沒有不必要入站</h3><p>驗證完成後，依變更流程檢查公網 80、443、81 都沒有轉送至 NPM。若舊服務仍依賴規則，先遷移並保留可回復方案。</p></li>
+      </ol>
+    </section>
+
+    <section id="troubleshooting" data-nav="Tunnel 排錯">
+      <h2 data-icon="troubleshoot">常見問題與處理</h2>
+      <table class="data-table">
+        <thead><tr><th>具體問題</th><th>最可能的層</th><th>處理方向</th></tr></thead>
+        <tbody>
+          <tr><td>Cloudflare 顯示 Error 1033 或 Tunnel 不健康</td><td>connector 沒連上 Cloudflare</td><td>檢查程序、token、DNS 與對外 port 7844；不要改開任何入站 port</td></tr>
+          <tr><td>訪客看到 502 Bad Gateway</td><td>cloudflared 到 NPM，或 NPM 到上游</td><td>確認 Service URL 是 NPM 私有位址 port 80，再檢查 NPM 的 Scheme、上游 IP 與 port</td></tr>
+          <tr><td>看到 NPM 預設頁面或 404</td><td>hostname 不匹配</td><td>比對 Cloudflare Published application 與 NPM Domain Names 的完整字串</td></tr>
+          <tr><td>瀏覽器顯示重新導向過多</td><td>NPM Force SSL 與 Tunnel HTTP 回源衝突</td><td>關閉 NPM Force SSL，改由 Cloudflare 邊緣把外部 HTTP 轉成 HTTPS</td></tr>
+          <tr><td>WebSocket 或即時功能中斷</td><td>NPM Proxy Host 或上游</td><td>核對 NPM Websockets Support、上游應用 base URL 與 trusted proxy 設定</td></tr>
+          <tr><td>IP 白名單把所有訪客擋住或全放行</td><td>來源 IP 經 Tunnel 改變</td><td>不要假設 NPM 的來源位址就是訪客公網 IP；先看第 9 章的代理限制並使用合適的 Cloudflare Access 規則</td></tr>
+        </tbody>
+      </table>
+      <div class="callout danger"><strong>排錯資料也要保密：</strong>只擷取必要錯誤行並遮蔽 hostname、UUID、公開／私有 IP、token、憑證與請求內容；不要上傳完整 log。</div>
+    </section>
+
+    <section id="faq" data-nav="FAQ">
+      <h2 data-icon="faq">Cloudflare Tunnel 常見問題</h2>
+      <details class="faq"><summary>這個架構需要路由器轉送 80 或 443 嗎？</summary><div class="body">不需要。cloudflared 主動向 Cloudflare 建立 outbound-only 連線；推薦拓樸不使用公網入站 80、443，也絕不公開 81。</div></details>
+      <details class="faq"><summary>沒有公開 IP 或在 CGNAT 後面可以用嗎？</summary><div class="body">可以。Cloudflare 官方將 Tunnel 定位為不需要 publicly routable IP 的連線方式，但 connector 仍需可對外連線與解析 DNS。</div></details>
+      <details class="faq"><summary>為什麼 NPM 不勾 Force SSL？</summary><div class="body">本章讓 Tunnel 以 HTTP 連到 NPM。NPM 若強制回 HTTPS，Cloudflare 下次仍以 HTTP 回源，可能造成重新導向迴圈；外部轉向應放在 Cloudflare 邊緣。</div></details>
+      <details class="faq"><summary>一個 Tunnel 可以發布多個服務嗎？</summary><div class="body">可以。Cloudflare 官方文件說明多個 DNS 記錄可以指向同一 Tunnel；每個公開 hostname 仍應在 NPM 建立明確對應的 Proxy Host。</div></details>
+      <details class="faq"><summary>有 Tunnel 就不需要服務登入嗎？</summary><div class="body">不是。Tunnel 解決連線路徑，不會自動替每個應用建立使用者身分驗證。請保留應用登入，或按需求加入 Cloudflare Access、NPM Access List。</div></details>
+    </section>
+
+    <section id="sources" data-nav="官方來源">
+      <h2 data-icon="records">官方來源</h2>
+      <table class="data-table">
+        <thead><tr><th>來源</th><th>本章查證重點</th></tr></thead>
+        <tbody>
+          <tr><td><a href="https://github.com/WOOWTECH/Woow_ha_nginxpm/blob/main/nginxpm/README.md" rel="noopener">Woow Nginx Proxy Manager README</a></td><td>推薦 Tunnel + NPM、Service 指向 NPM port 80、不需路由器轉送</td></tr>
+          <tr><td><a href="https://github.com/WOOWTECH/Woow_ha_nginxpm/blob/main/nginxpm/config.yaml" rel="noopener">Woow add-on config.yaml</a></td><td>add-on 的 80、81、443 對應</td></tr>
+          <tr><td><a href="https://developers.cloudflare.com/cloudflare-one/networks/connectors/cloudflare-tunnel/" rel="noopener">Cloudflare Tunnel 官方文件</a></td><td>outbound-only 模型與不需 publicly routable IP</td></tr>
+          <tr><td><a href="https://developers.cloudflare.com/cloudflare-one/networks/connectors/cloudflare-tunnel/routing-to-tunnel/dns/" rel="noopener">Cloudflare Tunnel DNS Records</a></td><td><code>&lt;UUID&gt;.cfargotunnel.com</code> CNAME 與多 hostname 路由</td></tr>
+          <tr><td><a href="https://developers.cloudflare.com/cloudflare-one/networks/connectors/cloudflare-tunnel/configure-tunnels/tunnel-with-firewall/" rel="noopener">Cloudflare Tunnel with firewall</a></td><td>connector 對外 port 7844、TCP／UDP 與阻擋 ingress</td></tr>
+          <tr><td><a href="https://github.com/NginxProxyManager/nginx-proxy-manager/blob/develop/backend/templates/proxy_host.conf" rel="noopener">NPM Proxy Host 範本</a></td><td>Host 代理、Access List、HSTS 與 Force SSL 的組合位置</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <div class="pager"></div>
+  </main>
+</div>
+<script src="assets/js/toc.js"></script>
+</body>
+</html>
