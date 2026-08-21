@@ -154,7 +154,7 @@ function buildSidebar(page, html) {
     .join('\n');
 
   const hubLink = HUB
-    ? `\n    <a class="hub-link" href="index.html">◂ ${esc(HUB.navLabel || '資源總覽')}</a>`
+    ? `\n    <a class="hub-link" href="index.html"><i class="mdi mdi-view-grid-outline" aria-hidden="true"></i> ${esc(HUB.navLabel || '資源總覽')}</a>`
     : '';
   return `<aside class="sidebar">
     <a class="brand" href="${CATALOG}">${esc(site.brand)}</a>
@@ -167,10 +167,11 @@ ${chapterItems}
       <h2>本章</h2>
 ${inChapter}
     </div>
+${appendices.length ? `
     <div class="toc-in-chapter">
       <h2>附錄</h2>
 ${appendixItems}
-    </div>
+    </div>` : ''}
   </aside>`;
 }
 
@@ -183,29 +184,29 @@ function buildPager(page) {
 
   const prevHtml = prev
     ? `      <a class="prev" href="${prev.file}">
-        <span class="label">${prev.kind === 'appendix' ? `← 附錄 ${prev.num}` : '← 上一章'}</span>
+        <span class="label"><i class="mdi mdi-chevron-left" aria-hidden="true"></i> ${prev.kind === 'appendix' ? `附錄 ${prev.num}` : '上一章'}</span>
         <span class="title">${esc(prev.pagerTitle)}</span>
       </a>`
-    : `      <a class="prev disabled" href="${CATALOG}">
-        <span class="label">← 上一章</span>
-        <span class="title">回目錄</span>
+    : `      <a class="prev" href="${CATALOG}">
+        <span class="label"><i class="mdi mdi-view-grid-outline" aria-hidden="true"></i> 回目錄</span>
+        <span class="title">查看完整教學</span>
       </a>`;
 
   const nextLabel = !next
-    ? '回目錄 →'
+    ? '回目錄'
     : next.kind === 'appendix'
       ? page.kind === 'appendix'
-        ? '下一附錄 →'
-        : `附錄 ${next.num} →`
-      : '下一章 →';
+        ? '下一附錄'
+        : `附錄 ${next.num}`
+      : '下一章';
 
   const nextHtml = next
     ? `      <a class="next" href="${next.file}">
-        <span class="label">${nextLabel}</span>
+        <span class="label">${nextLabel} <i class="mdi mdi-chevron-right" aria-hidden="true"></i></span>
         <span class="title">${esc(next.pagerTitle)}</span>
       </a>`
     : `      <a class="next" href="${CATALOG}">
-        <span class="label">回目錄 →</span>
+        <span class="label">回目錄 <i class="mdi mdi-view-grid-outline" aria-hidden="true"></i></span>
         <span class="title">全套完成！</span>
       </a>`;
 
@@ -286,7 +287,7 @@ function buildIndex() {
     if (g) g.items.push(c);
     else groups.push({ title, items: [c] });
   }
-  groups.push({ title: '附錄', items: appendices });
+  if (appendices.length) groups.push({ title: '附錄', items: appendices });
 
   const grids = groups
     .map(

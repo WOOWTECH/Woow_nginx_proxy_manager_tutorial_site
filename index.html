@@ -18,9 +18,10 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&family=Poppins:wght@400;500;600;700&family=Noto+Sans+TC:wght@400;500;600;700&family=Yellowtail&display=swap" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@mdi/font@7.4.47/css/materialdesignicons.min.css" />
   <link rel="stylesheet" href="assets/css/style.css" />
   <style>
-    .res-grid{display:grid;grid-template-columns:1fr 1fr;gap:22px}.res-card{display:flex;flex-direction:column;padding:28px 26px;border:1px solid var(--hairline);border-radius:var(--radius);background:var(--surface-card);box-shadow:var(--shadow-sm)}.res-card .tile{display:inline-flex;width:48px;height:48px;border-radius:16px;background:var(--ww-blue-050);align-items:center;justify-content:center;margin-bottom:14px}.res-card h3{margin:0 0 6px;font-family:Poppins,sans-serif;font-size:20px;font-weight:700}.res-card .aud{font-size:12.5px;color:var(--text-secondary);margin-bottom:10px}.res-card p{margin:0 0 18px;color:var(--ww-black);font-size:14.5px;flex:1}.res-actions{display:flex;gap:10px;flex-wrap:wrap}.btn-pill,.btn-ghost{display:inline-flex;align-items:center;gap:6px;font-family:Poppins,sans-serif;font-weight:600;font-size:14px;padding:10px 22px;border-radius:999px;text-decoration:none}.btn-pill{background:var(--ww-blue);color:#fff}.btn-pill:hover{background:var(--ww-blue-700);color:#fff;text-decoration:none}.btn-ghost{background:var(--surface-card);color:var(--ww-black);border:1.5px solid var(--hairline)}.btn-ghost:hover{border-color:var(--ww-blue);color:var(--ww-blue-700);text-decoration:none}.dl-note{margin:26px 0 0;padding:14px 18px;border-radius:var(--radius-sm);background:var(--ww-blue-050);border:1px solid rgba(97,131,252,.18);font-size:13.5px;color:var(--ww-black)}.link-row{display:flex;gap:22px;flex-wrap:wrap;margin-top:14px;font-size:14px}@media(max-width:720px){.res-grid{grid-template-columns:1fr}}
+    .res-grid{display:grid;grid-template-columns:1fr 1fr;gap:22px}.res-card{display:flex;flex-direction:column;padding:28px 26px;border:1px solid var(--hairline);border-radius:var(--radius);background:var(--surface-card);box-shadow:var(--shadow-sm)}.res-card .tile{display:inline-flex;width:48px;height:48px;border-radius:12px;background:var(--ww-blue-050);align-items:center;justify-content:center;margin-bottom:14px}.res-card .tile .mdi{font-size:26px;color:var(--ww-blue)}.res-card h3{margin:0 0 6px;font-family:Poppins,sans-serif;font-size:20px;font-weight:700}.res-card .aud{font-size:12.5px;color:var(--text-secondary);margin-bottom:10px}.res-card p{margin:0 0 18px;color:var(--ww-black);font-size:14.5px;flex:1}.res-actions{display:flex;gap:10px;flex-wrap:wrap}.btn-pill,.btn-ghost{display:inline-flex;align-items:center;gap:6px;font-family:Poppins,sans-serif;font-weight:600;font-size:14px;padding:10px 22px;border-radius:999px;text-decoration:none}.btn-pill{background:var(--ww-blue);color:#fff}.btn-pill:hover{background:var(--ww-blue-700);color:#fff;text-decoration:none}.btn-ghost{background:var(--surface-card);color:var(--ww-black);border:1.5px solid var(--hairline)}.btn-ghost:hover{border-color:var(--ww-blue);color:var(--ww-blue-700);text-decoration:none}.dl-note{margin:26px 0 0;padding:14px 18px;border-radius:var(--radius-sm);background:var(--ww-blue-050);border:1px solid rgba(97,131,252,.18);font-size:13.5px;color:var(--ww-black)}.link-row{display:flex;gap:22px;flex-wrap:wrap;margin-top:14px;font-size:14px}@media(max-width:720px){.res-grid{grid-template-columns:1fr}}
   </style>
 </head>
 <body>
@@ -36,25 +37,25 @@
       <h2 class="index-title">四本手冊</h2>
       <div class="res-grid">
         <article class="res-card">
-          <span class="tile" aria-hidden="true"><svg viewBox="0 0 24 24" width="26" height="26"><path fill="#6183FC" d="M19 2L14 6.5V17.5L19 13V2M6.5 5C4.55 5 2.45 5.4 1 6.5V21.16C1 21.66 1.5 21.75 1.75 21.59C4.8 20.1 9.45 20.5 12 22C14.55 20.5 19.2 20.1 22.25 21.56C22.6 21.73 23 21.5 23 21.09V6.5C22.4 6.05 21.75 5.75 21 5.5V19C17.7 17.95 14.35 19.15 12 20V6.5C10.55 5.4 8.45 5 6.5 5Z"/></svg></span>
+          <span class="tile" aria-hidden="true"><i class="mdi mdi-book-open-page-variant-outline"></i></span>
           <h3>入住教學</h3><div class="aud">給初次架設的你 · 12 章</div>
           <p>從環境準備、HAOS 安裝與登入開始，逐步完成 Proxy Host、DNS、HTTPS、Access List、進階設定、備份與疑難排解。</p>
           <div class="res-actions"><a class="btn-pill" href="tutorial.html">線上閱讀</a><a class="btn-ghost" href="https://github.com/WOOWTECH/Woow_nginx_proxy_manager_tutorial_site/archive/refs/heads/main.zip" download>下載整站 ZIP</a></div>
         </article>
         <article class="res-card">
-          <span class="tile" aria-hidden="true"><svg viewBox="0 0 24 24" width="26" height="26"><path fill="#6183FC" d="M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2m1 17.93A8 8 0 0 1 4.07 11H8l2 2v1h4v-3l-2-2V7l2-2h1.74A8 8 0 0 1 13 19.93Z"/></svg></span>
+          <span class="tile" aria-hidden="true"><i class="mdi mdi-briefcase-outline"></i></span>
           <h3>銷售手冊</h3><div class="aud">給評估方案的你 · 單頁</div>
           <p>白話理解反向代理、自訂網域、HTTPS 與存取控制的價值，並比較 HAOS 自架、代管與 Cloudflare Tunnel 的取捨。</p>
           <div class="res-actions"><a class="btn-pill" href="sales.html">線上閱讀</a><a class="btn-ghost" href="sales.html" download="nginx-proxy-manager-sales-zh-TW.html">下載 HTML</a></div>
         </article>
         <article class="res-card">
-          <span class="tile" aria-hidden="true"><svg viewBox="0 0 24 24" width="26" height="26"><path fill="#6183FC" d="M20 2H4a2 2 0 0 0-2 2v18l4-4h14a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2m-3 9h-2V9h2m-4 2h-2V9h2m-4 2H7V9h2Z"/></svg></span>
+          <span class="tile" aria-hidden="true"><i class="mdi mdi-message-processing-outline"></i></span>
           <h3>提示詞庫</h3><div class="aud">給操作與維運的你 · 45 條</div>
           <p>可複製的自然語言提示詞，涵蓋 Proxy Hosts、DNS 與憑證、Access Lists、Redirection Hosts、Streams、備份與診斷。</p>
           <div class="res-actions"><a class="btn-pill" href="prompts.html">線上閱讀</a><a class="btn-ghost" href="prompts.html" download="nginx-proxy-manager-prompts-zh-TW.html">下載 HTML</a></div>
         </article>
         <article class="res-card">
-          <span class="tile" aria-hidden="true"><svg viewBox="0 0 24 24" width="26" height="26"><path fill="#6183FC" d="M22 13.5a3.5 3.5 0 0 1-3 3.46V20a2 2 0 0 1-2 2h-3.8v-.3a2.7 2.7 0 0 0-5.4 0v.3H4a2 2 0 0 1-2-2v-3.8h.3a2.7 2.7 0 1 0 0-5.4H2V7a2 2 0 0 1 2-2h3.04a3.5 3.5 0 0 1 6.92 0H17a2 2 0 0 1 2 2v3.04a3.5 3.5 0 0 1 3 3.46Z"/></svg></span>
+          <span class="tile" aria-hidden="true"><i class="mdi mdi-robot-outline"></i></span>
           <h3>Skill 手冊</h3><div class="aud">給導入 AI Agent 的你 · 安全速查</div>
           <p>用可重複的 Skill 模式盤點主機、追蹤憑證到期、稽核 Access List、驗證備份、診斷日誌並安全自動化。</p>
           <div class="res-actions"><a class="btn-pill" href="skills.html">線上閱讀</a><a class="btn-ghost" href="skills.html" download="nginx-proxy-manager-skills-zh-TW.html">下載 HTML</a></div>
@@ -63,7 +64,7 @@
       <div class="dl-note">銷售手冊、提示詞庫與 Skill 手冊的樣式、圖示及程式碼都在各自的單一 HTML 檔內；下載後可離線開啟。12 章教學是多頁網站，離線閱讀請下載整站 ZIP。</div>
     </section>
 
-    <section class="chapter-index" id="links" data-nav="links" style="margin-top:56px">
+    <section class="chapter-index" id="links" data-nav="links">
       <h2 class="index-title">相關連結</h2>
       <div class="link-row"><a href="https://nginxproxymanager.com/" rel="noopener">Nginx Proxy Manager 官方網站</a><a href="https://github.com/NginxProxyManager/nginx-proxy-manager" rel="noopener">官方原始碼</a><a href="https://github.com/WOOWTECH/Woow_nginx_proxy_manager_tutorial_site" rel="noopener">本站原始碼與勘誤</a></div>
     </section>

@@ -1,9 +1,73 @@
 <!doctype html>
 <html lang="zh-Hant">
-<head></head>
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>第 7 章 · 申請與管理 SSL 憑證 · Nginx Proxy Manager 反向代理指南</title>
+  <meta name="description" content="Nginx Proxy Manager SSL 教學：Let's Encrypt、HTTP-01、DNS-01、Force SSL、HSTS 與憑證續期。" />
+  <meta name="author" content="WoowTech" />
+  <link rel="canonical" href="https://nginx-guide.woowtech.io/ch7_ssl.html" />
+  <meta name="robots" content="index, follow, max-image-preview:large" />
+  <meta property="og:type" content="article" />
+  <meta property="og:site_name" content="Nginx Proxy Manager 反向代理指南" />
+  <meta property="og:locale" content="zh_TW" />
+  <meta property="og:title" content="第 7 章 · 申請與管理 SSL 憑證 · Nginx Proxy Manager 反向代理指南" />
+  <meta property="og:description" content="Nginx Proxy Manager SSL 教學：Let's Encrypt、HTTP-01、DNS-01、Force SSL、HSTS 與憑證續期。" />
+  <meta property="og:url" content="https://nginx-guide.woowtech.io/ch7_ssl.html" />
+  <meta property="og:image" content="https://nginx-guide.woowtech.io/assets/og/npm-guide.png" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="第 7 章 · 申請與管理 SSL 憑證 · Nginx Proxy Manager 反向代理指南" />
+  <meta name="twitter:description" content="Nginx Proxy Manager SSL 教學：Let's Encrypt、HTTP-01、DNS-01、Force SSL、HSTS 與憑證續期。" />
+  <meta name="twitter:image" content="https://nginx-guide.woowtech.io/assets/og/npm-guide.png" />
+  <meta name="theme-color" content="#6183FC" />
+  <link rel="license" href="https://creativecommons.org/licenses/by/4.0/deed.zh-hant" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&family=Poppins:wght@400;500;600;700&family=Noto+Sans+TC:wght@400;500;600;700&family=Yellowtail&display=swap" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@mdi/font@7.4.47/css/materialdesignicons.min.css" />
+  <link rel="stylesheet" href="assets/css/style.css" />
+</head>
 <body>
 <div class="layout">
-  <aside class="sidebar"></aside>
+  <aside class="sidebar">
+    <a class="brand" href="tutorial.html">NPM 指南</a>
+    <div class="brand-sub">把家中服務安全帶上網</div>
+    <a class="hub-link" href="index.html"><i class="mdi mdi-view-grid-outline" aria-hidden="true"></i> 資源總覽</a>
+    <h2>章節</h2>
+    <ol>
+      <li class="part-label">基礎：認識與安裝</li>
+      <li><a href="ch1_intro.html">開始前</a></li>
+      <li><a href="ch2_install.html">安裝</a></li>
+      <li><a href="ch3_first_login.html">首次登入</a></li>
+      <li><a href="ch4_dashboard.html">介面導覽</a></li>
+      <li class="part-label">建置：公開第一個服務</li>
+      <li><a href="ch5_proxy_host.html">第一個代理</a></li>
+      <li><a href="ch6_dns.html">DNS 解析</a></li>
+      <li><a href="ch7_ssl.html" class="active">SSL 憑證</a></li>
+      <li class="part-label">進階：安全與路由</li>
+      <li><a href="ch8_cloudflare_tunnel.html">CF Tunnel</a></li>
+      <li><a href="ch9_access_lists.html">存取控制</a></li>
+      <li><a href="ch10_advanced_hosts.html">進階主機</a></li>
+      <li class="part-label">管理：維運與排錯</li>
+      <li><a href="ch11_backup_security.html">備份安全</a></li>
+      <li><a href="ch12_troubleshooting.html">排錯維護</a></li>
+    </ol>
+    <div class="toc-in-chapter">
+      <h2>本章</h2>
+      <a href="#goal">本章目標</a>
+      <a href="#challenge-choice">HTTP-01 與 DNS-01</a>
+      <a href="#prepare">申請前準備</a>
+      <a href="#http01">使用 HTTP-01</a>
+      <a href="#dns01">使用 DNS-01</a>
+      <a href="#force-ssl">Force SSL</a>
+      <a href="#hsts">安全啟用 HSTS</a>
+      <a href="#renewal">續期與稽核</a>
+      <a href="#troubleshooting">SSL 排錯</a>
+      <a href="#faq">FAQ</a>
+      <a href="#sources">官方來源</a>
+    </div>
+
+  </aside>
 
   <main class="content">
     <div class="chapter-header">
@@ -138,7 +202,21 @@
       </table>
     </section>
 
-    <div class="pager"></div>
+    <div class="pager">
+      <a class="prev" href="ch6_dns.html">
+        <span class="label"><i class="mdi mdi-chevron-left" aria-hidden="true"></i> 上一章</span>
+        <span class="title">06 · DNS 與網域解析</span>
+      </a>
+      <a class="next" href="ch8_cloudflare_tunnel.html">
+        <span class="label">下一章 <i class="mdi mdi-chevron-right" aria-hidden="true"></i></span>
+        <span class="title">08 · Cloudflare Tunnel 架構</span>
+      </a>
+    </div>
+
+    <footer class="site-footer">
+      <p>《Nginx Proxy Manager 反向代理指南》由 <a href="https://github.com/WOOWTECH/Woow_nginx_proxy_manager_tutorial_site" rel="noopener">WoowTech</a> 製作，以 <a rel="license noopener" href="https://creativecommons.org/licenses/by/4.0/deed.zh-hant">CC BY 4.0</a> 授權釋出 — 可自由分享與改作，請保留出處。</p>
+      <p class="footer-meta">畫面與流程依 Nginx Proxy Manager 官方介面整理。Nginx Proxy Manager 為其權利人的商標，本站與其無隸屬關係。 · <a href="https://github.com/WOOWTECH/Woow_nginx_proxy_manager_tutorial_site" rel="noopener">原始碼與勘誤</a></p>
+    </footer>
   </main>
 </div>
 <script src="assets/js/toc.js"></script>

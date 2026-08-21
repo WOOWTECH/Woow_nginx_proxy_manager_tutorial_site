@@ -3,22 +3,22 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Nginx Proxy Manager 自架 VPN 控制層指南 · 把家中服務安全帶上網</title>
-  <meta name="description" content="12 章繁體中文 Nginx Proxy Manager 教學：從安裝、建立使用者與 preauth key、加入裝置，到節點管理、ACL、路由、DNS、管理員設定與安全排錯。" />
-  <meta name="author" content="woowtech" />
+  <title>Nginx Proxy Manager 反向代理指南 · 把家中服務安全帶上網</title>
+  <meta name="description" content="12 章繁體中文 Nginx Proxy Manager 教學：從 HAOS add-on 安裝、首次登入、Proxy Host、DNS 與 SSL，到 Cloudflare Tunnel、Access Lists、備份、安全與排錯。" />
+  <meta name="author" content="WoowTech" />
   <link rel="canonical" href="https://nginx-guide.woowtech.io/tutorial.html" />
   <meta name="robots" content="index, follow, max-image-preview:large" />
   <meta property="og:type" content="article" />
-  <meta property="og:site_name" content="Nginx Proxy Manager 自架 VPN 控制層指南" />
+  <meta property="og:site_name" content="Nginx Proxy Manager 反向代理指南" />
   <meta property="og:locale" content="zh_TW" />
-  <meta property="og:title" content="Nginx Proxy Manager 自架 VPN 控制層指南 · 把家中服務安全帶上網" />
-  <meta property="og:description" content="12 章繁體中文 Nginx Proxy Manager 教學：從安裝、建立使用者與 preauth key、加入裝置，到節點管理、ACL、路由、DNS、管理員設定與安全排錯。" />
+  <meta property="og:title" content="Nginx Proxy Manager 反向代理指南 · 把家中服務安全帶上網" />
+  <meta property="og:description" content="12 章繁體中文 Nginx Proxy Manager 教學：從 HAOS add-on 安裝、首次登入、Proxy Host、DNS 與 SSL，到 Cloudflare Tunnel、Access Lists、備份、安全與排錯。" />
   <meta property="og:url" content="https://nginx-guide.woowtech.io/tutorial.html" />
-  <meta property="og:image" content="https://nginx-guide.woowtech.io/assets/screenshots/ch4/01_preauth_key.png" />
+  <meta property="og:image" content="https://nginx-guide.woowtech.io/assets/og/npm-guide.png" />
   <meta name="twitter:card" content="summary_large_image" />
-  <meta name="twitter:title" content="Nginx Proxy Manager 自架 VPN 控制層指南 · 把家中服務安全帶上網" />
-  <meta name="twitter:description" content="12 章繁體中文 Nginx Proxy Manager 教學：從安裝、建立使用者與 preauth key、加入裝置，到節點管理、ACL、路由、DNS、管理員設定與安全排錯。" />
-  <meta name="twitter:image" content="https://nginx-guide.woowtech.io/assets/screenshots/ch4/01_preauth_key.png" />
+  <meta name="twitter:title" content="Nginx Proxy Manager 反向代理指南 · 把家中服務安全帶上網" />
+  <meta name="twitter:description" content="12 章繁體中文 Nginx Proxy Manager 教學：從 HAOS add-on 安裝、首次登入、Proxy Host、DNS 與 SSL，到 Cloudflare Tunnel、Access Lists、備份、安全與排錯。" />
+  <meta name="twitter:image" content="https://nginx-guide.woowtech.io/assets/og/npm-guide.png" />
   <meta name="theme-color" content="#6183FC" />
   <link rel="license" href="https://creativecommons.org/licenses/by/4.0/deed.zh-hant" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -30,10 +30,10 @@
 <body>
   <main class="home">
     <div class="hero">
-      <span class="kicker-script">your network, your home</span>
-      <div class="kicker">Nginx Proxy Manager 自架 VPN 控制層指南</div>
+      <span class="kicker-script">one friendly front door</span>
+      <div class="kicker">Nginx Proxy Manager 反向代理指南</div>
       <h1>把家中服務安全帶上網</h1>
-      <p>從安裝、建立使用者與 preauth key、加入裝置，一路到節點管理、ACL、路由、DNS、管理員設定與安全排錯。12 章，每章 10 分鐘。銷售手冊、提示詞庫與 Skill 手冊在 <a href="index.html">資源總覽</a>。</p>
+      <p>從 HAOS 安裝、首次登入與 Proxy Host 開始，一路完成 DNS、SSL、Cloudflare Tunnel、Access Lists、備份、安全加固與完整排錯。12 章，每章約 10 分鐘。銷售手冊、提示詞庫與 Skill 手冊在 <a href="index.html">資源總覽</a>。</p>
     </div>
 
     <section class="chapter-index">
@@ -41,89 +41,88 @@
       <div class="chapter-grid">
         <a class="chapter-card" href="ch1_intro.html">
           <span class="num">01</span>
-          <h3>開始前</h3>
-          <p>先確認 Nginx Proxy Manager 是什麼、自架控制層的價值，以及與官方 Tailscale 的差別。</p>
+          <h3>認識 Nginx Proxy Manager</h3>
+          <p>先理解反向代理、網域、DNS 與 HTTPS，確認 NPM 能解決什麼問題。</p>
         </a>
         <a class="chapter-card" href="ch2_install.html">
           <span class="num">02</span>
-          <h3>安裝 Nginx Proxy Manager</h3>
-          <p>把 Nginx Proxy Manager add-on 裝進 Home Assistant，認識安裝後的初始狀態。</p>
+          <h3>安裝 Woow Nginx Proxy Manager</h3>
+          <p>將 WoowTech NPM add-on 加入 Home Assistant，檢查 80、81、443 連接埠。</p>
         </a>
-        <a class="chapter-card" href="ch3_first_open.html">
+        <a class="chapter-card" href="ch3_first_login.html">
           <span class="num">03</span>
-          <h3>第一次開啟與登入</h3>
-          <p>開啟控制介面、認識 CLI／API 與管理員操作。</p>
+          <h3>首次登入與帳號安全</h3>
+          <p>使用預設帳密登入後立即更改 email 與密碼，保護管理介面。</p>
         </a>
-        <a class="chapter-card" href="ch4_user_preauth.html">
+        <a class="chapter-card" href="ch4_dashboard.html">
           <span class="num">04</span>
-          <h3>建立使用者與 preauth key</h3>
-          <p>建立第一個 user、產生 preauth key，準備讓裝置加入。</p>
+          <h3>管理介面與核心物件</h3>
+          <p>認識 Proxy Hosts、Certificates、Access Lists、Streams 與 Users。</p>
         </a>
       </div>
     </section>
 
     <section class="chapter-index" style="margin-top:56px;">
-      <h2 class="index-title">建置：建立自己的網段</h2>
+      <h2 class="index-title">建置：公開第一個服務</h2>
       <div class="chapter-grid">
-        <a class="chapter-card" href="ch5_join_device.html">
+        <a class="chapter-card" href="ch5_proxy_host.html">
           <span class="num">05</span>
-          <h3>加入第一個裝置</h3>
-          <p>讓 tailscale client 指向 Nginx Proxy Manager，登入並加入網段。</p>
+          <h3>建立第一個 Proxy Host</h3>
+          <p>把外部網域導向 Home Assistant、NAS 或其他內部服務。</p>
         </a>
-        <a class="chapter-card" href="ch6_nodes.html">
+        <a class="chapter-card" href="ch6_dns.html">
           <span class="num">06</span>
-          <h3>節點管理</h3>
-          <p>查看節點、命名、過期與移除。</p>
+          <h3>DNS 與網域解析</h3>
+          <p>建立 A／CNAME 記錄，理解公開 IP、Cloudflare Proxy 與 DNS 生效時間。</p>
         </a>
-        <a class="chapter-card" href="ch7_acl.html">
+        <a class="chapter-card" href="ch7_ssl.html">
           <span class="num">07</span>
-          <h3>ACL 存取控制</h3>
-          <p>用 policy 控制誰能連誰，最小暴露。</p>
-        </a>
-        <a class="chapter-card" href="ch8_routes.html">
-          <span class="num">08</span>
-          <h3>路由與出口節點</h3>
-          <p>subnet router、exit node，把整段內網帶回家。</p>
+          <h3>申請與管理 SSL 憑證</h3>
+          <p>使用 HTTP-01 或 DNS-01 取得憑證，啟用 Force SSL 並確認自動續期。</p>
         </a>
       </div>
     </section>
 
     <section class="chapter-index" style="margin-top:56px;">
-      <h2 class="index-title">管理：維運與安全</h2>
+      <h2 class="index-title">進階：安全與路由</h2>
       <div class="chapter-grid">
-        <a class="chapter-card" href="ch9_dns.html">
+        <a class="chapter-card" href="ch8_cloudflare_tunnel.html">
+          <span class="num">08</span>
+          <h3>Cloudflare Tunnel 搭配 NPM</h3>
+          <p>不開路由器 port，以 Tunnel 對外，NPM 負責內部反向代理。</p>
+        </a>
+        <a class="chapter-card" href="ch9_access_lists.html">
           <span class="num">09</span>
-          <h3>DNS 與 MagicDNS</h3>
-          <p>用名稱互連裝置，理解 MagicDNS 與自訂 DNS。</p>
+          <h3>Access Lists 與存取限制</h3>
+          <p>用 Basic Auth、IP 白名單與黑名單保護受代理的 Web 服務。</p>
         </a>
-        <a class="chapter-card" href="ch10_admin.html">
+        <a class="chapter-card" href="ch10_advanced_hosts.html">
           <span class="num">10</span>
-          <h3>管理員設定</h3>
-          <p>policy、DERP、namespaces 與版本更新。</p>
+          <h3>重導向、Streams 與 WebSocket</h3>
+          <p>處理 301/302、TCP/UDP 轉送、WebSocket 與自訂 Nginx 設定。</p>
         </a>
-        <a class="chapter-card" href="ch11_security.html">
+      </div>
+    </section>
+
+    <section class="chapter-index" style="margin-top:56px;">
+      <h2 class="index-title">管理：維運與排錯</h2>
+      <div class="chapter-grid">
+        <a class="chapter-card" href="ch11_backup_security.html">
           <span class="num">11</span>
-          <h3>安全與最小暴露</h3>
-          <p>檢查入口、金鑰、ACL 與公開範圍。</p>
+          <h3>備份、更新與安全加固</h3>
+          <p>備份 SQLite、憑證與設定，規劃更新、管理介面保護與最小權限。</p>
         </a>
         <a class="chapter-card" href="ch12_troubleshooting.html">
           <span class="num">12</span>
-          <h3>排錯與維護</h3>
-          <p>連不上、節點離線、DERP 與更新排錯。</p>
+          <h3>常見錯誤與完整排查</h3>
+          <p>從 DNS、port、upstream、502、SSL 到 Cloudflare 逐層定位問題。</p>
         </a>
-      </div>
-    </section>
-
-    <section class="chapter-index" style="margin-top:56px;">
-      <h2 class="index-title">附錄</h2>
-      <div class="chapter-grid">
-
       </div>
     </section>
 
     <footer class="site-footer">
-      <p>《Nginx Proxy Manager 自架 VPN 控制層指南》由 <a href="https://github.com/WOOWTECH/Woow_nginx_proxy_manager_tutorial_site" rel="noopener">woowtech</a> 製作，以 <a rel="license noopener" href="https://creativecommons.org/licenses/by/4.0/deed.zh-hant">CC BY 4.0</a> 授權釋出 — 可自由分享與改作，請保留出處。</p>
-      <p class="footer-meta">截圖取自 Nginx Proxy Manager 與 Tailscale 官方介面。Nginx Proxy Manager 與 Tailscale 為其各自權利人的商標，本站與其無隸屬關係。 · <a href="https://github.com/WOOWTECH/Woow_nginx_proxy_manager_tutorial_site" rel="noopener">原始碼與勘誤</a></p>
+      <p>《Nginx Proxy Manager 反向代理指南》由 <a href="https://github.com/WOOWTECH/Woow_nginx_proxy_manager_tutorial_site" rel="noopener">WoowTech</a> 製作，以 <a rel="license noopener" href="https://creativecommons.org/licenses/by/4.0/deed.zh-hant">CC BY 4.0</a> 授權釋出 — 可自由分享與改作，請保留出處。</p>
+      <p class="footer-meta">畫面與流程依 Nginx Proxy Manager 官方介面整理。Nginx Proxy Manager 為其權利人的商標，本站與其無隸屬關係。 · <a href="https://github.com/WOOWTECH/Woow_nginx_proxy_manager_tutorial_site" rel="noopener">原始碼與勘誤</a></p>
     </footer>
   </main>
 </body>

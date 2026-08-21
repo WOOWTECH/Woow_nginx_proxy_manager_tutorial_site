@@ -1,6 +1,17 @@
 <!doctype html>
 <html lang="zh-Hant">
 <head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>找不到頁面 · Nginx Proxy Manager 指南</title>
+  <meta name="description" content="找不到你要查看的 Nginx Proxy Manager 指南頁面。" />
+  <meta name="robots" content="noindex, follow" />
+  <meta name="theme-color" content="#6183FC" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600&family=Poppins:wght@500;600;700&family=Noto+Sans+TC:wght@400;500;700&family=Yellowtail&display=swap" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@mdi/font@7.4.47/css/materialdesignicons.min.css" />
+  <link rel="stylesheet" href="/assets/css/style.css" />
 </head>
 <body>
   <main class="home">
@@ -8,32 +19,15 @@
       <span class="kicker-script">page not found</span>
       <div class="kicker">404</div>
       <h1>找不到這一頁</h1>
-      <p>網址可能打錯了，或這一章已經改名。回目錄挑一章開始看吧。</p>
+      <p>網址可能打錯了，或這一章已經改名。從下面的入口重新開始吧。</p>
     </div>
-
-    <section class="chapter-index">
+    <section class="chapter-index" id="recovery" data-nav="重新開始">
       <h2 class="index-title">你可能要找</h2>
       <div class="chapter-grid">
-        <a class="chapter-card" href="index.html">
-          <span class="num">↖</span>
-          <h3>回首頁</h3>
-          <p>Nginx Proxy Manager 反向代理指南的起點。</p>
-        </a>
-        <a class="chapter-card" href="ch1_intro.html">
-          <span class="num">01</span>
-          <h3>從第 1 章開始</h3>
-          <p>Nginx Proxy Manager 是什麼，先認識再上手。</p>
-        </a>
-        <a class="chapter-card" href="ch5_proxy_host.html">
-          <span class="num">05</span>
-          <h3>建立第一個代理</h3>
-          <p>將網域導向 Home Assistant、NAS 或其他內部服務。</p>
-        </a>
-        <a class="chapter-card" href="ch12_troubleshooting.html">
-          <span class="num">12</span>
-          <h3>排錯與維護</h3>
-          <p>DNS、502、憑證、Cloudflare 與 WebSocket 問題都在這。</p>
-        </a>
+        <a class="chapter-card" href="/index.html"><span class="num"><i class="mdi mdi-home-outline" aria-hidden="true"></i></span><h3>資源總覽</h3><p>Nginx Proxy Manager 四本手冊的入口。</p></a>
+        <a class="chapter-card" href="/tutorial.html"><span class="num"><i class="mdi mdi-book-open-page-variant-outline" aria-hidden="true"></i></span><h3>教學目錄</h3><p>查看完整 12 章課程。</p></a>
+        <a class="chapter-card" href="/ch5_proxy_host.html"><span class="num">05</span><h3>建立第一個代理</h3><p>將網域導向 Home Assistant、NAS 或其他內部服務。</p></a>
+        <a class="chapter-card" href="/ch12_troubleshooting.html"><span class="num">12</span><h3>排錯與維護</h3><p>DNS、502、憑證、Cloudflare 與 WebSocket 問題都在這。</p></a>
       </div>
     </section>
   </main>

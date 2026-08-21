@@ -91,11 +91,21 @@ for (const file of htmlFiles) {
   if (inlineTables) {
     errors.push(`${file}: 有 ${inlineTables} 個 <table> 用 inline style，請改成 class="data-table"`);
   }
+  if (!/<div class="layout">[\s\S]*<aside class="sidebar">[\s\S]*<main class="content">/.test(html)) {
+    errors.push(`${file}: 缺少 .layout 包住 sidebar 與 content（桌面版排版會失效）`);
+  }
   if (!/<div class="chapter-header">\s*<div class="kicker">/.test(html)) {
     errors.push(`${file}: 找不到 chapter-header 的 kicker 區塊（build_nav.js 產生章節編號要用）`);
   }
   const faq = (html.match(/<details class="faq">/g) || []).length;
-  if (faq < 3) errors.push(`${file}: 常見問題只有 ${faq} 則，房規要求至少 4 則`);
+  if (faq < 4) errors.push(`${file}: 常見問題只有 ${faq} 則，房規要求至少 4 則`);
+}
+
+// 社群預覽圖是 repo 內相對路徑時，也必須存在。
+if (cfg.site.ogImage && !/^(https?:|data:|\/\/)/.test(cfg.site.ogImage)) {
+  if (!fs.existsSync(path.join(ROOT, cfg.site.ogImage))) {
+    errors.push(`chapters.json 的 ogImage 不存在 → ${cfg.site.ogImage}`);
+  }
 }
 
 // 5. chapters.json ↔ 檔案 ↔ sitemap

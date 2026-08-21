@@ -4,9 +4,9 @@
 - 語言：台灣繁體中文；以「你」稱呼讀者，不使用 emoji。
 - 每章：8–12 個 section；每個 section 要有 `id`、`data-nav`，每個 h2 要有已定義的 `data-icon`。
 - 元件：只使用 `steps`、`callout`、`data-table`、`code-block`、`details.faq`、`figure.shot`。
-- 安全：preauth key、API key、節點 ID、IP、ACL policy、DERP 設定與完整 log 都視為敏感資料，寫入前必須遮罩或改寫。
-- 變更：ACL、路由、namespaces、policy 會影響整個網段；必須明確說明影響範圍，且不引導讀者刪除、停用或重設沒有把握的項目。
-- 截圖：Browserless 只做唯讀瀏覽，不建立／刪除 user、不產生金鑰、不變更 policy 或節點。圖片須先人工檢查與遮罩。
+- 安全：管理密碼、Cookie、DNS API Token、憑證私鑰、內外網 IP、完整網域與 log 都視為敏感資料，寫入前必須遮罩或改寫。
+- 變更：Proxy Hosts、Access Lists、Users、Streams、憑證與還原操作會影響對外服務；必須說明影響範圍、回復方式，且不引導讀者刪除或覆寫沒有把握的項目。
+- 截圖：自動化只做唯讀瀏覽；可以打開表單但不儲存，不建立／刪除 Proxy Host、User、Access List、Stream 或憑證。圖片須先人工檢查並遮罩敏感資料。
 - 事實來源：優先使用 Nginx Proxy Manager 官方文件（nginxproxymanager.com）與官方 GitHub，其次才是實測結果；介面改版時以最新官方文件為準。
 
 修改後執行：
