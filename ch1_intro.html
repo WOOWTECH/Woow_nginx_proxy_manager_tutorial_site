@@ -1,0 +1,128 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head></head>
+<body>
+  <aside class="sidebar"></aside>
+
+  <main class="content">
+    <div class="chapter-header">
+      <div class="kicker">第 1 章</div>
+      <h1>認識 Nginx Proxy Manager</h1>
+      <p class="lead">先建立反向代理的心智模型，再選擇適合你的部署與公開方式。這一章不急著開放任何連接埠，而是先畫清楚流量路徑與安全邊界。</p>
+    </div>
+
+    <section id="why-npm" data-nav="為什麼需要 NPM">
+      <h2 data-icon="why">為什麼需要 NPM</h2>
+      <p>家中可能有 Home Assistant、NAS 或其他 Web 服務，各自使用不同的區網位址與連接埠。Nginx Proxy Manager（NPM）站在這些服務前方，依請求的網域名稱，把 HTTP 或 HTTPS 流量轉送到正確的內部服務。</p>
+      <p>它把常見的 Nginx 反向代理與憑證操作放進 Web 管理介面。上游專案列出的能力包括轉送網域、重導向、Streams、SSL 憑證、Access Lists、使用者權限與稽核記錄；你仍須自行管理 DNS、路由器及後端服務的安全。</p>
+      <div class="callout"><strong>先記住：</strong>NPM 是入口與轉送層，不是把內部服務自動變安全的開關。公開前仍要更新後端、啟用其登入保護，並只開放必要功能。</div>
+    </section>
+
+    <section id="request-flow" data-nav="請求如何流動">
+      <h2 data-icon="concept">請求如何流動</h2>
+      <ol class="steps">
+        <li><h3>名稱解析</h3><p>瀏覽器先向 DNS 查詢服務網域。採直接公開時，結果通常指向你家的公開 IP；採 Tunnel 時，流量先到 Tunnel 服務商。網域與公開 IP 都是敏感資訊，分享畫面前要遮罩。</p></li>
+        <li><h3>抵達入口</h3><p>直接公開通常由路由器把外部 TCP 80／443 轉送到 NPM；Tunnel 架構則由既有的通道把請求送到內部入口。管理介面的 TCP 81 不在這條公開服務路徑上。</p></li>
+        <li><h3>比對 Proxy Host</h3><p>NPM 依 HTTP Host 名稱選擇規則；HTTPS 可由 NPM 終止 TLS，再按設定連到後端的私有位址與連接埠。</p></li>
+        <li><h3>後端回應</h3><p>後端回應先回到 NPM，再送回瀏覽器。NPM 能到達後端，不代表後端應直接暴露在網際網路。</p></li>
+      </ol>
+    </section>
+
+    <section id="boundaries" data-nav="功能與責任邊界">
+      <h2 data-icon="what">功能與責任邊界</h2>
+      <table class="data-table">
+        <thead><tr><th>工作</th><th>NPM 的角色</th><th>仍由你負責</th></tr></thead>
+        <tbody>
+          <tr><td>網域與 DNS</td><td>接收已抵達入口的網域請求</td><td>持有網域，建立及維護 DNS 記錄</td></tr>
+          <tr><td>HTTPS</td><td>管理 Let's Encrypt 或自訂憑證，並可終止 TLS</td><td>選擇驗證方式、保護 DNS API Token、檢查續期</td></tr>
+          <tr><td>轉送</td><td>把符合規則的流量送往後端</td><td>確認後端位址、連接埠、驗證與更新</td></tr>
+          <tr><td>網路邊界</td><td>提供 HTTP／HTTPS 入口</td><td>路由器、防火牆、Tunnel 與來源限制</td></tr>
+          <tr><td>管理介面</td><td>在 TCP 81 提供 Web UI</td><td>只允許可信任區網或受控管理通道存取</td></tr>
+        </tbody>
+      </table>
+      <div class="callout warn"><strong>NPM 不是 DNS 伺服器、網域註冊商、VPN 或完整 WAF。</strong>不要因為已啟用 HTTPS，就省略後端登入、更新或最小權限。</div>
+    </section>
+
+    <section id="deployment-options" data-nav="部署方式比較">
+      <h2 data-icon="compare">部署方式比較</h2>
+      <table class="data-table">
+        <thead><tr><th>方式</th><th>適合情境</th><th>主要取捨</th></tr></thead>
+        <tbody>
+          <tr><td>Woow HAOS add-on</td><td>你使用 Home Assistant OS 或 Supervised，主機是 amd64／aarch64</td><td>由 Supervisor 管理生命週期；80、81、443 不可與同主機其他服務衝突</td></tr>
+          <tr><td>官方 Docker 部署</td><td>你有獨立 Docker 主機並想依官方 Compose 文件管理</td><td>主機、儲存、更新與備份都要自行管理；本教學後續以 add-on 為主</td></tr>
+          <tr><td>直接公開 80／443</td><td>你能控制路由器、防火牆與公開 DNS</td><td>公開面較大；官方指南的家用網路流程是轉送 80／443到 NPM</td></tr>
+          <tr><td>Cloudflare Tunnel 搭配 NPM</td><td>你不想或不能在路由器轉送連接埠</td><td>不需路由器轉送，但增加第三方依賴；仍要限制 NPM 管理介面</td></tr>
+        </tbody>
+      </table>
+      <p>Woow add-on 的設定檔目前宣告 amd64 與 aarch64，並將 TCP 80、81、443 對應到相同主機連接埠。若你的平台或需求不符，不要硬套本教學的安裝步驟。</p>
+    </section>
+
+    <section id="plan-path" data-nav="先畫部署路徑">
+      <h2 data-icon="plan">先畫部署路徑</h2>
+      <ol class="steps">
+        <li><h3>列出入口</h3><p>決定使用直接公開或 Tunnel。先不要變更路由器；只在紙上記錄資料流。</p></li>
+        <li><h3>列出 NPM 主機</h3><p>確認 Home Assistant 安裝類型與 CPU 架構，並確認主機預計使用 TCP 80、81、443。</p></li>
+        <li><h3>列出一個測試後端</h3><p>選擇已有登入保護、可從 NPM 網段到達的服務。筆記中的私有 IP 與服務連接埠同樣要視為敏感資料。</p></li>
+        <li><h3>劃出管理邊界</h3><p>明確標示 TCP 81 只供可信任區網或受控管理通道使用，絕不做 WAN 連接埠轉送，也不建立公開 DNS 指向它。</p></li>
+      </ol>
+    </section>
+
+    <section id="security-baseline" data-nav="安全基線">
+      <h2 data-icon="security">安全基線</h2>
+      <ul>
+        <li>首次登入會用到 <code>admin@example.com</code>／<code>changeme</code>；這是公開預設值，登入後必須立即更改電子郵件與密碼。</li>
+        <li>TCP 81 是管理面，不可公開到網際網路。不要在路由器建立 81 的 WAN 轉送，也不要把它當成一般 Proxy Host 對外發布。</li>
+        <li>網域、公私有 IP、密碼、DNS API Token、憑證私鑰及完整記錄都視為敏感資料；範例、截圖與求助貼文一律改寫或遮罩。</li>
+        <li>只有確定需要時才公開 80／443。採 Tunnel 時，依該方案縮小防火牆入口，而不是同時保留不必要的直接公開。</li>
+      </ul>
+      <div class="callout danger"><strong>不要把真實密碼或 Token 貼入教學筆記。</strong>密碼管理器只能保存於你信任的保管庫；DNS Token 應使用供應商可提供的最小權限。</div>
+    </section>
+
+    <section id="readiness" data-nav="開始前檢查">
+      <h2 data-icon="test">開始前檢查</h2>
+      <table class="data-table">
+        <thead><tr><th>檢查</th><th>可以繼續的條件</th></tr></thead>
+        <tbody>
+          <tr><td>Home Assistant 類型</td><td>準備走 add-on 路線時，為 HAOS 或 Supervised</td></tr>
+          <tr><td>CPU 架構</td><td>Woow add-on 支援的 amd64 或 aarch64</td></tr>
+          <tr><td>連接埠</td><td>主機 TCP 80、81、443 沒有被其他服務占用</td></tr>
+          <tr><td>管理存取</td><td>你能從可信任區網開啟 HA 與稍後的 NPM Web UI</td></tr>
+          <tr><td>公開策略</td><td>已選直接公開或 Tunnel，且知道各自的邊界</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section id="troubleshooting" data-nav="觀念排錯">
+      <h2 data-icon="troubleshoot">觀念排錯</h2>
+      <h3>問題一：以為建立 Proxy Host 就會自動建立 DNS</h3><p>NPM 不替你註冊網域或自動完成公開 DNS。先確認 DNS 與入口策略，再建立對應主機。</p>
+      <h3>問題二：把 TCP 81 當成公開網站入口</h3><p>81 是管理介面。移除任何 WAN 轉送或公開代理規則，只從可信任區網或受控通道管理。</p>
+      <h3>問題三：80 或 443 已被其他 add-on 使用</h3><p>同一主機位址與協定不能由兩個服務同時監聽同一連接埠。先盤點衝突，不要在不理解影響時停用既有服務。</p>
+      <h3>問題四：認為 HTTPS 等於後端已安全</h3><p>HTTPS 保護傳輸，不會修補弱密碼、過期軟體或錯誤權限。回到後端逐項完成登入、更新與最小權限。</p>
+      <h3>問題五：同時啟用 Tunnel 與不必要的 WAN 轉送</h3><p>這會留下第二個入口。依你選定的架構逐一核對防火牆與路由器，不要保留用不到的公開路徑。</p>
+    </section>
+
+    <section id="faq" data-nav="常見問題">
+      <h2 data-icon="faq">常見問題</h2>
+      <details class="faq"><summary>NPM 會取代 Home Assistant 嗎？</summary><div class="body">不會。NPM 是反向代理入口；Home Assistant 仍是獨立的後端服務。</div></details>
+      <details class="faq"><summary>沒有網域也能先安裝嗎？</summary><div class="body">可以先在可信任區網完成安裝與帳號加固，但正式的網域代理與公開憑證流程仍需要相應的名稱解析與驗證條件。</div></details>
+      <details class="faq"><summary>用了 Tunnel，還需要 NPM 嗎？</summary><div class="body">取決於你的路由需求。Woow 文件提供 Tunnel 把流量送到 NPM、再由 NPM 做內部路由的做法；如果沒有多主機路由需求，應先評估是否需要多一層。</div></details>
+      <details class="faq"><summary>可以把管理介面放到公開網域嗎？</summary><div class="body">本教學不建議，也不提供這種做法。TCP 81 應留在可信任區網或受控管理通道，不可直接公開。</div></details>
+    </section>
+
+    <section id="official-sources" data-nav="官方資料來源">
+      <h2 data-icon="book">官方資料來源</h2>
+      <ul>
+        <li><a href="https://github.com/WOOWTECH/Woow_ha_nginxpm" rel="noopener">WOOWTECH／Woow_ha_nginxpm README</a>：add-on 定位、支援平台、安裝入口與部署替代方案。</li>
+        <li><a href="https://github.com/WOOWTECH/Woow_ha_nginxpm/blob/main/nginxpm/config.yaml" rel="noopener">Woow add-on config.yaml</a>：架構與 TCP 80、81、443 對應。</li>
+        <li><a href="https://nginxproxymanager.com/guide/" rel="noopener">Nginx Proxy Manager 官方 Guide</a>：反向代理目標、功能與家用網路基本流程。</li>
+        <li><a href="https://github.com/NginxProxyManager/nginx-proxy-manager" rel="noopener">Nginx Proxy Manager 官方 GitHub</a>：上游專案與版本資訊。</li>
+      </ul>
+      <p>本章依上述官方內容核對。介面、版本與支援架構可能更新；實作前請再次查看 add-on 的最新 README、設定檔與上游文件。</p>
+    </section>
+
+    <div class="pager"></div>
+  </main>
+
+  <script src="assets/js/toc.js"></script>
+</body>
+</html>
