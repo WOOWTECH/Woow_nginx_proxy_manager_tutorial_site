@@ -27,7 +27,7 @@
       "pagerContentsNext": "回目錄 <i class=\"mdi mdi-view-grid-outline\" aria-hidden=\"true\"></i>"
     },
     "chrome": {
-      "hideEmptyAppendices": true,
+      "hideEmptyAppendices": "blank",
       "firstPrevDisabled": false
     }
   },

@@ -28,7 +28,7 @@
       "pagerContentsNext": "Contents <i class=\"mdi mdi-view-grid-outline\" aria-hidden=\"true\"></i>"
     },
     "chrome": {
-      "hideEmptyAppendices": true,
+      "hideEmptyAppendices": "blank",
       "firstPrevDisabled": false
     },
     "assetBaseUrl": "https://nginx-guide.woowtech.io",

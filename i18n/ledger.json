@@ -1464,6 +1464,60 @@
    "sourceHash": "db9d95098c9aa523",
    "targetHash": null,
    "registeredAt": "2026-09-02"
+  },
+  "en:chapters.json:site.strings.hubLink": {
+   "status": "pending",
+   "sourceHash": "2e8483b65ded78c5",
+   "targetHash": null,
+   "registeredAt": "2026-09-02"
+  },
+  "en:chapters.json:site.strings.pagerPrev": {
+   "status": "pending",
+   "sourceHash": "e410e57301fd3ca9",
+   "targetHash": null,
+   "registeredAt": "2026-09-02"
+  },
+  "en:chapters.json:site.strings.pagerPrevAppendix": {
+   "status": "pending",
+   "sourceHash": "a2c0dde8507e86d1",
+   "targetHash": null,
+   "registeredAt": "2026-09-02"
+  },
+  "en:chapters.json:site.strings.pagerFirstPrev": {
+   "status": "pending",
+   "sourceHash": "83ec591395e2c85b",
+   "targetHash": null,
+   "registeredAt": "2026-09-02"
+  },
+  "en:chapters.json:site.strings.pagerFirstPrevTitle": {
+   "status": "pending",
+   "sourceHash": "d50eb54e8df373ae",
+   "targetHash": null,
+   "registeredAt": "2026-09-02"
+  },
+  "en:chapters.json:site.strings.pagerNext": {
+   "status": "pending",
+   "sourceHash": "3c6ee00abb2a9599",
+   "targetHash": null,
+   "registeredAt": "2026-09-02"
+  },
+  "en:chapters.json:site.strings.pagerNextAppendix": {
+   "status": "pending",
+   "sourceHash": "9420038b25606e20",
+   "targetHash": null,
+   "registeredAt": "2026-09-02"
+  },
+  "en:chapters.json:site.strings.pagerNextAppendixFromAppendix": {
+   "status": "pending",
+   "sourceHash": "2b780cc5a4a8c21d",
+   "targetHash": null,
+   "registeredAt": "2026-09-02"
+  },
+  "en:chapters.json:site.strings.pagerContentsNext": {
+   "status": "pending",
+   "sourceHash": "4d4f7ffa6456aeb4",
+   "targetHash": null,
+   "registeredAt": "2026-09-02"
   }
  }
 }
