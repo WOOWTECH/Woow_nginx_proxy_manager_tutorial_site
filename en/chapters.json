@@ -1,35 +1,44 @@
 {
-  "_readme": "導覽、SEO、教學目錄與 sitemap 的單一來源；變更後執行 node scripts/build_nav.js。",
+  "_readme": "Single source for the en/ site root (nav, SEO, catalog, sitemap). Human-readable fields are translation units tracked in i18n/ledger.json. Rebuild with: SITE_ROOT=en node scripts/build_nav.js",
   "site": {
     "title": "Nginx Proxy Manager 反向代理指南",
     "brand": "NPM 指南",
     "subtitle": "把家中服務安全帶上網",
-    "baseUrl": "https://nginx-guide.woowtech.io",
+    "baseUrl": "https://nginx-guide.woowtech.io/en",
     "repoUrl": "https://github.com/WOOWTECH/Woow_nginx_proxy_manager_tutorial_site",
-    "locale": "zh_TW",
+    "locale": "en_US",
     "description": "12 章繁體中文 Nginx Proxy Manager 教學：從 HAOS add-on 安裝、首次登入、Proxy Host、DNS 與 SSL，到 Cloudflare Tunnel、Access Lists、備份、安全與排錯。",
     "footerMeta": "畫面與流程依 Nginx Proxy Manager 官方介面整理。Nginx Proxy Manager 為其權利人的商標，本站與其無隸屬關係。",
-    "ogImage": "assets/og/npm-guide.png",
+    "ogImage": "assets/og/npm-guide.en.png",
     "license": {
       "name": "CC BY 4.0",
-      "url": "https://creativecommons.org/licenses/by/4.0/deed.zh-hant",
+      "url": "https://creativecommons.org/licenses/by/4.0/deed.en",
       "holder": "WoowTech"
     },
     "strings": {
+      "_readme": "Site-specific chrome overrides for the en/ root: this site's pager and hub-link labels carry MDI icons (the old generator's markup). Wording follows i18n/strings.en.json; only the icon markup is site-specific.",
       "hubLink": "<i class=\"mdi mdi-view-grid-outline\" aria-hidden=\"true\"></i> {label}",
-      "pagerPrev": "<i class=\"mdi mdi-chevron-left\" aria-hidden=\"true\"></i> 上一章",
-      "pagerPrevAppendix": "<i class=\"mdi mdi-chevron-left\" aria-hidden=\"true\"></i> 附錄 {n}",
-      "pagerFirstPrev": "<i class=\"mdi mdi-view-grid-outline\" aria-hidden=\"true\"></i> 回目錄",
-      "pagerFirstPrevTitle": "查看完整教學",
-      "pagerNext": "下一章 <i class=\"mdi mdi-chevron-right\" aria-hidden=\"true\"></i>",
-      "pagerNextAppendix": "附錄 {n} <i class=\"mdi mdi-chevron-right\" aria-hidden=\"true\"></i>",
-      "pagerNextAppendixFromAppendix": "下一附錄 <i class=\"mdi mdi-chevron-right\" aria-hidden=\"true\"></i>",
-      "pagerContentsNext": "回目錄 <i class=\"mdi mdi-view-grid-outline\" aria-hidden=\"true\"></i>"
+      "pagerPrev": "<i class=\"mdi mdi-chevron-left\" aria-hidden=\"true\"></i> Previous",
+      "pagerPrevAppendix": "<i class=\"mdi mdi-chevron-left\" aria-hidden=\"true\"></i> Appendix {n}",
+      "pagerFirstPrev": "<i class=\"mdi mdi-view-grid-outline\" aria-hidden=\"true\"></i> Contents",
+      "pagerFirstPrevTitle": "View the full tutorial",
+      "pagerNext": "Next <i class=\"mdi mdi-chevron-right\" aria-hidden=\"true\"></i>",
+      "pagerNextAppendix": "Appendix {n} <i class=\"mdi mdi-chevron-right\" aria-hidden=\"true\"></i>",
+      "pagerNextAppendixFromAppendix": "Next appendix <i class=\"mdi mdi-chevron-right\" aria-hidden=\"true\"></i>",
+      "pagerContentsNext": "Contents <i class=\"mdi mdi-view-grid-outline\" aria-hidden=\"true\"></i>"
     },
     "chrome": {
       "hideEmptyAppendices": true,
       "firstPrevDisabled": false
-    }
+    },
+    "assetBaseUrl": "https://nginx-guide.woowtech.io",
+    "assetBase": "../",
+    "lang": "en",
+    "localeCode": "en",
+    "localeAlternate": [
+      "zh_TW"
+    ],
+    "fontsUrl": "https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&family=Poppins:wght@400;500;600;700&family=Yellowtail&display=swap"
   },
   "hub": {
     "catalog": "tutorial.html",

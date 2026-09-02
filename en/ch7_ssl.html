@@ -1,0 +1,228 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Chapter 7 · 申請與管理 SSL 憑證 · Nginx Proxy Manager 反向代理指南</title>
+  <meta name="description" content="Nginx Proxy Manager SSL 教學：Let's Encrypt、HTTP-01、DNS-01、Force SSL、HSTS 與憑證續期。" />
+  <meta name="author" content="WoowTech" />
+  <link rel="canonical" href="https://nginx-guide.woowtech.io/en/ch7_ssl.html" />
+  <meta name="robots" content="noindex, follow" />
+  <meta property="og:type" content="article" />
+  <meta property="og:site_name" content="Nginx Proxy Manager 反向代理指南" />
+  <meta property="og:locale" content="en_US" />
+  <meta property="og:locale:alternate" content="zh_TW" />
+  <meta property="og:title" content="Chapter 7 · 申請與管理 SSL 憑證 · Nginx Proxy Manager 反向代理指南" />
+  <meta property="og:description" content="Nginx Proxy Manager SSL 教學：Let's Encrypt、HTTP-01、DNS-01、Force SSL、HSTS 與憑證續期。" />
+  <meta property="og:url" content="https://nginx-guide.woowtech.io/en/ch7_ssl.html" />
+  <meta property="og:image" content="https://nginx-guide.woowtech.io/assets/og/npm-guide.en.png" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Chapter 7 · 申請與管理 SSL 憑證 · Nginx Proxy Manager 反向代理指南" />
+  <meta name="twitter:description" content="Nginx Proxy Manager SSL 教學：Let's Encrypt、HTTP-01、DNS-01、Force SSL、HSTS 與憑證續期。" />
+  <meta name="twitter:image" content="https://nginx-guide.woowtech.io/assets/og/npm-guide.en.png" />
+  <meta name="theme-color" content="#6183FC" />
+  <link rel="license" href="https://creativecommons.org/licenses/by/4.0/deed.en" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&family=Poppins:wght@400;500;600;700&family=Yellowtail&display=swap" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@mdi/font@7.4.47/css/materialdesignicons.min.css" />
+  <link rel="stylesheet" href="../assets/css/style.css" />
+  <link rel="stylesheet" href="../assets/css/i18n.css" />
+</head>
+<body>
+<div class="layout">
+  <aside class="sidebar">
+    <a class="brand" href="tutorial.html">NPM 指南</a>
+    <div class="brand-sub">把家中服務安全帶上網</div>
+    <nav class="lang-switch" aria-label="Language"><a href="../ch7_ssl.html" lang="zh-Hant" hreflang="zh-Hant">中文</a><a class="active" href="ch7_ssl.html" lang="en" aria-current="page">EN</a></nav>
+    <a class="hub-link" href="index.html"><i class="mdi mdi-view-grid-outline" aria-hidden="true"></i> 資源總覽</a>
+    <h2>Chapters</h2>
+    <ol>
+      <li class="part-label">基礎：認識與安裝</li>
+      <li data-i18n="pending"><a href="ch1_intro.html">開始前</a></li>
+      <li data-i18n="pending"><a href="ch2_install.html">安裝</a></li>
+      <li data-i18n="pending"><a href="ch3_first_login.html">首次登入</a></li>
+      <li data-i18n="pending"><a href="ch4_dashboard.html">介面導覽</a></li>
+      <li class="part-label">建置：公開第一個服務</li>
+      <li data-i18n="pending"><a href="ch5_proxy_host.html">第一個代理</a></li>
+      <li data-i18n="pending"><a href="ch6_dns.html">DNS 解析</a></li>
+      <li data-i18n="pending"><a href="ch7_ssl.html" class="active">SSL 憑證</a></li>
+      <li class="part-label">進階：安全與路由</li>
+      <li data-i18n="pending"><a href="ch8_cloudflare_tunnel.html">CF Tunnel</a></li>
+      <li data-i18n="pending"><a href="ch9_access_lists.html">存取控制</a></li>
+      <li data-i18n="pending"><a href="ch10_advanced_hosts.html">進階主機</a></li>
+      <li class="part-label">管理：維運與排錯</li>
+      <li data-i18n="pending"><a href="ch11_backup_security.html">備份安全</a></li>
+      <li data-i18n="pending"><a href="ch12_troubleshooting.html">排錯維護</a></li>
+    </ol>
+    <div class="toc-in-chapter">
+      <h2>This chapter</h2>
+      <a href="#goal">本章目標</a>
+      <a href="#challenge-choice">HTTP-01 與 DNS-01</a>
+      <a href="#prepare">申請前準備</a>
+      <a href="#http01">使用 HTTP-01</a>
+      <a href="#dns01">使用 DNS-01</a>
+      <a href="#force-ssl">Force SSL</a>
+      <a href="#hsts">安全啟用 HSTS</a>
+      <a href="#renewal">續期與稽核</a>
+      <a href="#troubleshooting">SSL 排錯</a>
+      <a href="#faq">FAQ</a>
+      <a href="#sources">官方來源</a>
+    </div>
+  </aside>
+
+  <main class="content">
+    <div class="callout i18n-pending"><strong>This chapter has not been translated yet.</strong> You are reading the original Chinese text. <a href="../ch7_ssl.html" hreflang="zh-Hant">Open the Chinese version</a></div>
+    <div class="chapter-header">
+      <div class="kicker">Chapter 7</div>
+      <h1>申請與管理 SSL 憑證</h1>
+      <p class="lead">比較 Let's Encrypt HTTP-01 與 DNS-01，替 Proxy Host 配上憑證，再安全地啟用 Force SSL、HSTS 與續期檢查。</p>
+    </div>
+
+    <section id="goal" data-nav="本章目標">
+      <h2 data-icon="why">先選對驗證方式</h2>
+      <p>Let's Encrypt 必須先確認你控制網域，才會簽發憑證。Nginx Proxy Manager（NPM）可透過 HTTP 或 DNS 驗證；選擇取決於 port 80、網域型態與 DNS 供應商，而不是哪一個按鈕比較方便。</p>
+      <div class="callout"><strong>本章完成條件：</strong>瀏覽器能以 HTTPS 開啟你的服務、HTTP 會依規劃轉向 HTTPS，而且你知道續期仍需要原本的驗證條件。</div>
+      <div class="callout danger"><strong>管理安全基線：</strong>若仍使用 <code>admin@example.com</code>／<code>changeme</code>，請先立即更改。port 81 只能由可信任的內網或管理通道存取，絕不可轉送到公網。</div>
+    </section>
+
+    <section id="challenge-choice" data-nav="HTTP-01 與 DNS-01">
+      <h2 data-icon="compare">HTTP-01 與 DNS-01 怎麼選</h2>
+      <table class="data-table">
+        <thead><tr><th>項目</th><th>HTTP-01</th><th>DNS-01</th></tr></thead>
+        <tbody>
+          <tr><td>驗證方式</td><td>Let's Encrypt 以 HTTP 讀取驗證內容</td><td>Let's Encrypt 查詢臨時的 DNS TXT 記錄</td></tr>
+          <tr><td>網路條件</td><td>網域須指向 NPM，公網 TCP 80 必須可到達 NPM</td><td>不需要把 80／443 對外開放</td></tr>
+          <tr><td>萬用字元憑證</td><td>不支援</td><td>支援，例如 <code>*.example.invalid</code></td></tr>
+          <tr><td>所需機密</td><td>不需要 DNS API token</td><td>需要 DNS 供應商 API 憑證</td></tr>
+          <tr><td>常見用途</td><td>傳統 port forwarding、單一主機名稱</td><td>CGNAT、port 80 不可用、萬用字元或 Tunnel 架構</td></tr>
+        </tbody>
+      </table>
+      <div class="callout warn"><strong>HTTP-01 的固定條件：</strong>Let's Encrypt 官方說明此挑戰只能在 port 80 完成，也不能簽發萬用字元憑證。申請成功後，續期時仍要維持 HTTP 驗證可達。</div>
+    </section>
+
+    <section id="prepare" data-nav="申請前準備">
+      <h2 data-icon="plan">申請前先檢查</h2>
+      <ol class="steps">
+        <li><h3>確認帳號與管理面</h3><p>先更換預設登入資料，限制 port 81 只在可信任網路可達。不要用對外 Proxy Host 公開管理介面。</p></li>
+        <li><h3>核對網域</h3><p>以你自己的遮罩值記下完整主機名稱。不要把真實網域、公開／私有 IP 或內部拓樸貼到公開求助區。</p></li>
+        <li><h3>確認 NPM 使用者 email</h3><p>NPM 上游程式要求使用者帳號具有有效 email，才能向 Let's Encrypt 申請憑證。這個 email 也屬個人資料。</p></li>
+        <li><h3>只選一條可續期的路</h3><p>HTTP-01 要長期保留 port 80 的驗證路徑；DNS-01 要長期保留有效且最小權限的 DNS token。不要只測試第一次簽發。</p></li>
+      </ol>
+    </section>
+
+    <section id="http01" data-nav="使用 HTTP-01">
+      <h2 data-icon="steps">用 HTTP-01 申請憑證</h2>
+      <ol class="steps">
+        <li><h3>完成 DNS 與轉送</h3><p>讓該網域解析到你的公開 IP，並只把路由器 TCP 80、443 轉送至 NPM 所在主機。不要轉送 TCP 81。</p></li>
+        <li><h3>先建立可用的 Proxy Host</h3><p>在 <strong>Hosts → Proxy Hosts</strong> 建立與憑證網域完全相同的主機，先確認外部可用 HTTP 到達。NPM 官方憑證說明指出，HTTP 驗證需要可由 HTTP 存取且指向這台 Nginx 的 Proxy Host。</p></li>
+        <li><h3>在 SSL 分頁申請</h3><p>編輯該 Proxy Host，在 <strong>SSL</strong> 分頁選擇申請新的 Let's Encrypt 憑證，填入有效 email、同意服務條款，且不要勾選 DNS Challenge。</p></li>
+        <li><h3>儲存並以外部網路驗證</h3><p>從行動網路測試，確認憑證主體涵蓋該網域。測試結果或錯誤記錄若要分享，先遮蔽網域、IP、憑證資訊與完整 log。</p></li>
+      </ol>
+      <div class="callout warn"><strong>不要關掉 port 80 就當作加固：</strong>採 HTTP-01 時，NPM 官方說明要求 Proxy Host 繼續可由 HTTP 存取，才能續期。若不能接受，改用 DNS-01。</div>
+    </section>
+
+    <section id="dns01" data-nav="使用 DNS-01">
+      <h2 data-icon="steps">用 Cloudflare DNS-01 申請憑證</h2>
+      <ol class="steps">
+        <li><h3>建立專用 API token</h3><p>在 Cloudflare 建立只供 Certbot 使用的 token，只授權目標 zone 的 DNS 編輯；不要使用權限過大的 Global API Key。Certbot Cloudflare 外掛官方也建議使用可限制到特定網域的 API Token。</p></li>
+        <li><h3>選擇 DNS Challenge</h3><p>在 Proxy Host 的 <strong>SSL</strong> 分頁申請 Let's Encrypt 憑證，勾選 <strong>Use a DNS Challenge</strong>，DNS Provider 選 Cloudflare。</p></li>
+        <li><h3>填入 token 格式</h3><p>在 Credentials File Content 使用 Cloudflare 外掛支援的 token 欄位；以下只是假值，不可換成真 token 後截圖或提交到 Git：</p><pre class="code-block"><code>dns_cloudflare_api_token = &lt;只限目標 zone 的 DNS token&gt;</code></pre></li>
+        <li><h3>等待 DNS 傳播後儲存</h3><p>使用預設傳播等待值開始；只有確定 TXT 記錄尚未傳播時才逐步增加。申請完成後，不要刪除 NPM 所需的 token，否則自動續期會失敗。</p></li>
+      </ol>
+      <div class="callout danger"><strong>token 是機密：</strong>不要放進瀏覽器書籤、教學截圖、聊天記錄、Git 或工單。若懷疑外洩，立即在 DNS 供應商撤銷並建立新的最小權限 token，再更新 NPM。</div>
+    </section>
+
+    <section id="force-ssl" data-nav="Force SSL">
+      <h2 data-icon="assign">套用憑證與 Force SSL</h2>
+      <ol class="steps">
+        <li><h3>選取正確憑證</h3><p>編輯 Proxy Host，在 SSL Certificate 選擇涵蓋該完整網域的憑證。不要以為一張未包含主機名稱的憑證也能通用。</p></li>
+        <li><h3>先測試 HTTPS</h3><p>儲存後直接開啟 <code>https://&lt;你的網域&gt;</code>，確認上游服務正常、憑證鏈有效且沒有重新導向迴圈。</p></li>
+        <li><h3>再啟用 Force SSL</h3><p>確認 HTTPS 無誤後勾選 <strong>Force SSL</strong>。NPM 的上游範本會在已有憑證時載入強制 HTTPS 設定。</p></li>
+        <li><h3>測試 HTTP 入口</h3><p>開啟 <code>http://&lt;你的網域&gt;</code>，確認會導向相同主機的 HTTPS，而不是錯誤網域或無限迴圈。</p></li>
+      </ol>
+      <div class="callout warn"><strong>Cloudflare Tunnel 例外：</strong>若 Tunnel 的內部 Service URL 是 NPM 的 <code>http://…:80</code>，不要在 NPM 啟用 Force SSL，否則 Cloudflare 每次以 HTTP 回源時可能反覆收到 HTTPS 重新導向。請在 Cloudflare 邊緣處理 HTTP 轉 HTTPS；第 8 章會完整說明。</div>
+    </section>
+
+    <section id="hsts" data-nav="安全啟用 HSTS">
+      <h2 data-icon="security">HSTS 要最後才開</h2>
+      <p>HSTS 透過 <code>Strict-Transport-Security</code> 告訴瀏覽器，未來只能以 HTTPS 存取。NPM 上游範本只有在已選憑證、Force SSL 與 HSTS 都啟用時才加入標頭，預設有效時間為兩年。</p>
+      <ol class="steps">
+        <li><h3>先確認 HTTPS 長期可用</h3><p>確認憑證涵蓋正確網域、續期路徑可用、所有必要內容都支援 HTTPS，再啟用 HSTS。</p></li>
+        <li><h3>先不要勾 Include Subdomains</h3><p>若任何子網域尚未支援 HTTPS，<code>includeSubDomains</code> 會讓它也被瀏覽器強制升級而無法使用。先逐一盤點所有子網域。</p></li>
+        <li><h3>從測試用主機開始</h3><p>先在非關鍵子網域測試瀏覽器、API 與行動 App，再決定是否套用到正式服務。</p></li>
+      </ol>
+      <div class="callout danger"><strong>HSTS 不適合試按：</strong>瀏覽器會記住政策直到 max-age 到期；關掉 NPM 選項不代表使用者瀏覽器立即忘記。只有在 HTTPS 與續期都可靠時才啟用，對 Include Subdomains 更要保守。</div>
+    </section>
+
+    <section id="renewal" data-nav="續期與稽核">
+      <h2 data-icon="history">確認自動續期真的可用</h2>
+      <ol class="steps">
+        <li><h3>在 Certificates 檢查到期日</h3><p>記錄憑證涵蓋範圍與到期日，但不要把真實網域或憑證內容放入公開文件。NPM 上游程式會定期檢查 Let's Encrypt 憑證並處理即將到期者。</p></li>
+        <li><h3>保留原驗證條件</h3><p>HTTP-01 保留 DNS 指向及公網 port 80；DNS-01 保留有效、最小權限的 DNS token。Token 輪替後要同步更新 NPM。</p></li>
+        <li><h3>定期檢查失敗訊息</h3><p>只在可信任管理面查看 add-on 與憑證記錄。分享排錯資料前遮蔽網域、公開／私有 IP、token、憑證、帳號與完整 log。</p></li>
+        <li><h3>在到期前安排人工複查</h3><p>自動化不是免維護。DNS 供應商權限、路由器規則或網域續費異動，都可能讓下一次續期失敗。</p></li>
+      </ol>
+    </section>
+
+    <section id="troubleshooting" data-nav="SSL 排錯">
+      <h2 data-icon="troubleshoot">常見問題與處理</h2>
+      <table class="data-table">
+        <thead><tr><th>具體問題</th><th>先檢查</th><th>安全處理</th></tr></thead>
+        <tbody>
+          <tr><td>HTTP-01 顯示 timeout 或連線失敗</td><td>公網 DNS、CGNAT、ISP 是否封鎖 port 80、路由器 TCP 80 是否到 NPM</td><td>不要改開 port 81；無法提供 port 80 時改用 DNS-01</td></tr>
+          <tr><td>HTTP-01 回傳錯誤內容或 404</td><td>網域是否落到另一台主機、Cloudflare Proxy 或舊轉送規則</td><td>逐層核對 Host 與入口，不要公開完整設定檔或 log</td></tr>
+          <tr><td>DNS-01 無法建立 TXT 記錄</td><td>token 是否有目標 zone 的 DNS 編輯權限、憑證欄位格式是否正確</td><td>不要為了方便改用 Global API Key；重新建立最小權限 token</td></tr>
+          <tr><td>DNS-01 等不到驗證記錄</td><td>權威 DNS 是否已出現 <code>_acme-challenge</code> TXT、傳播等待是否太短</td><td>先查權威 DNS，再小幅增加等待時間，避免連續重試觸發速率限制</td></tr>
+          <tr><td>開啟 Force SSL 後重新導向迴圈</td><td>Cloudflare SSL／Tunnel 回源協定、上游應用自身的 HTTPS 轉向</td><td>先關閉其中重複的一層；Tunnel HTTP 回源時由 Cloudflare 邊緣轉向</td></tr>
+          <tr><td>啟用 HSTS 後測試站打不開</td><td>瀏覽器是否已記住 HSTS、子網域是否不支援 HTTPS</td><td>修復 HTTPS，而不是引導使用者忽略憑證警告；評估影響後再調整政策</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section id="faq" data-nav="FAQ">
+      <h2 data-icon="faq">SSL 常見問題</h2>
+      <details class="faq"><summary>HTTP-01 成功後可以關閉 port 80 嗎？</summary><div class="body">不建議。NPM 官方憑證說明指出，HTTP 驗證的 Proxy Host 仍須提供 HTTP 存取才能續期。若你不想公開 port 80，改用 DNS-01。</div></details>
+      <details class="faq"><summary>萬用字元憑證可以用 HTTP-01 嗎？</summary><div class="body">不行。Let's Encrypt 官方明確說明 HTTP-01 不支援萬用字元；請使用 DNS-01。</div></details>
+      <details class="faq"><summary>Force SSL 和 HSTS 是同一件事嗎？</summary><div class="body">不是。Force SSL 由伺服器把 HTTP 請求重新導向 HTTPS；HSTS 是瀏覽器記住未來只能使用 HTTPS 的政策。</div></details>
+      <details class="faq"><summary>Cloudflare Tunnel 還需要 NPM 的公有憑證嗎？</summary><div class="body">若 Tunnel 以 HTTP 連到隔離內網中的 NPM port 80，瀏覽器看到的是 Cloudflare 邊緣憑證，NPM 不一定需要公有憑證。若改以 HTTPS 回源，則要另外正確驗證回源憑證。</div></details>
+      <details class="faq"><summary>可以把 DNS token 貼到工單請人代查嗎？</summary><div class="body">不可以。Token、憑證、網域、IP 與完整 log 都是敏感資料。請撤銷任何已外洩 token，只提供已遮罩的錯誤摘要。</div></details>
+    </section>
+
+    <section id="sources" data-nav="官方來源">
+      <h2 data-icon="records">官方來源</h2>
+      <table class="data-table">
+        <thead><tr><th>來源</th><th>本章查證重點</th></tr></thead>
+        <tbody>
+          <tr><td><a href="https://github.com/WOOWTECH/Woow_ha_nginxpm/blob/main/nginxpm/README.md" rel="noopener">Woow Nginx Proxy Manager README</a></td><td>HTTP-01／DNS-01、Cloudflare 支援、自動續期與 add-on 操作</td></tr>
+          <tr><td><a href="https://github.com/WOOWTECH/Woow_ha_nginxpm/blob/main/nginxpm/config.yaml" rel="noopener">Woow add-on config.yaml</a></td><td>80、81、443 連接埠與 Web UI port</td></tr>
+          <tr><td><a href="https://github.com/NginxProxyManager/nginx-proxy-manager/blob/develop/frontend/src/locale/src/HelpDoc/en/Certificates.md" rel="noopener">NPM Certificates Help</a></td><td>HTTP／DNS 驗證條件與萬用字元限制</td></tr>
+          <tr><td><a href="https://github.com/NginxProxyManager/nginx-proxy-manager/blob/develop/backend/internal/certificate.js" rel="noopener">NPM 憑證處理程式</a></td><td>有效 email、定期續期與驗證流程</td></tr>
+          <tr><td><a href="https://letsencrypt.org/docs/challenge-types/" rel="noopener">Let's Encrypt Challenge Types</a></td><td>HTTP-01 固定使用 port 80、DNS-01 與萬用字元</td></tr>
+          <tr><td><a href="https://certbot-dns-cloudflare.readthedocs.io/en/stable/" rel="noopener">Certbot DNS Cloudflare 文件</a></td><td>受限 API Token 的建議與 credentials 格式</td></tr>
+          <tr><td><a href="https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Strict-Transport-Security" rel="noopener">MDN HSTS</a></td><td>瀏覽器記憶、Include Subdomains 與 HTTPS-only 行為</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <div class="pager">
+      <a class="prev" href="ch6_dns.html">
+        <span class="label"><i class="mdi mdi-chevron-left" aria-hidden="true"></i> Previous</span>
+        <span class="title">06 · DNS 與網域解析</span>
+      </a>
+      <a class="next" href="ch8_cloudflare_tunnel.html">
+        <span class="label">Next <i class="mdi mdi-chevron-right" aria-hidden="true"></i></span>
+        <span class="title">08 · Cloudflare Tunnel 架構</span>
+      </a>
+    </div>
+
+    <footer class="site-footer">
+      <p>Nginx Proxy Manager 反向代理指南 is produced by <a href="https://github.com/WOOWTECH/Woow_nginx_proxy_manager_tutorial_site" rel="noopener">WoowTech</a> and released under <a rel="license noopener" href="https://creativecommons.org/licenses/by/4.0/deed.en">CC BY 4.0</a> — share and adapt freely, with attribution.</p>
+      <p class="footer-meta">畫面與流程依 Nginx Proxy Manager 官方介面整理。Nginx Proxy Manager 為其權利人的商標，本站與其無隸屬關係。 · <a href="https://github.com/WOOWTECH/Woow_nginx_proxy_manager_tutorial_site" rel="noopener">Source &amp; errata</a></p>
+    </footer>
+  </main>
+</div>
+<script id="ui-strings" type="application/json">{"tocToggle":"Contents","tocExpand":"Expand chapter navigation","tocCollapse":"Collapse chapter navigation"}</script>
+<script src="../assets/js/toc.js"></script>
+</body>
+</html>

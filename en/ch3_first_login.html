@@ -1,0 +1,215 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Chapter 3 · 首次登入與帳號安全 · Nginx Proxy Manager 反向代理指南</title>
+  <meta name="description" content="Nginx Proxy Manager 首次登入：預設帳號、立即改密碼、管理 port 81 與基本安全設定。" />
+  <meta name="author" content="WoowTech" />
+  <link rel="canonical" href="https://nginx-guide.woowtech.io/en/ch3_first_login.html" />
+  <meta name="robots" content="noindex, follow" />
+  <meta property="og:type" content="article" />
+  <meta property="og:site_name" content="Nginx Proxy Manager 反向代理指南" />
+  <meta property="og:locale" content="en_US" />
+  <meta property="og:locale:alternate" content="zh_TW" />
+  <meta property="og:title" content="Chapter 3 · 首次登入與帳號安全 · Nginx Proxy Manager 反向代理指南" />
+  <meta property="og:description" content="Nginx Proxy Manager 首次登入：預設帳號、立即改密碼、管理 port 81 與基本安全設定。" />
+  <meta property="og:url" content="https://nginx-guide.woowtech.io/en/ch3_first_login.html" />
+  <meta property="og:image" content="https://nginx-guide.woowtech.io/assets/og/npm-guide.en.png" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Chapter 3 · 首次登入與帳號安全 · Nginx Proxy Manager 反向代理指南" />
+  <meta name="twitter:description" content="Nginx Proxy Manager 首次登入：預設帳號、立即改密碼、管理 port 81 與基本安全設定。" />
+  <meta name="twitter:image" content="https://nginx-guide.woowtech.io/assets/og/npm-guide.en.png" />
+  <meta name="theme-color" content="#6183FC" />
+  <link rel="license" href="https://creativecommons.org/licenses/by/4.0/deed.en" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&family=Poppins:wght@400;500;600;700&family=Yellowtail&display=swap" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@mdi/font@7.4.47/css/materialdesignicons.min.css" />
+  <link rel="stylesheet" href="../assets/css/style.css" />
+  <link rel="stylesheet" href="../assets/css/i18n.css" />
+</head>
+<body>
+  <div class="layout">
+  <aside class="sidebar">
+    <a class="brand" href="tutorial.html">NPM 指南</a>
+    <div class="brand-sub">把家中服務安全帶上網</div>
+    <nav class="lang-switch" aria-label="Language"><a href="../ch3_first_login.html" lang="zh-Hant" hreflang="zh-Hant">中文</a><a class="active" href="ch3_first_login.html" lang="en" aria-current="page">EN</a></nav>
+    <a class="hub-link" href="index.html"><i class="mdi mdi-view-grid-outline" aria-hidden="true"></i> 資源總覽</a>
+    <h2>Chapters</h2>
+    <ol>
+      <li class="part-label">基礎：認識與安裝</li>
+      <li data-i18n="pending"><a href="ch1_intro.html">開始前</a></li>
+      <li data-i18n="pending"><a href="ch2_install.html">安裝</a></li>
+      <li data-i18n="pending"><a href="ch3_first_login.html" class="active">首次登入</a></li>
+      <li data-i18n="pending"><a href="ch4_dashboard.html">介面導覽</a></li>
+      <li class="part-label">建置：公開第一個服務</li>
+      <li data-i18n="pending"><a href="ch5_proxy_host.html">第一個代理</a></li>
+      <li data-i18n="pending"><a href="ch6_dns.html">DNS 解析</a></li>
+      <li data-i18n="pending"><a href="ch7_ssl.html">SSL 憑證</a></li>
+      <li class="part-label">進階：安全與路由</li>
+      <li data-i18n="pending"><a href="ch8_cloudflare_tunnel.html">CF Tunnel</a></li>
+      <li data-i18n="pending"><a href="ch9_access_lists.html">存取控制</a></li>
+      <li data-i18n="pending"><a href="ch10_advanced_hosts.html">進階主機</a></li>
+      <li class="part-label">管理：維運與排錯</li>
+      <li data-i18n="pending"><a href="ch11_backup_security.html">備份安全</a></li>
+      <li data-i18n="pending"><a href="ch12_troubleshooting.html">排錯維護</a></li>
+    </ol>
+    <div class="toc-in-chapter">
+      <h2>This chapter</h2>
+      <a href="#before-login">登入前先封閉管理面</a>
+      <a href="#first-login">使用預設值登入一次</a>
+      <a href="#change-identity">立即更改電子郵件</a>
+      <a href="#change-password">立即設定新密碼</a>
+      <a href="#verify-credentials">登出後驗證</a>
+      <a href="#management-boundary">維持管理面邊界</a>
+      <a href="#account-record">留下安全的管理紀錄</a>
+      <a href="#troubleshooting">登入與加固排錯</a>
+      <a href="#faq">常見問題</a>
+      <a href="#official-sources">官方資料來源</a>
+    </div>
+  </aside>
+
+  <main class="content">
+    <div class="callout i18n-pending"><strong>This chapter has not been translated yet.</strong> You are reading the original Chinese text. <a href="../ch3_first_login.html" hreflang="zh-Hant">Open the Chinese version</a></div>
+    <div class="chapter-header">
+      <div class="kicker">Chapter 3</div>
+      <h1>首次登入與帳號安全</h1>
+      <p class="lead">第一次登入只做一件優先事項：立刻淘汰公開的預設電子郵件與密碼，再驗證新憑證確實可用。</p>
+    </div>
+
+    <section id="before-login" data-nav="登入前先封閉管理面">
+      <h2 data-icon="security">登入前先封閉管理面</h2>
+      <p>WOOWTECH README 明列初始登入資料為 <code>admin@example.com</code>／<code>changeme</code>，並要求登入後立即更改。上游 NPM 2.12.4 的初始化程式也以這組值建立第一位管理員；它們是公開資訊，不是祕密。</p>
+      <ul>
+        <li>確認你正從可信任區網連線，而不是行動網路或公開 Wi-Fi。</li>
+        <li>確認路由器沒有 WAN TCP 81 轉送，防火牆也沒有讓任意網際網路來源碰到 81。</li>
+        <li>關閉錄影、直播與會同步表單內容的工具；密碼、電子郵件、IP 與登入畫面都視為敏感資料。</li>
+        <li>先準備可信任的密碼管理器，但不要把新密碼貼入聊天、issue、截圖或一般筆記。</li>
+      </ul>
+      <div class="callout danger"><strong>先封閉，再登入。</strong>如果 TCP 81 已公開，不要只靠「等一下會改密碼」承擔風險；先移除公開入口，才繼續本章。</div>
+    </section>
+
+    <section id="first-login" data-nav="使用預設值登入一次">
+      <h2 data-icon="login">使用預設值登入一次</h2>
+      <ol class="steps">
+        <li><h3>開啟正確的 Web UI</h3><p>從 Home Assistant add-on 頁面選「OPEN WEB UI／開啟 Web UI」，或在可信任區網開啟 <code>http://&lt;HA區網位址&gt;:81</code>。核對位址是你自己的 NPM，不要從搜尋結果進入登入頁。</p></li>
+        <li><h3>輸入初始電子郵件</h3><p>輸入 <code>admin@example.com</code>。這個值只能用於首次加固，不要保留成日常登入識別。</p></li>
+        <li><h3>輸入初始密碼</h3><p>輸入 <code>changeme</code> 並登入。不要讓瀏覽器把這個預設值儲存為正式密碼。</p></li>
+        <li><h3>直接前往帳號設定</h3><p>登入成功後不要先建立 Proxy Host、憑證或其他使用者；先完成下一節的帳號詳細資料與密碼變更。</p></li>
+      </ol>
+      <div class="callout warn"><strong>只使用一次：</strong>若預設帳密登入失敗，不要反覆猜測或重設資料庫；先確認是否已有管理者完成初始化。</div>
+    </section>
+
+    <section id="change-identity" data-nav="立即更改電子郵件">
+      <h2 data-icon="profile">立即更改電子郵件</h2>
+      <ol class="steps">
+        <li><h3>開啟 Users</h3><p>在 NPM 主選單開啟 <strong>Users</strong>，找到目前的 Administrator 帳號。</p></li>
+        <li><h3>編輯詳細資料</h3><p>開啟該帳號的動作選單，選 <strong>Edit Details</strong>（繁體中文介面可能顯示對應翻譯）。</p></li>
+        <li><h3>換掉預設電子郵件</h3><p>把 <code>admin@example.com</code> 改成你控制且不與他人共用的登入電子郵件，並確認姓名與暱稱不洩漏不必要資訊。電子郵件也是敏感資料，不要放進截圖。</p></li>
+        <li><h3>儲存並接續改密碼</h3><p>按 <strong>Save</strong>。add-on 所用的 NPM 2.12.4 介面不允許保留預設電子郵件；從預設帳號儲存新資料後，會接著開啟密碼視窗。</p></li>
+      </ol>
+      <p>若介面改版後流程不同，原則不變：先在目前管理員的詳細資料更改預設電子郵件，再使用同一帳號的 Change Password 功能。不要建立第二個管理員來規避加固。</p>
+    </section>
+
+    <section id="change-password" data-nav="立即設定新密碼">
+      <h2 data-icon="enter">立即設定新密碼</h2>
+      <ol class="steps">
+        <li><h3>確認正在修改自己</h3><p>密碼視窗應顯示目前管理員。若不是，取消操作並回到 Users 選擇正確帳號。</p></li>
+        <li><h3>輸入目前密碼</h3><p>首次加固時，目前密碼是剛才使用的預設值。介面要求修改自己的密碼時提供 Current Password。</p></li>
+        <li><h3>產生唯一的新密碼</h3><p>用密碼管理器產生長且隨機、未在其他網站使用的密碼。NPM 2.12.4 前端欄位最低長度為 8 個字元，但最低門檻不等於安全建議。</p></li>
+        <li><h3>確認後儲存</h3><p>在 New Password 與 Confirm Password 輸入同一個新值並儲存。只把新密碼保存在可信任的密碼管理器，不要抄進公開或會同步的文件。</p></li>
+      </ol>
+      <div class="callout"><strong>電子郵件與密碼都要換：</strong>只改其中一個並不算完成。最終狀態必須不再使用 <code>admin@example.com</code>，也不再接受 <code>changeme</code>。</div>
+    </section>
+
+    <section id="verify-credentials" data-nav="登出後驗證">
+      <h2 data-icon="test">登出後驗證</h2>
+      <ol class="steps">
+        <li><h3>主動登出</h3><p>完成儲存後使用 NPM 的登出功能，不要只關閉分頁。</p></li>
+        <li><h3>以新憑證登入</h3><p>重新開啟同一個可信任區網 Web UI，從密碼管理器填入新的電子郵件與新密碼。</p></li>
+        <li><h3>確認帳號身分</h3><p>回到 Users，確認目前管理員顯示新的電子郵件，且管理功能仍可用。不要截取含真實資料的畫面。</p></li>
+        <li><h3>確認預設值失效</h3><p>在私人瀏覽視窗對正確的區網位址測試一次舊的預設組合，應無法登入。避免連續重試；一次足以確認。</p></li>
+      </ol>
+      <p>通過條件是「新憑證成功、預設憑證失敗」。若只驗證新憑證可用，仍無法證明預設密碼已淘汰。</p>
+    </section>
+
+    <section id="management-boundary" data-nav="維持管理面邊界">
+      <h2 data-icon="warning">維持管理面邊界</h2>
+      <table class="data-table">
+        <thead><tr><th>項目</th><th>安全作法</th><th>不安全作法</th></tr></thead>
+        <tbody>
+          <tr><td>TCP 81</td><td>只從可信任區網或受控管理通道存取</td><td>路由器 WAN 轉送、任意來源防火牆規則</td></tr>
+          <tr><td>登入電子郵件</td><td>使用你控制的非預設識別，存於可信任保管庫</td><td>留用 <code>admin@example.com</code> 或出現在公開截圖</td></tr>
+          <tr><td>管理密碼</td><td>長、隨機、唯一，交由密碼管理器保管</td><td>重複使用、分享、寫入 Proxy Host 設定或一般筆記</td></tr>
+          <tr><td>工作階段</td><td>共用裝置用完即登出，管理裝置保持更新</td><td>在公用電腦保存登入或長期不鎖定裝置</td></tr>
+          <tr><td>求助資料</td><td>只貼必要錯誤並遮罩</td><td>上傳完整記錄、憑證、Token、網域或公私有 IP</td></tr>
+        </tbody>
+      </table>
+      <p>改完密碼不會把管理介面變成適合公開的服務。TCP 81 仍不可暴露到網際網路，後續章節也不會以公開 Proxy Host 包裝它。</p>
+    </section>
+
+    <section id="account-record" data-nav="留下安全的管理紀錄">
+      <h2 data-icon="records">留下安全的管理紀錄</h2>
+      <p>你可以留下不含祕密的維運紀錄，例如「預設帳號已於某日停用」「管理面僅限可信任網段」「下次權限檢查日期」。不要在紀錄中寫出真實電子郵件、密碼、完整網域或 IP。</p>
+      <ul>
+        <li>密碼與登入電子郵件：只存在受保護的密碼管理器項目。</li>
+        <li>DNS API Token：日後若使用 DNS Challenge，獨立保存並給最小權限。</li>
+        <li>憑證與私鑰：交由 NPM／備份機制保護，不貼進 issue。</li>
+        <li>記錄檔：只摘錄與錯誤直接相關的少量行，先遮罩網域、公私有 IP、帳號、Token 與憑證內容。</li>
+      </ul>
+      <div class="callout tip"><strong>完成標記：</strong>可以記「新憑證登入成功、預設組合失敗、81 無 WAN 入口」，但不要記下新憑證本身。</div>
+    </section>
+
+    <section id="troubleshooting" data-nav="登入與加固排錯">
+      <h2 data-icon="troubleshoot">登入與加固排錯</h2>
+      <h3>問題一：預設帳密無法登入</h3><p>先確認網址是自己的 NPM TCP 81、鍵盤大小寫與輸入法正確。若此實例曾使用過，可能已建立管理員；不要為了恢復預設值而刪除資料庫。</p>
+      <h3>問題二：儲存時拒絕 admin@example.com</h3><p>這是 NPM 2.12.4 的預期保護：預設電子郵件不允許繼續保留。改成你控制的非預設登入電子郵件再儲存。</p>
+      <h3>問題三：新密碼與確認值不一致</h3><p>清空兩欄，從密碼管理器重新填入同一筆產生值。不要為方便而改用短或重複使用的密碼。</p>
+      <h3>問題四：Current Password 顯示無效</h3><p>確認你修改的是自己的帳號，並輸入目前仍有效的密碼。若電子郵件已改但密碼視窗中斷，回到 Users 的該帳號選 Change Password。</p>
+      <h3>問題五：改完後新憑證仍無法登入</h3><p>先停止連續嘗試，確認新電子郵件是否已儲存、密碼管理器項目是否更新，再從可信任區網重試。不要在公開頻道貼出表單或完整記錄。</p>
+      <h3>問題六：從外網竟然可以打開 81</h3><p>這不是便利功能，而是暴露。先移除路由器 WAN 轉送與過寬防火牆規則，再檢查是否還有公開 DNS 或代理路徑。</p>
+    </section>
+
+    <section id="faq" data-nav="常見問題">
+      <h2 data-icon="faq">常見問題</h2>
+      <details class="faq"><summary>可以只改密碼，不改預設電子郵件嗎？</summary><div class="body">不可以。任務目標是同時淘汰公開的預設登入識別與預設密碼；NPM 2.12.4 的帳號表單也不允許保留 <code>admin@example.com</code>。</div></details>
+      <details class="faq"><summary>密碼至少 8 個字元就夠嗎？</summary><div class="body">8 個字元是該版前端欄位的最低門檻，不是安全目標。請使用密碼管理器產生更長、隨機且唯一的密碼。</div></details>
+      <details class="faq"><summary>改完強密碼後能公開 TCP 81 嗎？</summary><div class="body">不能。強密碼不會消除管理介面的漏洞、暴力嘗試與設定錯誤風險；81 仍只限可信任區網或受控管理通道。</div></details>
+      <details class="faq"><summary>忘記新密碼時可以直接刪除資料庫重來嗎？</summary><div class="body">不要。刪除資料庫可能同時失去 Proxy Host、使用者與其他設定。先保留現況與備份，查閱對應版本的官方支援資訊後再採取恢復程序。</div></details>
+    </section>
+
+    <section id="official-sources" data-nav="官方資料來源">
+      <h2 data-icon="book">官方資料來源</h2>
+      <ul>
+        <li><a href="https://github.com/WOOWTECH/Woow_ha_nginxpm" rel="noopener">WOOWTECH／Woow_ha_nginxpm README</a>：TCP 81 Web UI、預設登入值與立即變更要求。</li>
+        <li><a href="https://github.com/WOOWTECH/Woow_ha_nginxpm/blob/main/nginxpm/README.md" rel="noopener">Woow add-on README</a>：快速安裝、管理介面與預設帳密。</li>
+        <li><a href="https://github.com/NginxProxyManager/nginx-proxy-manager/blob/v2.12.4/backend/setup.js" rel="noopener">NPM v2.12.4 backend/setup.js</a>：第一位管理員的預設電子郵件與密碼。</li>
+        <li><a href="https://github.com/NginxProxyManager/nginx-proxy-manager/blob/v2.12.4/frontend/js/app/user/form.js" rel="noopener">NPM v2.12.4 user/form.js</a>：拒絕保留預設電子郵件及接續密碼表單的行為。</li>
+        <li><a href="https://github.com/NginxProxyManager/nginx-proxy-manager/blob/v2.12.4/frontend/js/app/user/password.ejs" rel="noopener">NPM v2.12.4 password.ejs</a>：目前密碼、新密碼、確認欄位與最低長度。</li>
+      </ul>
+      <p>Woow add-on 的 config.yaml 在核對時標示 NPM 2.12.4，因此本章用同版上游原始碼核對帳號流程。若 add-on 已升版或介面不同，仍應遵守「立刻更改電子郵件與密碼、81 不公開」的安全要求，並以對應版本官方文件為準。</p>
+    </section>
+
+    <div class="pager">
+      <a class="prev" href="ch2_install.html">
+        <span class="label"><i class="mdi mdi-chevron-left" aria-hidden="true"></i> Previous</span>
+        <span class="title">02 · 安裝 NPM add-on</span>
+      </a>
+      <a class="next" href="ch4_dashboard.html">
+        <span class="label">Next <i class="mdi mdi-chevron-right" aria-hidden="true"></i></span>
+        <span class="title">04 · 管理介面導覽</span>
+      </a>
+    </div>
+
+    <footer class="site-footer">
+      <p>Nginx Proxy Manager 反向代理指南 is produced by <a href="https://github.com/WOOWTECH/Woow_nginx_proxy_manager_tutorial_site" rel="noopener">WoowTech</a> and released under <a rel="license noopener" href="https://creativecommons.org/licenses/by/4.0/deed.en">CC BY 4.0</a> — share and adapt freely, with attribution.</p>
+      <p class="footer-meta">畫面與流程依 Nginx Proxy Manager 官方介面整理。Nginx Proxy Manager 為其權利人的商標，本站與其無隸屬關係。 · <a href="https://github.com/WOOWTECH/Woow_nginx_proxy_manager_tutorial_site" rel="noopener">Source &amp; errata</a></p>
+    </footer>
+  </main>
+
+  </div>
+  <script id="ui-strings" type="application/json">{"tocToggle":"Contents","tocExpand":"Expand chapter navigation","tocCollapse":"Collapse chapter navigation"}</script>
+  <script src="../assets/js/toc.js"></script>
+</body>
+</html>

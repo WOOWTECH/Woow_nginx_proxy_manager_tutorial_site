@@ -1,0 +1,231 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Chapter 6 · DNS 與網域解析 · Nginx Proxy Manager 反向代理指南</title>
+  <meta name="description" content="Nginx Proxy Manager DNS 教學：A、CNAME、Cloudflare Proxy、公開 IP、NAT 與解析檢查。" />
+  <meta name="author" content="WoowTech" />
+  <link rel="canonical" href="https://nginx-guide.woowtech.io/en/ch6_dns.html" />
+  <meta name="robots" content="noindex, follow" />
+  <meta property="og:type" content="article" />
+  <meta property="og:site_name" content="Nginx Proxy Manager 反向代理指南" />
+  <meta property="og:locale" content="en_US" />
+  <meta property="og:locale:alternate" content="zh_TW" />
+  <meta property="og:title" content="Chapter 6 · DNS 與網域解析 · Nginx Proxy Manager 反向代理指南" />
+  <meta property="og:description" content="Nginx Proxy Manager DNS 教學：A、CNAME、Cloudflare Proxy、公開 IP、NAT 與解析檢查。" />
+  <meta property="og:url" content="https://nginx-guide.woowtech.io/en/ch6_dns.html" />
+  <meta property="og:image" content="https://nginx-guide.woowtech.io/assets/og/npm-guide.en.png" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Chapter 6 · DNS 與網域解析 · Nginx Proxy Manager 反向代理指南" />
+  <meta name="twitter:description" content="Nginx Proxy Manager DNS 教學：A、CNAME、Cloudflare Proxy、公開 IP、NAT 與解析檢查。" />
+  <meta name="twitter:image" content="https://nginx-guide.woowtech.io/assets/og/npm-guide.en.png" />
+  <meta name="theme-color" content="#6183FC" />
+  <link rel="license" href="https://creativecommons.org/licenses/by/4.0/deed.en" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&family=Poppins:wght@400;500;600;700&family=Yellowtail&display=swap" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@mdi/font@7.4.47/css/materialdesignicons.min.css" />
+  <link rel="stylesheet" href="../assets/css/style.css" />
+  <link rel="stylesheet" href="../assets/css/i18n.css" />
+</head>
+<body>
+  <div class="layout">
+    <aside class="sidebar">
+    <a class="brand" href="tutorial.html">NPM 指南</a>
+    <div class="brand-sub">把家中服務安全帶上網</div>
+    <nav class="lang-switch" aria-label="Language"><a href="../ch6_dns.html" lang="zh-Hant" hreflang="zh-Hant">中文</a><a class="active" href="ch6_dns.html" lang="en" aria-current="page">EN</a></nav>
+    <a class="hub-link" href="index.html"><i class="mdi mdi-view-grid-outline" aria-hidden="true"></i> 資源總覽</a>
+    <h2>Chapters</h2>
+    <ol>
+      <li class="part-label">基礎：認識與安裝</li>
+      <li data-i18n="pending"><a href="ch1_intro.html">開始前</a></li>
+      <li data-i18n="pending"><a href="ch2_install.html">安裝</a></li>
+      <li data-i18n="pending"><a href="ch3_first_login.html">首次登入</a></li>
+      <li data-i18n="pending"><a href="ch4_dashboard.html">介面導覽</a></li>
+      <li class="part-label">建置：公開第一個服務</li>
+      <li data-i18n="pending"><a href="ch5_proxy_host.html">第一個代理</a></li>
+      <li data-i18n="pending"><a href="ch6_dns.html" class="active">DNS 解析</a></li>
+      <li data-i18n="pending"><a href="ch7_ssl.html">SSL 憑證</a></li>
+      <li class="part-label">進階：安全與路由</li>
+      <li data-i18n="pending"><a href="ch8_cloudflare_tunnel.html">CF Tunnel</a></li>
+      <li data-i18n="pending"><a href="ch9_access_lists.html">存取控制</a></li>
+      <li data-i18n="pending"><a href="ch10_advanced_hosts.html">進階主機</a></li>
+      <li class="part-label">管理：維運與排錯</li>
+      <li data-i18n="pending"><a href="ch11_backup_security.html">備份安全</a></li>
+      <li data-i18n="pending"><a href="ch12_troubleshooting.html">排錯維護</a></li>
+    </ol>
+    <div class="toc-in-chapter">
+      <h2>This chapter</h2>
+      <a href="#dns-role">DNS 在代理路徑的位置</a>
+      <a href="#inventory">先盤點入口資料</a>
+      <a href="#a-vs-cname">A 與 CNAME 怎麼選</a>
+      <a href="#create-record">建立 A 或 CNAME</a>
+      <a href="#public-ip-nat">公開 IP 與 NAT</a>
+      <a href="#nat-setup">設定 NAT 與防火牆</a>
+      <a href="#cloudflare-status">Cloudflare 橘雲與灰雲</a>
+      <a href="#propagation-test">解析與生效測試</a>
+      <a href="#troubleshooting">DNS 與 NAT 排錯</a>
+      <a href="#faq">常見問題</a>
+      <a href="#sources">官方來源</a>
+    </div>
+  </aside>
+    <main class="content">
+      <div class="callout i18n-pending"><strong>This chapter has not been translated yet.</strong> You are reading the original Chinese text. <a href="../ch6_dns.html" hreflang="zh-Hant">Open the Chinese version</a></div>
+      <div class="chapter-header">
+        <div class="kicker">Chapter 6</div>
+        <h1>DNS 與網域解析</h1>
+        <p class="lead">用 A 或 CNAME 記錄把名稱帶到正確入口，釐清公開 IP、NAT，以及 Cloudflare Proxied 與 DNS-only 的差異。</p>
+      </div>
+
+      <section id="dns-role" data-nav="DNS 在代理路徑的位置">
+        <h2 data-icon="concept">DNS 在代理路徑的位置</h2>
+        <p>DNS 負責把網域名稱轉成用戶端可連線的目的地；它不保存 NPM 的上游連接埠，也不會替路由器建立 NAT。傳統公開模式的完整路徑是「網域 → 公開 IP → 路由器 80／443 NAT → NPM → 內部服務」。</p>
+        <pre class="code-block"><code>app.example.net
+  └─ DNS → [路由器公開 IP]
+       └─ TCP 80/443 NAT → [NPM 位址]
+            └─ Proxy Host → [內部服務位址]:[服務連接埠]</code></pre>
+        <div class="callout warn"><strong>安全邊界：</strong>管理埠 81 不屬於這條公開路徑，不可建立公網 NAT。預設 <code>admin@example.com</code>／<code>changeme</code> 也必須在任何公開服務前立即更改。</div>
+      </section>
+
+      <section id="inventory" data-nav="先盤點入口資料">
+        <h2 data-icon="plan">先盤點入口資料</h2>
+        <table class="data-table">
+          <thead><tr><th>資料</th><th>從哪裡確認</th><th>用途</th></tr></thead>
+          <tbody>
+            <tr><td>完整網域</td><td>你的 DNS 供應商控制台</td><td>同時填入 DNS 與 NPM Domain Names</td></tr>
+            <tr><td>路由器 WAN 位址</td><td>路由器狀態頁</td><td>判斷是否持有可被網際網路連入的位址</td></tr>
+            <tr><td>外部觀測位址</td><td>可信任的外部查詢方式</td><td>和 WAN 位址比對，協助辨識上游 NAT</td></tr>
+            <tr><td>NPM 區網位址</td><td>Home Assistant 與路由器租約</td><td>NAT 的內部目的地</td></tr>
+            <tr><td>DNS 目標主機名</td><td>既有動態 DNS 或平台文件</td><td>需要以 CNAME 指向另一名稱時使用</td></tr>
+          </tbody>
+        </table>
+        <p>以上全是敏感資料。公開筆記請改用 <code>app.example.net</code>、<code>[公開 IP]</code>、<code>[內部 IP]</code> 等代號；密碼、DNS API token、憑證與完整 log 不得附上。</p>
+      </section>
+
+      <section id="a-vs-cname" data-nav="A 與 CNAME 怎麼選">
+        <h2 data-icon="compare">A 與 CNAME 怎麼選</h2>
+        <table class="data-table">
+          <thead><tr><th>記錄類型</th><th>值代表什麼</th><th>適合情境</th><th>注意事項</th></tr></thead>
+          <tbody>
+            <tr><td>A</td><td>IPv4 位址</td><td>直接把名稱指向公開 IPv4</td><td>公開 IP 變動時要同步更新記錄</td></tr>
+            <tr><td>CNAME</td><td>另一個完整主機名稱</td><td>多個子網域共用同一個動態 DNS 名稱</td><td>不能把 URL、路徑或 IP 當成 CNAME 目標</td></tr>
+          </tbody>
+        </table>
+        <p>無論選 A 或 CNAME，DNS 記錄都不包含 <code>:81</code>、<code>:443</code> 或任何路徑。服務連接埠由用戶端協定、NAT 與 NPM 規則處理。</p>
+      </section>
+
+      <section id="create-record" data-nav="建立 A 或 CNAME">
+        <h2 data-icon="steps">建立 A 或 CNAME 記錄</h2>
+        <ol class="steps">
+          <li><h3>選擇測試名稱</h3><p>使用獨立子網域，例如 <code>app.example.net</code>，避免直接改動仍在使用的正式記錄。</p></li>
+          <li><h3>決定記錄類型</h3><p>若你有可維護的公開 IPv4，建立 A 記錄；若已有受維護的目標主機名，建立 CNAME 指向該名稱。</p></li>
+          <li><h3>填入名稱與目標</h3><p>A 的內容是公開 IPv4；CNAME 的內容是另一主機名稱。不可填 NPM 上游的內部 IP，除非這本來就是僅供內部 DNS 使用的設計。</p></li>
+          <li><h3>選擇 TTL 與代理狀態</h3><p>TTL 控制解析器可快取記錄多久。若使用 Cloudflare，再依本章後段決定 Proxied 或 DNS-only，不要把橘雲當成單純外觀選項。</p></li>
+          <li><h3>儲存後查詢</h3><p>從內網與行動網路分別查詢，保存「是否符合設計」的結果即可；分享時遮罩真實網域與 IP。</p></li>
+        </ol>
+      </section>
+
+      <section id="public-ip-nat" data-nav="公開 IP 與 NAT">
+        <h2 data-icon="network">公開 IP 與 NAT</h2>
+        <p>傳統 NPM 對外模式需要可從網際網路抵達的入口。路由器取得的 WAN 位址如果是 RFC 1918 私有範圍，或落在供共享位址使用的 <code>100.64.0.0/10</code>，就不是可直接從公網路由到你路由器的 IPv4；即使看似公開，WAN 與外部觀測結果不同也可能代表雙層 NAT、CGNAT 或其他上游轉換，需向 ISP 或網路管理者確認。</p>
+        <p>公開 IP 可能是動態的。若它變更而 A 記錄沒有更新，用戶端會前往舊位置；可以使用可信任的動態 DNS 更新機制，但其 API token 必須採最小權限並安全保存。</p>
+      </section>
+
+      <section id="nat-setup" data-nav="設定 NAT 與防火牆">
+        <h2 data-icon="steps">設定 NAT 與防火牆</h2>
+        <ol class="steps">
+          <li><h3>固定 NPM 的區網位置</h3><p>在路由器以 DHCP 保留等方式，避免 Home Assistant 位址改變後 NAT 指向錯誤。</p></li>
+          <li><h3>建立必要轉送</h3><p>傳統模式把外部 TCP 80 導向 NPM 的 80，外部 TCP 443 導向 NPM 的 443。不要建立外部 81 到內部 81 的規則。</p></li>
+          <li><h3>檢查上游設備</h3><p>若 ISP 數據機與自有路由器都執行 NAT，必須釐清每一層；不確定時不要把設備設成全開放或 DMZ。</p></li>
+          <li><h3>從真正外網測試</h3><p>關閉手機 Wi-Fi 後測試測試網域。區域網路成功不代表公網 NAT 成功。</p></li>
+        </ol>
+        <div class="callout tip">若採 Cloudflare Tunnel，資料路徑與 DNS 目標不同，而且通常不需要路由器轉送 80／443；不要同時照抄兩種拓撲。Tunnel 架構在第 8 章說明。</div>
+      </section>
+
+      <section id="cloudflare-status" data-nav="Cloudflare 橘雲與灰雲">
+        <h2 data-icon="modes">Cloudflare Proxied 與 DNS-only</h2>
+        <table class="data-table">
+          <thead><tr><th>狀態</th><th>DNS 查詢通常看見</th><th>HTTP／HTTPS 路徑</th><th>安全含意</th></tr></thead>
+          <tbody>
+            <tr><td>Proxied（橘雲）</td><td>Cloudflare anycast IP，而非來源站 IP</td><td>用戶端先到 Cloudflare，再由 Cloudflare 連來源站</td><td>可隱藏 DNS 中的來源 IP並套用 Cloudflare 功能，但不能取代來源站防火牆與更新</td></tr>
+            <tr><td>DNS-only（灰雲）</td><td>A／AAAA 的來源 IP；CNAME 依一般 DNS 鏈解析</td><td>用戶端直接連來源站</td><td>不會套用 Cloudflare HTTP proxy 的保護，且會揭露可解析出的來源位址</td></tr>
+          </tbody>
+        </table>
+        <p>Cloudflare 官方說明可代理 A、AAAA 與 CNAME 記錄；只有支援的 HTTP／HTTPS 連接埠能透過一般橘雲代理。郵件、驗證記錄及不相容的非 HTTP 服務通常應保持 DNS-only。NPM 的 Stream 也不能因為切成橘雲就自動得到任意 TCP／UDP 代理能力。</p>
+      </section>
+
+      <section id="propagation-test" data-nav="解析與生效測試">
+        <h2 data-icon="test">解析與生效測試</h2>
+        <p>DNS 更新沒有保證「幾分鐘一定全球生效」。權威伺服器更新、遞迴解析器快取與本機快取都會影響看到新值的時間，TTL 只是控制快取有效期的重要因素之一。</p>
+        <pre class="code-block"><code>dig A app.example.net
+dig CNAME app.example.net
+nslookup app.example.net</code></pre>
+        <p>若是 Cloudflare Proxied 記錄，查到 Cloudflare IP 是預期行為，不能用它判定來源站 A 值是否正確。可把本機結果和指定的可信任遞迴解析器、權威 DNS 結果分開比較；不要在公開回報中貼出真實答案。</p>
+        <table class="data-table">
+          <thead><tr><th>測試位置</th><th>要驗證的事</th><th>失敗時先查</th></tr></thead>
+          <tbody>
+            <tr><td>區域網路</td><td>內部 DNS 或 hairpin NAT 是否符合設計</td><td>內外 DNS 答案是否不同</td></tr>
+            <tr><td>行動網路</td><td>公開 DNS、ISP 路徑與 NAT</td><td>公開 IP、CGNAT、80／443 防火牆</td></tr>
+            <tr><td>HTTP Host</td><td>NPM 是否命中正確 Proxy Host</td><td>Domain Names 與實際網址是否一致</td></tr>
+          </tbody>
+        </table>
+      </section>
+
+      <section id="troubleshooting" data-nav="DNS 與 NAT 排錯">
+        <h2 data-icon="troubleshoot">DNS 與 NAT 排錯</h2>
+        <table class="data-table">
+          <thead><tr><th>具體問題</th><th>最可能的層級</th><th>處理方向</th></tr></thead>
+          <tbody>
+            <tr><td>查不到記錄或回覆 NXDOMAIN</td><td>DNS 名稱／權威 zone</td><td>核對記錄名稱、zone 與委派，不要以新增重複記錄碰運氣</td></tr>
+            <tr><td>仍解析到舊 IP</td><td>快取／動態更新</td><td>查 TTL、權威答案與更新器狀態；不要頻繁刪建記錄延長混亂</td></tr>
+            <tr><td>外網逾時、內網正常</td><td>NAT／防火牆／CGNAT</td><td>比對 WAN 與外部觀測位址，檢查 TCP 80／443；不可改開 81</td></tr>
+            <tr><td>外網正常、內網失敗</td><td>hairpin NAT／split DNS</td><td>確認路由器是否支援 NAT loopback，或在受控內部 DNS 建立一致名稱的內部答案</td></tr>
+            <tr><td>切橘雲後連線失敗</td><td>Cloudflare 到來源站</td><td>確認使用受支援的代理連接埠、來源站防火牆與 NPM 80／443；不要假設橘雲會代理 81 或任意 Stream</td></tr>
+            <tr><td>橘雲下 <code>dig CNAME</code> 看不到原目標</td><td>Cloudflare 代理回覆</td><td>Proxied 記錄回覆 Cloudflare IP 屬正常；到 Cloudflare 控制台核對記錄，不要用 DNS-only 長期暴露來源只為查看目標</td></tr>
+          </tbody>
+        </table>
+      </section>
+
+      <section id="faq" data-nav="常見問題">
+        <h2 data-icon="faq">常見問題</h2>
+        <details class="faq"><summary>A 記錄要填 NPM 的內部 IP 還是公開 IP？</summary><div class="body">公開 DNS 的傳統 NAT 架構通常填路由器的公開 IP，再把 80／443 轉送到 NPM。只有受控內部 DNS 的 split DNS 設計才會對內回覆內部位址。</div></details>
+        <details class="faq"><summary>CNAME 可以填 IP 或完整 URL 嗎？</summary><div class="body">不可以。CNAME 的目標是另一個主機名稱；IPv4 應使用 A，URL 路徑則不屬於 DNS 記錄內容。</div></details>
+        <details class="faq"><summary>Cloudflare 橘雲會代理管理埠 81 嗎？</summary><div class="body">不應這樣設計。81 是 NPM 管理埠且不可公開；一般 Cloudflare HTTP proxy 也只支援官方列出的連接埠。</div></details>
+        <details class="faq"><summary>改 DNS 後要等多久？</summary><div class="body">沒有適用所有環境的固定時間。請查權威答案、TTL 與各層快取，而不是只等待或反覆重建記錄。</div></details>
+        <details class="faq"><summary>沒有公開 IPv4 就完全不能用 NPM 嗎？</summary><div class="body">NPM 仍可在內網使用。若要對外，可評估 ISP 提供可入站位址、正確規劃 IPv6，或使用 Cloudflare Tunnel 等出站式方案；不要為繞過 CGNAT 而公開 81。</div></details>
+      </section>
+
+      <section id="sources" data-nav="官方來源">
+        <h2 data-icon="book">官方來源</h2>
+        <ul>
+          <li><a href="https://github.com/WOOWTECH/Woow_ha_nginxpm/blob/main/nginxpm/README.md">WOOWTECH add-on README</a>（路由器 80／443、Cloudflare Tunnel 與 DNS 排錯）</li>
+          <li><a href="https://github.com/WOOWTECH/Woow_ha_nginxpm/blob/main/nginxpm/config.yaml">WOOWTECH add-on config.yaml</a>（80／81／443 實際映射）</li>
+          <li><a href="https://nginxproxymanager.com/guide/">Nginx Proxy Manager 官方 Guide</a>（家庭網路 DNS、公開 IP 與連接埠轉送概念）</li>
+          <li><a href="https://developers.cloudflare.com/dns/manage-dns-records/how-to/create-dns-records/">Cloudflare 官方：Create DNS records</a>（記錄類型、Proxy status 與 TTL）</li>
+          <li><a href="https://developers.cloudflare.com/dns/proxy-status/">Cloudflare 官方：Proxy status</a>（Proxied／DNS-only 回覆與適用情境）</li>
+          <li><a href="https://developers.cloudflare.com/fundamentals/reference/network-ports/">Cloudflare 官方：Network ports</a>（HTTP／HTTPS proxy 支援的連接埠）</li>
+        </ul>
+      </section>
+
+      <div class="pager">
+      <a class="prev" href="ch5_proxy_host.html">
+        <span class="label"><i class="mdi mdi-chevron-left" aria-hidden="true"></i> Previous</span>
+        <span class="title">05 · 建立 Proxy Host</span>
+      </a>
+      <a class="next" href="ch7_ssl.html">
+        <span class="label">Next <i class="mdi mdi-chevron-right" aria-hidden="true"></i></span>
+        <span class="title">07 · Let's Encrypt SSL</span>
+      </a>
+    </div>
+
+    <footer class="site-footer">
+      <p>Nginx Proxy Manager 反向代理指南 is produced by <a href="https://github.com/WOOWTECH/Woow_nginx_proxy_manager_tutorial_site" rel="noopener">WoowTech</a> and released under <a rel="license noopener" href="https://creativecommons.org/licenses/by/4.0/deed.en">CC BY 4.0</a> — share and adapt freely, with attribution.</p>
+      <p class="footer-meta">畫面與流程依 Nginx Proxy Manager 官方介面整理。Nginx Proxy Manager 為其權利人的商標，本站與其無隸屬關係。 · <a href="https://github.com/WOOWTECH/Woow_nginx_proxy_manager_tutorial_site" rel="noopener">Source &amp; errata</a></p>
+    </footer>
+    </main>
+  </div>
+  <script id="ui-strings" type="application/json">{"tocToggle":"Contents","tocExpand":"Expand chapter navigation","tocCollapse":"Collapse chapter navigation"}</script>
+  <script src="../assets/js/toc.js"></script>
+</body>
+</html>

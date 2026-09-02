@@ -1,0 +1,200 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Chapter 4 · 管理介面與核心物件 · Nginx Proxy Manager 反向代理指南</title>
+  <meta name="description" content="Nginx Proxy Manager 管理介面導覽：Hosts、SSL Certificates、Access Lists、Streams 與 Users。" />
+  <meta name="author" content="WoowTech" />
+  <link rel="canonical" href="https://nginx-guide.woowtech.io/en/ch4_dashboard.html" />
+  <meta name="robots" content="noindex, follow" />
+  <meta property="og:type" content="article" />
+  <meta property="og:site_name" content="Nginx Proxy Manager 反向代理指南" />
+  <meta property="og:locale" content="en_US" />
+  <meta property="og:locale:alternate" content="zh_TW" />
+  <meta property="og:title" content="Chapter 4 · 管理介面與核心物件 · Nginx Proxy Manager 反向代理指南" />
+  <meta property="og:description" content="Nginx Proxy Manager 管理介面導覽：Hosts、SSL Certificates、Access Lists、Streams 與 Users。" />
+  <meta property="og:url" content="https://nginx-guide.woowtech.io/en/ch4_dashboard.html" />
+  <meta property="og:image" content="https://nginx-guide.woowtech.io/assets/og/npm-guide.en.png" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Chapter 4 · 管理介面與核心物件 · Nginx Proxy Manager 反向代理指南" />
+  <meta name="twitter:description" content="Nginx Proxy Manager 管理介面導覽：Hosts、SSL Certificates、Access Lists、Streams 與 Users。" />
+  <meta name="twitter:image" content="https://nginx-guide.woowtech.io/assets/og/npm-guide.en.png" />
+  <meta name="theme-color" content="#6183FC" />
+  <link rel="license" href="https://creativecommons.org/licenses/by/4.0/deed.en" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&family=Poppins:wght@400;500;600;700&family=Yellowtail&display=swap" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@mdi/font@7.4.47/css/materialdesignicons.min.css" />
+  <link rel="stylesheet" href="../assets/css/style.css" />
+  <link rel="stylesheet" href="../assets/css/i18n.css" />
+</head>
+<body>
+  <div class="layout">
+    <aside class="sidebar">
+    <a class="brand" href="tutorial.html">NPM 指南</a>
+    <div class="brand-sub">把家中服務安全帶上網</div>
+    <nav class="lang-switch" aria-label="Language"><a href="../ch4_dashboard.html" lang="zh-Hant" hreflang="zh-Hant">中文</a><a class="active" href="ch4_dashboard.html" lang="en" aria-current="page">EN</a></nav>
+    <a class="hub-link" href="index.html"><i class="mdi mdi-view-grid-outline" aria-hidden="true"></i> 資源總覽</a>
+    <h2>Chapters</h2>
+    <ol>
+      <li class="part-label">基礎：認識與安裝</li>
+      <li data-i18n="pending"><a href="ch1_intro.html">開始前</a></li>
+      <li data-i18n="pending"><a href="ch2_install.html">安裝</a></li>
+      <li data-i18n="pending"><a href="ch3_first_login.html">首次登入</a></li>
+      <li data-i18n="pending"><a href="ch4_dashboard.html" class="active">介面導覽</a></li>
+      <li class="part-label">建置：公開第一個服務</li>
+      <li data-i18n="pending"><a href="ch5_proxy_host.html">第一個代理</a></li>
+      <li data-i18n="pending"><a href="ch6_dns.html">DNS 解析</a></li>
+      <li data-i18n="pending"><a href="ch7_ssl.html">SSL 憑證</a></li>
+      <li class="part-label">進階：安全與路由</li>
+      <li data-i18n="pending"><a href="ch8_cloudflare_tunnel.html">CF Tunnel</a></li>
+      <li data-i18n="pending"><a href="ch9_access_lists.html">存取控制</a></li>
+      <li data-i18n="pending"><a href="ch10_advanced_hosts.html">進階主機</a></li>
+      <li class="part-label">管理：維運與排錯</li>
+      <li data-i18n="pending"><a href="ch11_backup_security.html">備份安全</a></li>
+      <li data-i18n="pending"><a href="ch12_troubleshooting.html">排錯維護</a></li>
+    </ol>
+    <div class="toc-in-chapter">
+      <h2>This chapter</h2>
+      <a href="#dashboard">Dashboard 能看什麼</a>
+      <a href="#object-map">核心物件地圖</a>
+      <a href="#hosts-menu">Hosts 選單</a>
+      <a href="#certificates-access">憑證與 Access Lists</a>
+      <a href="#users-audit">Users 與 Audit Log</a>
+      <a href="#safe-tour">安全導覽步驟</a>
+      <a href="#lifecycle">物件建立順序</a>
+      <a href="#security-boundary">管理面安全邊界</a>
+      <a href="#troubleshooting">介面排錯</a>
+      <a href="#faq">常見問題</a>
+      <a href="#sources">官方來源</a>
+    </div>
+  </aside>
+    <main class="content">
+      <div class="callout i18n-pending"><strong>This chapter has not been translated yet.</strong> You are reading the original Chinese text. <a href="../ch4_dashboard.html" hreflang="zh-Hant">Open the Chinese version</a></div>
+      <div class="chapter-header">
+        <div class="kicker">Chapter 4</div>
+        <h1>管理介面與核心物件</h1>
+        <p class="lead">先看懂 Dashboard、Hosts、憑證、存取清單與使用者之間的關係，再開始建立第一條反向代理規則。</p>
+      </div>
+
+      <section id="dashboard" data-nav="Dashboard 能看什麼">
+        <h2 data-icon="tabs">Dashboard 能看什麼</h2>
+        <p>登入後的 Dashboard 是主機物件摘要，不是流量監控儀表板。Woow add-on 目前採用的 Nginx Proxy Manager 2.12.4 介面，會依你的權限顯示 Proxy Hosts、Redirection Hosts、Streams 與 404 Hosts 的數量卡片；按卡片可進入相應清單。</p>
+        <div class="callout tip"><strong>先做安全確認：</strong>若你仍能用 <code>admin@example.com</code>／<code>changeme</code> 登入，請立即更改 email 與密碼。管理介面的 <code>81/tcp</code> 只能留在可信任的區域網路或受保護的管理通道，不可直接公開到網際網路。</div>
+      </section>
+
+      <section id="object-map" data-nav="核心物件地圖">
+        <h2 data-icon="concept">核心物件地圖</h2>
+        <p>NPM 把不同目的的設定拆成物件。建立前先選對類型，日後排錯會容易許多。</p>
+        <table class="data-table">
+          <thead><tr><th>物件</th><th>用途</th><th>典型輸入</th><th>是否處理 HTTP</th></tr></thead>
+          <tbody>
+            <tr><td>Proxy Host</td><td>依網域把要求轉送到內部 Web 服務</td><td>網域、上游協定、主機、連接埠</td><td>是</td></tr>
+            <tr><td>Redirection Host</td><td>把來訪者導向另一個 URL</td><td>來源網域、目的 URL、狀態碼</td><td>是，回傳重導向</td></tr>
+            <tr><td>404 Host</td><td>讓指定網域回傳找不到頁面</td><td>網域</td><td>是，回傳 404</td></tr>
+            <tr><td>Stream</td><td>轉送 TCP 或 UDP 連線</td><td>進入連接埠、目標主機與連接埠</td><td>否</td></tr>
+            <tr><td>SSL Certificate</td><td>保存 Let's Encrypt 或自訂憑證，供 Host 引用</td><td>網域、驗證方式或憑證檔</td><td>支援 HTTPS</td></tr>
+            <tr><td>Access List</td><td>以 HTTP 基本驗證或 IP 規則限制 Proxy Host</td><td>帳號規則、允許／拒絕來源</td><td>套用於 Proxy Host</td></tr>
+          </tbody>
+        </table>
+      </section>
+
+      <section id="hosts-menu" data-nav="Hosts 選單">
+        <h2 data-icon="network">Hosts 選單怎麼分</h2>
+        <p><strong>Proxy Hosts</strong> 是本教學最常使用的物件：同一組 80／443 入口可依請求中的網域，分流到不同內部服務。<strong>Redirection Hosts</strong> 只負責把瀏覽器帶往別處；<strong>404 Hosts</strong> 用來明確拒絕某個名稱；<strong>Streams</strong> 則處理非 HTTP 的 TCP／UDP 流量。</p>
+        <p>清單中的 Enabled／Disabled 是該物件是否生效，不代表上游服務一定健康。Dashboard 的數量也不能取代實際連線測試。</p>
+      </section>
+
+      <section id="certificates-access" data-nav="憑證與 Access Lists">
+        <h2 data-icon="security">憑證與 Access Lists</h2>
+        <p>SSL Certificates 與 Access Lists 都是可重複引用的物件。一張涵蓋正確名稱的憑證可以指派給 Proxy Host；一份 Access List 也可套用到多個 Proxy Host。修改共用物件前，先確認有哪些服務會受影響。</p>
+        <div class="callout warn"><strong>敏感資料：</strong>網域、憑證與私鑰、DNS API token、Access List 密碼都不得貼到公開 issue、截圖或未遮罩的文件。DNS Challenge 憑證資料屬高權限機密，應採最小權限並限制可操作的 DNS zone。</div>
+      </section>
+
+      <section id="users-audit" data-nav="Users 與 Audit Log">
+        <h2 data-icon="persons">Users 與 Audit Log</h2>
+        <p>Users 管理可登入 NPM 的人員與權限；它和 Access List 不同，後者保護的是被代理的網站。官方功能清單也列出使用者管理、權限與 Audit Log。日常操作應使用個別帳號，避免多人共用管理員密碼。</p>
+        <p>Audit Log 用來回查管理操作，不等於 Nginx 的存取或錯誤記錄。匯出或分享任何記錄前，先遮罩帳號、網域、公私有 IP、憑證資訊、要求路徑與完整 log。</p>
+      </section>
+
+      <section id="safe-tour" data-nav="安全導覽步驟">
+        <h2 data-icon="steps">安全導覽步驟</h2>
+        <ol class="steps">
+          <li><h3>確認管理入口</h3><p>從區域網路開啟 Home Assistant 的 add-on Web UI，或使用受保護的管理通道。檢查路由器沒有把外部連接埠 81 轉送到 NPM。</p></li>
+          <li><h3>確認個人帳號</h3><p>從右上角個人選單確認 email 已不是預設值，密碼也已更換為唯一且足夠長的密碼。</p></li>
+          <li><h3>依序打開清單</h3><p>只瀏覽 Hosts、SSL Certificates、Access Lists、Users 與 Audit Log，不新增、刪除或停用既有物件。</p></li>
+          <li><h3>記下相依關係</h3><p>對預計調整的 Proxy Host，記錄它引用的憑證與 Access List 名稱；筆記中以代號取代真實網域、IP 與帳號。</p></li>
+        </ol>
+      </section>
+
+      <section id="lifecycle" data-nav="物件建立順序">
+        <h2 data-icon="plan">物件建立順序</h2>
+        <p>第一次建置可依「確認上游服務 → 建立 DNS → 建立 Proxy Host → 從內外網測試 → 申請並指派憑證 → 視需要套用 Access List」進行。DNS 和 Proxy Host 必須使用相同的完整網域名稱，NPM 才能依 Host header 選到正確規則。</p>
+        <p>憑證、存取規則與 Proxy Host 是分開保存的物件；刪除任何共用項目前，先檢查引用關係並保留可還原的備份。</p>
+      </section>
+
+      <section id="security-boundary" data-nav="管理面安全邊界">
+        <h2 data-icon="warning">管理面安全邊界</h2>
+        <ul>
+          <li>對外服務入口通常是 80／443；81 是管理埠，路由器與雲端防火牆都不可公開它。</li>
+          <li>不要把 NPM 管理頁本身當作第一個公開的 Proxy Host；若要遠端管理，優先使用 VPN 或具身分驗證的管理通道。</li>
+          <li>共享畫面或求助時，遮罩所有真實網域、公私有 IP、密碼、token、憑證內容與記錄。</li>
+          <li>Advanced 欄位會直接影響 Nginx 行為；沒有依據時保持空白，不貼入來源不明的設定片段。</li>
+        </ul>
+      </section>
+
+      <section id="troubleshooting" data-nav="介面排錯">
+        <h2 data-icon="troubleshoot">介面排錯</h2>
+        <table class="data-table">
+          <thead><tr><th>具體問題</th><th>先檢查</th><th>安全處理</th></tr></thead>
+          <tbody>
+            <tr><td>Dashboard 數量顯示「-」或一直載入</td><td>重新整理後確認 add-on 仍在執行，並檢查瀏覽器是否阻擋 API 要求</td><td>只擷取錯誤類型；不要公開完整瀏覽器回應或 token</td></tr>
+            <tr><td>看不到 Users、Streams 或部分 Hosts</td><td>確認目前帳號的角色與檢視／管理權限</td><td>由既有管理員調整最小必要權限，不共用管理員帳密</td></tr>
+            <tr><td>Host 顯示 Disabled</td><td>確認是否由維護者刻意停用，並查 Audit Log</td><td>不確定影響範圍時不要直接啟用或刪除</td></tr>
+            <tr><td>開啟 Web UI 出現無法連線</td><td>確認 add-on 已啟動、81 沒被其他服務占用，並從同一區域網路測試</td><td>不要為了排錯把 81 暫時轉送到網際網路</td></tr>
+            <tr><td>儲存表單後出現 Internal Error</td><td>檢查必填欄位、輸入格式與 add-on 記錄中的同一時間點</td><td>分享前只保留必要片段並遮罩網域、IP、憑證與完整 log</td></tr>
+          </tbody>
+        </table>
+      </section>
+
+      <section id="faq" data-nav="常見問題">
+        <h2 data-icon="faq">常見問題</h2>
+        <details class="faq"><summary>Dashboard 的數字能證明代理正常嗎？</summary><div class="body">不能。數字是物件數量摘要；你仍要實際解析網域並用瀏覽器或 <code>curl</code> 測試回應。</div></details>
+        <details class="faq"><summary>Access List 帳號能登入 NPM 嗎？</summary><div class="body">不能把兩者視為同一種帳號。Users 是管理介面使用者；Access List 的 HTTP 基本驗證保護特定 Proxy Host。</div></details>
+        <details class="faq"><summary>可以公開 81 再用強密碼保護嗎？</summary><div class="body">不建議，也不符合本教學安全邊界。81 不可直接暴露到網際網路；請改從可信任區域網路、VPN 或受保護的管理通道進入。</div></details>
+        <details class="faq"><summary>可以先刪掉不認識的 Host 嗎？</summary><div class="body">不可以。先查清建立者、引用的憑證與用途，做好備份；不確定時保持原狀。</div></details>
+        <details class="faq"><summary>為什麼畫面和官方最新截圖不同？</summary><div class="body">Woow add-on 的 README 與 config 目前標示上游 NPM 2.12.4，而官方專案仍持續更新。欄位名稱或版面可能不同，請以你所安裝版本與上游文件為準。</div></details>
+      </section>
+
+      <section id="sources" data-nav="官方來源">
+        <h2 data-icon="book">官方來源</h2>
+        <ul>
+          <li><a href="https://github.com/WOOWTECH/Woow_ha_nginxpm/blob/main/nginxpm/README.md">WOOWTECH：Woow Nginx Proxy Manager add-on README</a>（版本、連接埠、功能與安全提醒）</li>
+          <li><a href="https://github.com/WOOWTECH/Woow_ha_nginxpm/blob/main/nginxpm/config.yaml">WOOWTECH：add-on config.yaml</a>（Web UI 與 80／81／443 映射）</li>
+          <li><a href="https://nginxproxymanager.com/guide/">Nginx Proxy Manager 官方 Guide</a>（Hosts、憑證、Access Lists、使用者與 Audit Log 功能）</li>
+          <li><a href="https://github.com/NginxProxyManager/nginx-proxy-manager/blob/v2.12.4/frontend/js/app/dashboard/main.ejs">NPM v2.12.4 Dashboard 原始碼</a>（Dashboard 卡片種類）</li>
+        </ul>
+      </section>
+
+      <div class="pager">
+      <a class="prev" href="ch3_first_login.html">
+        <span class="label"><i class="mdi mdi-chevron-left" aria-hidden="true"></i> Previous</span>
+        <span class="title">03 · 首次登入與改密碼</span>
+      </a>
+      <a class="next" href="ch5_proxy_host.html">
+        <span class="label">Next <i class="mdi mdi-chevron-right" aria-hidden="true"></i></span>
+        <span class="title">05 · 建立 Proxy Host</span>
+      </a>
+    </div>
+
+    <footer class="site-footer">
+      <p>Nginx Proxy Manager 反向代理指南 is produced by <a href="https://github.com/WOOWTECH/Woow_nginx_proxy_manager_tutorial_site" rel="noopener">WoowTech</a> and released under <a rel="license noopener" href="https://creativecommons.org/licenses/by/4.0/deed.en">CC BY 4.0</a> — share and adapt freely, with attribution.</p>
+      <p class="footer-meta">畫面與流程依 Nginx Proxy Manager 官方介面整理。Nginx Proxy Manager 為其權利人的商標，本站與其無隸屬關係。 · <a href="https://github.com/WOOWTECH/Woow_nginx_proxy_manager_tutorial_site" rel="noopener">Source &amp; errata</a></p>
+    </footer>
+    </main>
+  </div>
+  <script id="ui-strings" type="application/json">{"tocToggle":"Contents","tocExpand":"Expand chapter navigation","tocCollapse":"Collapse chapter navigation"}</script>
+  <script src="../assets/js/toc.js"></script>
+</body>
+</html>

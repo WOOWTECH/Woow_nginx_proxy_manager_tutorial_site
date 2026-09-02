@@ -1,0 +1,268 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Chapter 12 · 常見錯誤與完整排查 · Nginx Proxy Manager 反向代理指南</title>
+  <meta name="description" content="Nginx Proxy Manager 排錯：DNS、80/443、502 Bad Gateway、SSL、Cloudflare、WebSocket 與 log。" />
+  <meta name="author" content="WoowTech" />
+  <link rel="canonical" href="https://nginx-guide.woowtech.io/en/ch12_troubleshooting.html" />
+  <meta name="robots" content="noindex, follow" />
+  <meta property="og:type" content="article" />
+  <meta property="og:site_name" content="Nginx Proxy Manager 反向代理指南" />
+  <meta property="og:locale" content="en_US" />
+  <meta property="og:locale:alternate" content="zh_TW" />
+  <meta property="og:title" content="Chapter 12 · 常見錯誤與完整排查 · Nginx Proxy Manager 反向代理指南" />
+  <meta property="og:description" content="Nginx Proxy Manager 排錯：DNS、80/443、502 Bad Gateway、SSL、Cloudflare、WebSocket 與 log。" />
+  <meta property="og:url" content="https://nginx-guide.woowtech.io/en/ch12_troubleshooting.html" />
+  <meta property="og:image" content="https://nginx-guide.woowtech.io/assets/og/npm-guide.en.png" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Chapter 12 · 常見錯誤與完整排查 · Nginx Proxy Manager 反向代理指南" />
+  <meta name="twitter:description" content="Nginx Proxy Manager 排錯：DNS、80/443、502 Bad Gateway、SSL、Cloudflare、WebSocket 與 log。" />
+  <meta name="twitter:image" content="https://nginx-guide.woowtech.io/assets/og/npm-guide.en.png" />
+  <meta name="theme-color" content="#6183FC" />
+  <link rel="license" href="https://creativecommons.org/licenses/by/4.0/deed.en" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&family=Poppins:wght@400;500;600;700&family=Yellowtail&display=swap" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@mdi/font@7.4.47/css/materialdesignicons.min.css" />
+  <link rel="stylesheet" href="../assets/css/style.css" />
+  <link rel="stylesheet" href="../assets/css/i18n.css" />
+</head>
+<body>
+  <div class="layout">
+    <aside class="sidebar">
+    <a class="brand" href="tutorial.html">NPM 指南</a>
+    <div class="brand-sub">把家中服務安全帶上網</div>
+    <nav class="lang-switch" aria-label="Language"><a href="../ch12_troubleshooting.html" lang="zh-Hant" hreflang="zh-Hant">中文</a><a class="active" href="ch12_troubleshooting.html" lang="en" aria-current="page">EN</a></nav>
+    <a class="hub-link" href="index.html"><i class="mdi mdi-view-grid-outline" aria-hidden="true"></i> 資源總覽</a>
+    <h2>Chapters</h2>
+    <ol>
+      <li class="part-label">基礎：認識與安裝</li>
+      <li data-i18n="pending"><a href="ch1_intro.html">開始前</a></li>
+      <li data-i18n="pending"><a href="ch2_install.html">安裝</a></li>
+      <li data-i18n="pending"><a href="ch3_first_login.html">首次登入</a></li>
+      <li data-i18n="pending"><a href="ch4_dashboard.html">介面導覽</a></li>
+      <li class="part-label">建置：公開第一個服務</li>
+      <li data-i18n="pending"><a href="ch5_proxy_host.html">第一個代理</a></li>
+      <li data-i18n="pending"><a href="ch6_dns.html">DNS 解析</a></li>
+      <li data-i18n="pending"><a href="ch7_ssl.html">SSL 憑證</a></li>
+      <li class="part-label">進階：安全與路由</li>
+      <li data-i18n="pending"><a href="ch8_cloudflare_tunnel.html">CF Tunnel</a></li>
+      <li data-i18n="pending"><a href="ch9_access_lists.html">存取控制</a></li>
+      <li data-i18n="pending"><a href="ch10_advanced_hosts.html">進階主機</a></li>
+      <li class="part-label">管理：維運與排錯</li>
+      <li data-i18n="pending"><a href="ch11_backup_security.html">備份安全</a></li>
+      <li data-i18n="pending"><a href="ch12_troubleshooting.html" class="active">排錯維護</a></li>
+    </ol>
+    <div class="toc-in-chapter">
+      <h2>This chapter</h2>
+      <a href="#layered-method">分層排查</a>
+      <a href="#safe-evidence">安全蒐證</a>
+      <a href="#dns-diagnosis">DNS 診斷</a>
+      <a href="#ports-nat">Ports 與 NAT</a>
+      <a href="#upstream-502">Upstream 與 502</a>
+      <a href="#ssl-diagnosis">SSL 診斷</a>
+      <a href="#cloudflare-diagnosis">Cloudflare 診斷</a>
+      <a href="#websocket-diagnosis">WebSocket 診斷</a>
+      <a href="#logs">Logs 判讀</a>
+      <a href="#quick-troubleshooting">故障速查</a>
+      <a href="#troubleshooting-faq">常見問題</a>
+      <a href="#troubleshooting-sources">官方來源</a>
+    </div>
+  </aside>
+
+    <main class="content">
+      <div class="callout i18n-pending"><strong>This chapter has not been translated yet.</strong> You are reading the original Chinese text. <a href="../ch12_troubleshooting.html" hreflang="zh-Hant">Open the Chinese version</a></div>
+      <div class="chapter-header">
+        <div class="kicker">Chapter 12</div>
+        <h1>常見錯誤與完整排查</h1>
+        <p class="lead">從用戶端一路拆成 DNS、外部入口、NPM、upstream、TLS 與 Cloudflare。每次只證明一層、只改一項，避免在 DNS、路由器與 Proxy Host 之間來回猜測。</p>
+      </div>
+
+      <section id="layered-method" data-nav="分層排查">
+        <h2 data-icon="concept">先畫出請求經過的每一層</h2>
+        <p>「網站打不開」不是診斷。先確認請求走哪條路，再找出最後成功的一層與第一個失敗的層。若使用 Cloudflare Tunnel，路徑與傳統 port forwarding 不同，不能混用同一套假設。</p>
+        <table class="data-table">
+          <thead><tr><th scope="col">層級</th><th scope="col">要證明的事</th><th scope="col">常見證據</th></tr></thead>
+          <tbody>
+            <tr><td>1. 用戶端</td><td>問題是否只發生在單一瀏覽器或網路</td><td>無痕視窗、另一台裝置、行動網路</td></tr>
+            <tr><td>2. DNS</td><td>名稱是否解析到預期公開入口</td><td>A／AAAA／CNAME 回覆與 resolver</td></tr>
+            <tr><td>3. 外部入口</td><td>80／443、NAT 或 Tunnel 是否到得了 NPM</td><td>逾時、拒絕、Cloudflare 錯誤頁</td></tr>
+            <tr><td>4. NPM</td><td>正確 Host 是否啟用且能載入設定</td><td>Host 狀態、add-on log、HTTP 狀態碼</td></tr>
+            <tr><td>5. Upstream</td><td>NPM 是否能以正確 scheme／IP／port 連到服務</td><td>直連結果、connection refused／timeout</td></tr>
+            <tr><td>6. 應用與 TLS</td><td>應用路徑、WebSocket、憑證鏈是否正確</td><td>404、101 握手、瀏覽器憑證資訊</td></tr>
+          </tbody>
+        </table>
+        <div class="callout danger"><strong>排錯期間也不能公開 port 81：</strong>管理介面只留在可信任網段。若還沒把 <code>admin@example.com</code>／<code>changeme</code> 立即更換，先完成帳號與密碼更新；不要用「暫時測試」為由把 81 轉送到公網。</div>
+      </section>
+
+      <section id="safe-evidence" data-nav="安全蒐證">
+        <h2 data-icon="security">建立安全又可比較的證據</h2>
+        <ol class="steps">
+          <li><h3>縮小時間窗</h3><p>記下發生時間、時區、測試 URL 的改寫代稱、用戶端網路，以及最後一次正常時間。一次只重現一個請求。</p></li>
+          <li><h3>記錄症狀而非機密</h3><p>保留 HTTP 狀態碼、錯誤類型與相關的少量 log 行；遮罩網域、公開／私有 IP、Authorization、Cookie、密碼、DNS API token、憑證內容與查詢參數。</p></li>
+          <li><h3>建立對照組</h3><p>比較內網直連 upstream、內網經 NPM、外網經公開入口。若使用 Cloudflare，再比較 Tunnel／代理前後，但不要任意切換生產 DNS。</p></li>
+          <li><h3>一次只改一項</h3><p>保存前記錄原值。不要同時改 DNS、路由器 port、Forward Scheme 與憑證，否則無法知道是哪一項生效。</p></li>
+        </ol>
+        <div class="callout warn">完整 log 往往包含主機名稱、IP、URL、User-Agent 或其他可識別資料。提供支援時只貼最少必要片段；若 token、密碼或私鑰已公開，刪文不夠，還要立即輪替。</div>
+      </section>
+
+      <section id="dns-diagnosis" data-nav="DNS 診斷">
+        <h2 data-icon="records">DNS：先確認名稱走到哪裡</h2>
+        <ol class="steps">
+          <li><h3>查詢實際使用的 resolver</h3><p>分別從內網與行動網路查 A、AAAA 或 CNAME。記錄結果前遮罩完整網域與 IP。內外結果不同可能是 split DNS，也可能是快取或錯誤記錄。</p></li>
+          <li><h3>比對架構</h3><p>傳統 NAT 的 A／AAAA 應導向你的公開入口；Cloudflare proxied 記錄通常回 Cloudflare 位址；Tunnel 的公開 hostname 則由 Cloudflare 路由。不要把看到 Cloudflare IP 誤判成錯誤。</p></li>
+          <li><h3>檢查多餘的 AAAA</h3><p>若只有 IPv6 用戶失敗，確認 AAAA 是否真的有可達的 IPv6 入口。不要只修 A 記錄卻忽略用戶端可能優先使用 AAAA。</p></li>
+          <li><h3>等待 TTL 並查權威設定</h3><p>本機快取只是其中一層。核對 DNS 供應商目前記錄與 TTL，不要透過反覆刪除／重建製造更多變數。</p></li>
+        </ol>
+        <table class="data-table">
+          <thead><tr><th scope="col">現象</th><th scope="col">可能原因</th><th scope="col">下一步</th></tr></thead>
+          <tbody>
+            <tr><td>NXDOMAIN</td><td>記錄不存在、名稱拼錯或委派錯誤</td><td>查權威 DNS 的 zone 與完整名稱</td></tr>
+            <tr><td>內網正常、外網解析錯</td><td>split DNS 或公開 zone 設錯</td><td>分別記錄兩個 resolver 的答案並比對預期架構</td></tr>
+            <tr><td>部分網路仍到舊 IP</td><td>TTL／resolver 快取</td><td>等待 TTL，避免繼續變更</td></tr>
+            <tr><td>IPv4 正常、部分裝置逾時</td><td>無效 AAAA 或 IPv6 路徑</td><td>驗證 IPv6 入口，再決定是否修正 AAAA</td></tr>
+          </tbody>
+        </table>
+      </section>
+
+      <section id="ports-nat" data-nav="Ports 與 NAT">
+        <h2 data-icon="network">80／443：從外部證明入口可達</h2>
+        <p>Woow add-on 宣告 80/tcp 為 HTTP、443/tcp 為 HTTPS、81/tcp 為 Admin。傳統架構通常只把 80／443 導向 HA；Cloudflare Tunnel 架構則不需要路由器對外轉送這些埠。先確認你實際採用哪一種。</p>
+        <ol class="steps">
+          <li><h3>使用真正的外部網路</h3><p>關閉手機 Wi-Fi 後測試，避免 NAT loopback 讓內網結果看似外網可達。記錄是 timeout、connection refused、TLS 錯誤還是 HTTP 回應。</p></li>
+          <li><h3>傳統 NAT：核對 80／443</h3><p>確認路由器規則的目標是正確 HA 私有 IP，協定為 TCP，且 HA 位址沒有因 DHCP 改變。不要建立 WAN → 81。</p></li>
+          <li><h3>確認沒有 port 衝突或上游阻擋</h3><p>若 add-on 無法啟動，查看是否已有其他服務占用 80／81／443。若外部完全 timeout，也要確認 ISP 是否使用 CGNAT 或封鎖入站埠。</p></li>
+          <li><h3>Tunnel：不要同時追 NAT</h3><p>確認 cloudflared connector 在線、public hostname 指向 NPM 可達的內部 service。Tunnel 失敗時，開更多路由器 port 通常不是修正方式。</p></li>
+        </ol>
+        <div class="callout tip">HTTP-01 申請憑證需要公開 80 可到達挑戰端點；DNS-01 不要求開放 80。不要因為使用 DNS-01 就假設 443 或 upstream 一定正常，這些是不同層。</div>
+      </section>
+
+      <section id="upstream-502" data-nav="Upstream 與 502">
+        <h2 data-icon="integration">Upstream：拆解 502 Bad Gateway</h2>
+        <p>在 NPM 看見 502，通常表示 NPM 已收到請求，但無法從設定的 upstream 取得可用回應。先核對 Forward Scheme、Hostname／IP 與 Port，不要從重申請公開憑證開始。</p>
+        <ol class="steps">
+          <li><h3>從內網直連服務</h3><p>以服務實際 scheme 與 port 測試改寫後的 upstream URL。若直連也失敗，先處理應用程式、主機防火牆或服務監聽位址。</p></li>
+          <li><h3>確認不是 localhost 陷阱</h3><p>對 add-on 而言，<code>127.0.0.1</code>／<code>localhost</code> 通常指容器自身，不是 HA 主機或另一台設備。使用 NPM 從其網路可達的私有位址或名稱。</p></li>
+          <li><h3>比對 scheme 與 port</h3><p>把 HTTP upstream 填成 HTTPS，或把 HTTPS port 當 HTTP 使用，都可能失敗。確認服務是否在該 port 真的說該協定。</p></li>
+          <li><h3>讀同一時間的錯誤</h3><p><code>connection refused</code> 常指該位址／port 沒有服務接受；<code>timed out</code> 常指路由、防火牆或服務無回應。保留錯誤類型，遮罩位址後再分享。</p></li>
+        </ol>
+        <table class="data-table">
+          <thead><tr><th scope="col">502 線索</th><th scope="col">優先檢查</th><th scope="col">避免的誤動作</th></tr></thead>
+          <tbody>
+            <tr><td>connection refused</td><td>upstream 服務是否啟動、port 是否正確</td><td>不要重建 DNS 記錄</td></tr>
+            <tr><td>timeout</td><td>路由、防火牆、私有 IP 是否變更</td><td>不要無限拉長 timeout 掩蓋不可達</td></tr>
+            <tr><td>wrong version number／握手錯誤</td><td>Forward Scheme 是否與 upstream TLS 相符</td><td>不要先更換公開端憑證</td></tr>
+            <tr><td>只有某一路徑 502／404</td><td>Custom Location 與應用 base path</td><td>不要刪掉整個 Proxy Host</td></tr>
+          </tbody>
+        </table>
+      </section>
+
+      <section id="ssl-diagnosis" data-nav="SSL 診斷">
+        <h2 data-icon="warning">SSL：分清申請、套用與用戶端驗證</h2>
+        <p>「SSL 錯誤」至少可能發生在憑證申請、NPM 套用、瀏覽器驗證或 NPM 到 HTTPS upstream 的連線。先看錯誤出現在哪一段。</p>
+        <ol class="steps">
+          <li><h3>確認瀏覽器實際收到的憑證</h3><p>檢查 Subject Alternative Name、有效期與簽發鏈是否對應目前網域。只記錄必要欄位，不匯出或分享私鑰。</p></li>
+          <li><h3>確認 Proxy Host 選到正確憑證</h3><p>同一張萬用或多網域憑證不代表已自動套到 Host。核對 SSL 分頁選擇、Force SSL 與 Host 狀態。</p></li>
+          <li><h3>申請失敗就檢查 challenge 路徑</h3><p>HTTP-01 查 DNS 與外部 80；DNS-01 查 DNS provider、zone 權限與最低權限 token。不要把 token 貼進 log 或問題單。</p></li>
+          <li><h3>排除時間與續期問題</h3><p>確認 HA 主機時間正確，並查看接近續期時間的 add-on log。避免因一次失敗重複申請而碰到 CA 速率限制。</p></li>
+        </ol>
+        <div class="callout warn">不要為了消除警告而關閉用戶端憑證驗證，也不要把 origin 的自簽憑證問題與公開端 Let's Encrypt 憑證混為一談。每一段 TLS 都要單獨確認。</div>
+      </section>
+
+      <section id="cloudflare-diagnosis" data-nav="Cloudflare 診斷">
+        <h2 data-icon="remote">Cloudflare：確認錯誤在哪一側</h2>
+        <p>Cloudflare 官方指出 502／504 表示 Cloudflare 無法與 origin web server 建立聯繫，來源可能是 origin，也可能是 Cloudflare。看到 Cloudflare 頁面不等於 NPM 一定沒收到請求；要用時間、Ray ID 與 origin／Tunnel log 對照。</p>
+        <ol class="steps">
+          <li><h3>辨認是 Proxy 還是 Tunnel</h3><p>橘雲 DNS Proxy 通常仍需 Cloudflare 能到公開 origin；Tunnel 則由 cloudflared 主動建立連線。不要用 Tunnel 的修法去加 NAT 規則。</p></li>
+          <li><h3>記錄錯誤碼與 Ray ID</h3><p>保留發生時間、Cloudflare 錯誤碼與 Ray ID；送出前仍要遮罩網域與 IP。再查同時段的 NPM 與 cloudflared log。</p></li>
+          <li><h3>在內網驗證 Tunnel service</h3><p>確認 cloudflared 設定的 service scheme、私有 IP／hostname 與 port 從 connector 所在網路可達。若它指到錯誤的 HTTPS 或 81，就先修 service。</p></li>
+          <li><h3>不要盲目切 DNS only</h3><p>切換會改變公開路徑，可能揭露 origin IP 並影響所有使用者。只有在已核准的維護窗口、了解影響並能回復時才做對照測試。</p></li>
+        </ol>
+      </section>
+
+      <section id="websocket-diagnosis" data-nav="WebSocket 診斷">
+        <h2 data-icon="protocol">WebSocket：找出握手或長連線問題</h2>
+        <p>WebSocket 的初始 HTTP Upgrade 成功時通常會看到 101 Switching Protocols。若普通頁面正常、即時更新失敗，才把焦點移到 WebSocket，而不是重做整個 Proxy Host。</p>
+        <ol class="steps">
+          <li><h3>先測 upstream</h3><p>確認應用程式的 WS endpoint、scheme 與 path。直連就失敗時，先修應用程式。</p></li>
+          <li><h3>確認 NPM 選項</h3><p>編輯 Proxy Host 並啟用 Websockets Support。NPM 2.12.4 官方範本會加入 Upgrade、Connection 與 HTTP/1.1 設定。</p></li>
+          <li><h3>查看握手與關閉碼</h3><p>在瀏覽器開發者工具查看 WS 請求：403 偏向授權／來源限制，404 偏向路徑，502 偏向 upstream，成功後斷線則查 timeout 與應用 log。</p></li>
+          <li><h3>逐層比較</h3><p>內網經 NPM 正常、經 Cloudflare 失敗時才查該層；兩者都失敗則先留在 NPM／upstream。分享畫面前遮罩 URL、Cookie 與訊息內容。</p></li>
+        </ol>
+      </section>
+
+      <section id="logs" data-nav="Logs 判讀">
+        <h2 data-icon="history">Logs：只看同一請求的必要片段</h2>
+        <p>Woow add-on 的 patch 把多種 Nginx access／error log 從檔案改導向 <code>/proc/1/fd/1</code>，因此 Home Assistant 的 add-on log 是重要入口；同時 <code>config.yaml</code> 將 <code>*/logs</code> 排除在備份外。不要假設一般 Docker 教學中的 <code>/data/logs</code> 適用。</p>
+        <ol class="steps">
+          <li><h3>先重現一個請求</h3><p>記下精確時間與預期 Host，避免在大量背景流量中搜尋。</p></li>
+          <li><h3>讀 HA add-on log</h3><p>找同一時間附近的 Nginx、NPM backend、certificate 或 reload 訊息。先判斷是啟動、設定語法、upstream 還是 challenge。</p></li>
+          <li><h3>與應用／Tunnel log 對時</h3><p>NPM 有請求而 upstream 沒有，問題在兩者之間；cloudflared 有 502 而 NPM 無紀錄，則先查 Tunnel 到 NPM 的 service。</p></li>
+          <li><h3>產生最小化摘錄</h3><p>只保留錯誤前後必要行，將真實網域、IP、token、密碼、憑證、Cookie 與完整 URL 改寫。不要上傳整份 log。</p></li>
+        </ol>
+        <div class="callout tip">狀態碼是方向，不是根因。把它與「哪一層產生」「NPM 是否有同時段紀錄」「upstream 是否收到請求」一起判讀。</div>
+      </section>
+
+      <section id="quick-troubleshooting" data-nav="故障速查">
+        <h2 data-icon="troubleshoot">常見故障速查與下一步</h2>
+        <table class="data-table">
+          <thead><tr><th scope="col">具體問題</th><th scope="col">最可能的失敗層</th><th scope="col">第一個安全動作</th></tr></thead>
+          <tbody>
+            <tr><td>網域回 NXDOMAIN</td><td>DNS</td><td>查權威 zone 的記錄與委派，不改 NPM</td></tr>
+            <tr><td>外網 timeout、內網可開 NPM</td><td>NAT／ISP／Tunnel</td><td>用外部網路核對架構與入口；不要公開 81</td></tr>
+            <tr><td>502 Bad Gateway</td><td>NPM → upstream</td><td>直連 upstream 並核對 scheme、私有 IP、port</td></tr>
+            <tr><td>憑證網域不符</td><td>NPM Host／憑證選擇</td><td>確認實際收到的 SAN 與 Proxy Host 選用憑證</td></tr>
+            <tr><td>Cloudflare 502／504</td><td>Cloudflare → origin</td><td>記錄時間／Ray ID，對照 NPM 或 Tunnel log</td></tr>
+            <tr><td>頁面正常但即時功能斷線</td><td>WebSocket</td><td>查 WS 握手、路徑與 Websockets Support</td></tr>
+            <tr><td>保存 Host 後顯示 Offline</td><td>Nginx 設定 reload</td><td>看 add-on log，撤回最後一筆 Advanced 設定</td></tr>
+            <tr><td>只有內網失敗、外網正常</td><td>split DNS／NAT loopback</td><td>比較內外 resolver 與內部路由，不重申請憑證</td></tr>
+          </tbody>
+        </table>
+      </section>
+
+      <section id="troubleshooting-faq" data-nav="常見問題">
+        <h2 data-icon="faq">常見問題</h2>
+        <details class="faq"><summary>看到 502，要先重申請 SSL 憑證嗎？</summary><div class="body">通常不要。先確認 NPM 到 upstream 的 scheme、IP／hostname、port 與可達性。公開端憑證與 upstream 502 是不同層。</div></details>
+        <details class="faq"><summary>用內網 Wi-Fi 測試，能證明 port forwarding 正常嗎？</summary><div class="body">不能。路由器可能支援 NAT loopback，讓內網測試繞回成功。請用行動網路等真正外部連線測試。</div></details>
+        <details class="faq"><summary>Cloudflare 出錯時可以先切成 DNS only 嗎？</summary><div class="body">不要盲目切換。這會改變所有使用者的路徑，也可能揭露 origin IP。應先用 Ray ID、時間與 NPM／Tunnel log 定位，經核准後才做可回復測試。</div></details>
+        <details class="faq"><summary>可以把完整 add-on log 貼到 GitHub Issue 嗎？</summary><div class="body">不可以直接貼。先擷取最小時間窗，遮罩網域、公開／私有 IP、完整 URL、Cookie、Authorization、密碼、DNS token 與憑證資料。</div></details>
+      </section>
+
+      <section id="troubleshooting-sources" data-nav="官方來源">
+        <h2 data-icon="book">官方來源與版本提醒</h2>
+        <p>以下來源在 2026-08-17 核對。Woow add-on 目前以 NPM 2.12.4-v2 為基礎，上游文件可能描述較新的介面；排錯時以已安裝版本、Woow patch 與實際架構為準。</p>
+        <ul>
+          <li><a href="https://github.com/WOOWTECH/Woow_ha_nginxpm/blob/main/nginxpm/README.md">WOOWTECH：連接埠、SSL、資料路徑與疑難排解</a></li>
+          <li><a href="https://github.com/WOOWTECH/Woow_ha_nginxpm/blob/main/nginxpm/config.yaml">WOOWTECH：add-on ports、map 與 backup_exclude</a></li>
+          <li><a href="https://github.com/WOOWTECH/Woow_ha_nginxpm/blob/main/nginxpm/patches/0002-Patch-redirect-logs-to-docker-output.patch">WOOWTECH：Nginx logs 導向 add-on 輸出的 patch</a></li>
+          <li><a href="https://github.com/NginxProxyManager/nginx-proxy-manager/blob/v2.12.4/backend/templates/proxy_host.conf">Nginx Proxy Manager v2.12.4：Proxy Host 與 WebSocket 範本</a></li>
+          <li><a href="https://nginxproxymanager.com/faq/">Nginx Proxy Manager：官方 FAQ</a></li>
+          <li><a href="https://developers.cloudflare.com/support/troubleshooting/http-status-codes/cloudflare-5xx-errors/error-502-504/">Cloudflare：502／504 官方排錯</a></li>
+          <li><a href="https://developers.cloudflare.com/cloudflare-one/connections/connect-networks/troubleshoot-tunnels/">Cloudflare：Tunnel 官方排錯</a></li>
+          <li><a href="https://letsencrypt.org/docs/challenge-types/">Let's Encrypt：Challenge Types</a></li>
+        </ul>
+      </section>
+
+      <div class="pager">
+      <a class="prev" href="ch11_backup_security.html">
+        <span class="label"><i class="mdi mdi-chevron-left" aria-hidden="true"></i> Previous</span>
+        <span class="title">11 · 備份與安全加固</span>
+      </a>
+      <a class="next" href="tutorial.html">
+        <span class="label">Contents <i class="mdi mdi-view-grid-outline" aria-hidden="true"></i></span>
+        <span class="title">You made it — all chapters done!</span>
+      </a>
+    </div>
+
+    <footer class="site-footer">
+      <p>Nginx Proxy Manager 反向代理指南 is produced by <a href="https://github.com/WOOWTECH/Woow_nginx_proxy_manager_tutorial_site" rel="noopener">WoowTech</a> and released under <a rel="license noopener" href="https://creativecommons.org/licenses/by/4.0/deed.en">CC BY 4.0</a> — share and adapt freely, with attribution.</p>
+      <p class="footer-meta">畫面與流程依 Nginx Proxy Manager 官方介面整理。Nginx Proxy Manager 為其權利人的商標，本站與其無隸屬關係。 · <a href="https://github.com/WOOWTECH/Woow_nginx_proxy_manager_tutorial_site" rel="noopener">Source &amp; errata</a></p>
+    </footer>
+    </main>
+  </div>
+  <script id="ui-strings" type="application/json">{"tocToggle":"Contents","tocExpand":"Expand chapter navigation","tocCollapse":"Collapse chapter navigation"}</script>
+  <script src="../assets/js/toc.js"></script>
+</body>
+</html>
