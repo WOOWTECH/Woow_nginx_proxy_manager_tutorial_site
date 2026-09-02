@@ -57,17 +57,17 @@
     </ol>
     <div class="toc-in-chapter">
       <h2>This chapter</h2>
-      <a href="#request-path">先看懂要求路徑</a>
-      <a href="#prerequisites">建立前檢查</a>
-      <a href="#fields">Details 欄位</a>
-      <a href="#create">建立 Proxy Host</a>
-      <a href="#switches">基本開關取捨</a>
-      <a href="#dns-check">確認 DNS 命中 NPM</a>
-      <a href="#test">分層測試</a>
-      <a href="#security-review">上線前安全檢查</a>
-      <a href="#troubleshooting">Proxy Host 排錯</a>
-      <a href="#faq">常見問題</a>
-      <a href="#sources">官方來源</a>
+      <a href="#request-path">Request path</a>
+      <a href="#prerequisites">Pre-create checks</a>
+      <a href="#fields">Details fields</a>
+      <a href="#create">Create Proxy Host</a>
+      <a href="#switches">Basic switches</a>
+      <a href="#dns-check">DNS hits NPM</a>
+      <a href="#test">Layered testing</a>
+      <a href="#security-review">Pre-launch check</a>
+      <a href="#troubleshooting">Proxy Host problems</a>
+      <a href="#faq">FAQ</a>
+      <a href="#sources">Official sources</a>
     </div>
 
   </aside>
@@ -75,123 +75,123 @@
       <div class="callout i18n-pending"><strong>This chapter has not been translated yet.</strong> You are reading the original Chinese text. <a href="../ch5_proxy_host.html" hreflang="zh-Hant">Open the Chinese version</a></div>
       <div class="chapter-header">
         <div class="kicker">Chapter 5</div>
-        <h1>建立第一個 Proxy Host</h1>
-        <p class="lead">用一個測試網域把 NPM 收到的 HTTP 要求轉送到既有內部 Web 服務，並從 DNS、NPM 與上游三層逐一驗證。</p>
+        <h1>Create your first Proxy Host</h1>
+        <p class="lead">Use one test domain to forward the HTTP requests NPM receives to an existing internal web service, then verify all three layers one at a time: DNS, NPM and the upstream.</p>
       </div>
 
-      <section id="request-path" data-nav="先看懂要求路徑">
-        <h2 data-icon="concept">先看懂要求路徑</h2>
-        <p>Proxy Host 的路徑是「用戶端 → DNS 指向的 NPM 入口 → NPM 依網域比對規則 → 內部 Web 服務」。NPM 不會替你建立 DNS，也不會自動開啟路由器的 NAT；每一層都必須另外正確設定。</p>
+      <section id="request-path" data-nav="Request path">
+        <h2 data-icon="concept">Understand the request path first</h2>
+        <p>The Proxy Host path is "client → the NPM entry point DNS points at → NPM matches the domain against its rules → the internal web service". NPM does not create DNS for you, and it does not open NAT on your router; every layer has to be set up correctly on its own.</p>
         <pre class="code-block"><code>app.example.net → NPM 的 80/tcp → http://[內部服務位址]:[服務連接埠]</code></pre>
-        <p><code>example.net</code> 與方括號內容都是示意值。真實網域、公私有 IP、密碼、憑證與記錄均屬敏感資料，筆記與求助內容應遮罩。</p>
+        <p><code>example.net</code> and everything in square brackets are placeholders. Real domains, public and private IPs, passwords, certificates and logs are all sensitive data; redact them in your notes and in anything you post when asking for help.</p>
       </section>
 
-      <section id="prerequisites" data-nav="建立前檢查">
-        <h2 data-icon="plan">建立前檢查</h2>
+      <section id="prerequisites" data-nav="Pre-create checks">
+        <h2 data-icon="plan">Checks before you create it</h2>
         <table class="data-table">
-          <thead><tr><th>項目</th><th>你要確認的事</th><th>常見錯誤</th></tr></thead>
+          <thead><tr><th>Item</th><th>What to confirm</th><th>Common mistake</th></tr></thead>
           <tbody>
-            <tr><td>上游服務</td><td>從 NPM 所在網路可連到正確協定與連接埠</td><td>只確認自己電腦能開，卻忽略 NPM 到上游的路徑</td></tr>
-            <tr><td>完整網域</td><td>使用你可控制 DNS 的名稱，例如 <code>app.example.net</code></td><td>填入 <code>http://</code>、路徑或連接埠</td></tr>
-            <tr><td>NPM 入口</td><td>區域網路測試時，名稱應解析到 NPM 可到達的入口</td><td>解析到另一台 Web 伺服器</td></tr>
-            <tr><td>管理安全</td><td>預設帳密已立即更改，81 僅限可信任管理網路</td><td>把 81 和 80／443 一起做公網 NAT</td></tr>
-            <tr><td>回復方案</td><td>記下原始值，且不修改既有可用 Host</td><td>直接覆寫正式服務規則</td></tr>
+            <tr><td>Upstream service</td><td>It is reachable from the network NPM sits on, over the right protocol and port</td><td>Confirming only that it opens on your own computer, and ignoring the path from NPM to the upstream</td></tr>
+            <tr><td>Fully qualified domain name</td><td>Use a name whose DNS you control, for example <code>app.example.net</code></td><td>Entering <code>http://</code>, a path or a port</td></tr>
+            <tr><td>NPM entry point</td><td>For a LAN test, the name should resolve to an entry point that reaches NPM</td><td>Resolving to a different web server</td></tr>
+            <tr><td>Admin security</td><td>The default credentials have already been changed, and 81 is limited to a trusted management network</td><td>Port forwarding 81 to the public internet along with 80/443</td></tr>
+            <tr><td>Rollback plan</td><td>Write down the original values, and do not modify a working Host that already exists</td><td>Overwriting a production service rule outright</td></tr>
           </tbody>
         </table>
       </section>
 
-      <section id="fields" data-nav="Details 欄位">
-        <h2 data-icon="what">Details 欄位怎麼填</h2>
+      <section id="fields" data-nav="Details fields">
+        <h2 data-icon="what">How to fill in the Details fields</h2>
         <table class="data-table">
-          <thead><tr><th>NPM 欄位</th><th>第一輪建議</th><th>判斷方式</th></tr></thead>
+          <thead><tr><th>NPM field</th><th>First-pass suggestion</th><th>How to decide</th></tr></thead>
           <tbody>
-            <tr><td>Domain Names</td><td><code>app.example.net</code></td><td>只填完整網域，不含協定、連接埠與路徑</td></tr>
-            <tr><td>Scheme</td><td>依上游實際服務選 <code>http</code> 或 <code>https</code></td><td>這是 NPM 到上游的協定，不是訪客端憑證選項</td></tr>
-            <tr><td>Forward Hostname / IP</td><td><code>[內部服務位址]</code></td><td>必須是 NPM 本身可解析、可連到的主機；不要把遠端上游誤填成 <code>127.0.0.1</code></td></tr>
-            <tr><td>Forward Port</td><td><code>[服務連接埠]</code></td><td>填上游實際監聽的連接埠，不是固定填 80</td></tr>
-            <tr><td>Access List</td><td>先依服務風險決定；Public 代表沒有套用 Access List</td><td>Public 不代表服務天然安全</td></tr>
+            <tr><td>Domain Names</td><td><code>app.example.net</code></td><td>Enter the fully qualified domain name only, with no protocol, port or path</td></tr>
+            <tr><td>Scheme</td><td>Pick <code>http</code> or <code>https</code> to match the actual upstream service</td><td>This is the protocol from NPM to the upstream, not a certificate option for visitors</td></tr>
+            <tr><td>Forward Hostname / IP</td><td><code>[內部服務位址]</code></td><td>It must be a host NPM itself can resolve and reach; do not enter <code>127.0.0.1</code> for a remote upstream</td></tr>
+            <tr><td>Forward Port</td><td><code>[服務連接埠]</code></td><td>Enter the port the upstream actually listens on, not a fixed 80</td></tr>
+            <tr><td>Access List</td><td>Decide by the risk of the service; Public means no Access List is applied</td><td>Public does not mean the service is inherently safe</td></tr>
           </tbody>
         </table>
       </section>
 
-      <section id="create" data-nav="建立 Proxy Host">
-        <h2 data-icon="steps">建立 Proxy Host</h2>
+      <section id="create" data-nav="Create Proxy Host">
+        <h2 data-icon="steps">Create the Proxy Host</h2>
         <ol class="steps">
-          <li><h3>進入 Proxy Hosts</h3><p>在 NPM 選擇 <strong>Hosts → Proxy Hosts</strong>，再按 <strong>Add Proxy Host</strong>。不要編輯名稱相近的既有規則。</p></li>
-          <li><h3>填入網域</h3><p>在 <strong>Domain Names</strong> 填入測試用完整網域。真實值不要出現在公開截圖或工單。</p></li>
-          <li><h3>設定上游</h3><p>依上游實際狀態選 Scheme，填入 NPM 可到達的 Forward Hostname / IP 與 Forward Port。</p></li>
-          <li><h3>選擇基本開關</h3><p>一般服務可啟用 <strong>Block Common Exploits</strong>。只有上游確實使用 WebSocket 時才啟用 <strong>Websockets Support</strong>；第一輪先不要啟用快取。</p></li>
-          <li><h3>先不處理 SSL</h3><p>為了分層排錯，SSL 分頁先選 <strong>None</strong>，Advanced 保持空白。第 7 章再申請與強制使用憑證。</p></li>
-          <li><h3>儲存並記錄</h3><p>按 <strong>Save</strong>，確認新列為 Enabled。只記下代號、建立時間與設定目的，不抄錄敏感值。</p></li>
+          <li><h3>Open Proxy Hosts</h3><p>In NPM, go to <strong>Hosts → Proxy Hosts</strong>, then click <strong>Add Proxy Host</strong>. Do not edit an existing rule with a similar name.</p></li>
+          <li><h3>Enter the domain</h3><p>Put your test fully qualified domain name in <strong>Domain Names</strong>. Keep the real value out of public screenshots and support tickets.</p></li>
+          <li><h3>Set the upstream</h3><p>Choose the Scheme that matches how the upstream actually runs, then fill in a Forward Hostname / IP and Forward Port that NPM can reach.</p></li>
+          <li><h3>Choose the basic switches</h3><p>For an ordinary service you can turn on <strong>Block Common Exploits</strong>. Turn on <strong>Websockets Support</strong> only when the upstream really uses WebSocket; leave caching off on the first pass.</p></li>
+          <li><h3>Leave SSL alone for now</h3><p>So that you can troubleshoot layer by layer, set the SSL tab to <strong>None</strong> and leave Advanced empty. Chapter 7 covers requesting a certificate and forcing its use.</p></li>
+          <li><h3>Save it and write it down</h3><p>Click <strong>Save</strong> and confirm the new row reads Enabled. Record only an identifier, the time you created it and what it is for; never copy sensitive values.</p></li>
         </ol>
       </section>
 
-      <section id="switches" data-nav="基本開關取捨">
-        <h2 data-icon="tips">基本開關取捨</h2>
-        <p><strong>Cache Assets</strong> 可能改變動態內容的更新表現，初次測試應關閉。<strong>Block Common Exploits</strong> 是 NPM 提供的額外規則，但不能取代上游更新、驗證與最小暴露。<strong>Websockets Support</strong> 會處理升級連線；一般網站不必為求「更快」而開啟。</p>
-        <div class="callout warn"><strong>不要直接貼 Advanced 設定：</strong>官方介面明確把它留給進階 Nginx 設定。沒有查證上游需求與指令作用前，保持空白。</div>
+      <section id="switches" data-nav="Basic switches">
+        <h2 data-icon="tips">Trade-offs on the basic switches</h2>
+        <p><strong>Cache Assets</strong> can change how dynamic content refreshes, so keep it off for the first test. <strong>Block Common Exploits</strong> is an extra rule set NPM provides, but it does not replace upstream updates, authentication and minimal exposure. <strong>Websockets Support</strong> handles upgraded connections; an ordinary website does not need to turn it on in the hope of being "faster".</p>
+        <div class="callout warn"><strong>Do not paste Advanced config:</strong> the official interface reserves it for advanced Nginx configuration. Leave it empty until you have verified what the upstream needs and what each directive does.</div>
       </section>
 
-      <section id="dns-check" data-nav="確認 DNS 命中 NPM">
-        <h2 data-icon="records">確認 DNS 命中 NPM</h2>
-        <p>Proxy Host 儲存成功後，名稱仍必須解析到正確入口。傳統對外模式通常是公開 DNS 指向路由器的公開 IP，再由 NAT 把 80／443 送到 NPM；只做區域網路測試時，也可使用你控制的內部 DNS 覆寫。詳細做法在第 6 章。</p>
+      <section id="dns-check" data-nav="DNS hits NPM">
+        <h2 data-icon="records">Confirm DNS lands on NPM</h2>
+        <p>Once the Proxy Host is saved, the name still has to resolve to the right entry point. In the classic public-facing setup, public DNS points at the router's public IP and NAT sends 80/443 on to NPM; for a LAN-only test you can also use an internal DNS override that you control. Chapter 6 covers how to do it.</p>
         <pre class="code-block"><code>dig +short A app.example.net
 nslookup app.example.net</code></pre>
-        <p>結果要和你的設計一致，而不是盲目期待某個固定 IP。Cloudflare Proxied 記錄會回覆 Cloudflare IP，不會直接顯示來源站 IP；DNS-only 才會直接回覆記錄目標。</p>
+        <p>The answer should match your design, rather than some fixed IP you expect blindly. A Cloudflare Proxied record answers with a Cloudflare IP and does not show the origin server IP; only DNS-only answers with the record's target directly.</p>
       </section>
 
-      <section id="test" data-nav="分層測試">
-        <h2 data-icon="test">分層測試第一個 Host</h2>
+      <section id="test" data-nav="Layered testing">
+        <h2 data-icon="test">Test your first Host layer by layer</h2>
         <ol class="steps">
-          <li><h3>先測上游</h3><p>從可代表 NPM 網路位置的裝置開啟上游 URL，確認協定、主機與連接埠確實有回應。不要把含 token 的完整 URL 貼進測試紀錄。</p></li>
-          <li><h3>再查 DNS</h3><p>使用 <code>dig</code> 或 <code>nslookup</code>，確認測試裝置得到預期入口。若結果不對，先修 DNS，不要反覆改 Proxy Host。</p></li>
-          <li><h3>測 HTTP 標頭</h3><p>執行 <code>curl -I http://app.example.net</code>。狀態碼可能依上游而異；重點是要求有到達預期服務，而非把任何特定狀態碼當作唯一成功標準。</p></li>
-          <li><h3>用瀏覽器驗證功能</h3><p>開啟測試網域，檢查登入、靜態資源與即時功能。若應用程式要求 trusted proxies 或外部 URL，僅依該應用程式官方文件調整。</p></li>
+          <li><h3>Test the upstream first</h3><p>From a device that stands in for NPM's position on the network, open the upstream URL and confirm the protocol, host and port really respond. Do not paste a full URL containing a token into your test record.</p></li>
+          <li><h3>Then check DNS</h3><p>Use <code>dig</code> or <code>nslookup</code> to confirm the test device gets the entry point you expect. If the answer is wrong, fix DNS first; do not keep changing the Proxy Host.</p></li>
+          <li><h3>Test the HTTP headers</h3><p>Run <code>curl -I http://app.example.net</code>. The status code varies with the upstream; what matters is that the request reached the service you expected, not that it returned one particular status code.</p></li>
+          <li><h3>Verify the features in a browser</h3><p>Open the test domain and check login, static assets and live-updating features. If the application asks for trusted proxies or an external URL, change those only as that application's official documentation says.</p></li>
         </ol>
       </section>
 
-      <section id="security-review" data-nav="上線前安全檢查">
-        <h2 data-icon="security">上線前安全檢查</h2>
+      <section id="security-review" data-nav="Pre-launch check">
+        <h2 data-icon="security">Security check before going live</h2>
         <ul>
-          <li>NPM 的預設 <code>admin@example.com</code>／<code>changeme</code> 必須已立即更改。</li>
-          <li>外部 NAT 或防火牆不得開放管理埠 81；傳統模式只把必要的 80／443 導向 NPM。</li>
-          <li>不要公開本來只應在內網使用的管理後台；需要額外保護時，先規劃 Access List、應用程式驗證或 VPN。</li>
-          <li>SSL 尚未完成前，不要透過公網輸入密碼或其他敏感資料。HTTP 測試僅用無敏感資料的測試頁面。</li>
-          <li>網域、公私有 IP、密碼、DNS token、憑證與完整 log 都要在分享前遮罩。</li>
+          <li>NPM's default <code>admin@example.com</code> / <code>changeme</code> must already have been changed.</li>
+          <li>External NAT or the firewall must not open admin port 81; in the classic setup you send only the necessary 80/443 to NPM.</li>
+          <li>Do not expose an admin backend that was only ever meant for the LAN; when it needs extra protection, plan an Access List, application authentication or a VPN first.</li>
+          <li>Until SSL is in place, do not enter passwords or other sensitive data over the public internet. Use only test pages that hold no sensitive data for HTTP testing.</li>
+          <li>Redact domains, public and private IPs, passwords, DNS tokens, certificates and full logs before you share them.</li>
         </ul>
       </section>
 
-      <section id="troubleshooting" data-nav="Proxy Host 排錯">
-        <h2 data-icon="troubleshoot">Proxy Host 排錯</h2>
+      <section id="troubleshooting" data-nav="Proxy Host problems">
+        <h2 data-icon="troubleshoot">Proxy Host troubleshooting</h2>
         <table class="data-table">
-          <thead><tr><th>具體問題</th><th>可能層級</th><th>檢查方式</th></tr></thead>
+          <thead><tr><th>Specific problem</th><th>Possible layer</th><th>How to check</th></tr></thead>
           <tbody>
-            <tr><td>出現 502 Bad Gateway</td><td>NPM 到上游</td><td>核對 Scheme、Forward Hostname / IP、Forward Port，並確認上游有監聽且允許 NPM 連入</td></tr>
-            <tr><td>看到 NPM 預設頁或 404</td><td>網域比對</td><td>確認瀏覽器使用的完整網域與 Domain Names 完全一致，且 DNS 指向這台 NPM</td></tr>
-            <tr><td>連線被拒絕或逾時</td><td>DNS、入口或 NAT</td><td>查解析結果、NPM add-on 狀態、80 的防火牆與 NAT；絕對不要改開 81 測試</td></tr>
-            <tr><td>頁面可開但即時更新失效</td><td>WebSocket</td><td>確認上游確實使用 WebSocket，再啟用 Websockets Support 並重新測試</td></tr>
-            <tr><td>只在外網或只在內網失敗</td><td>NAT loopback／內外 DNS</td><td>分別記錄兩邊的 DNS 答案；必要時規劃 hairpin NAT 或 split DNS，不要隨機更換上游位址</td></tr>
-            <tr><td>一直重新導向</td><td>上游外部 URL 或代理信任</td><td>確認上游所認定的外部協定與主機；只依上游官方文件設定 trusted proxies／外部 URL</td></tr>
+            <tr><td>502 Bad Gateway appears</td><td>NPM to the upstream</td><td>Check the Scheme, Forward Hostname / IP and Forward Port, and confirm the upstream is listening and lets NPM connect</td></tr>
+            <tr><td>You see the NPM default page or a 404</td><td>Domain matching</td><td>Confirm the fully qualified domain name in the browser matches Domain Names exactly, and that DNS points at this NPM</td></tr>
+            <tr><td>Connection refused or timeout</td><td>DNS, the entry point or NAT</td><td>Check the resolution result, the NPM add-on status, and the firewall and NAT for 80; never open 81 for testing instead</td></tr>
+            <tr><td>The page opens but live updates stop working</td><td>WebSocket</td><td>Confirm the upstream really uses WebSocket, then turn on Websockets Support and test again</td></tr>
+            <tr><td>It fails only from outside, or only from inside</td><td>NAT loopback / internal vs external DNS</td><td>Record the DNS answer from each side separately; plan hairpin NAT or split DNS if you need it, and do not swap the upstream address at random</td></tr>
+            <tr><td>It redirects in a loop</td><td>The upstream's external URL, or proxy trust</td><td>Confirm which external protocol and host the upstream believes it has; set trusted proxies / external URL only as the upstream's official documentation says</td></tr>
           </tbody>
         </table>
       </section>
 
-      <section id="faq" data-nav="常見問題">
-        <h2 data-icon="faq">常見問題</h2>
-        <details class="faq"><summary>Domain Names 要填完整 URL 嗎？</summary><div class="body">不用。填完整網域，例如 <code>app.example.net</code>；不要加入 <code>http://</code>、路徑或連接埠。</div></details>
-        <details class="faq"><summary>Forward Hostname / IP 可以填 localhost 嗎？</summary><div class="body">只有上游真的和 NPM 在同一執行環境時才可能正確。Woow add-on 中的 <code>127.0.0.1</code> 指向 add-on 自己，不會自動代表 Home Assistant 主機或其他區網裝置。</div></details>
-        <details class="faq"><summary>第一個 Host 一定要啟用 WebSocket 嗎？</summary><div class="body">不用。只有上游功能需要 WebSocket 時才啟用；它不是通用的效能開關。</div></details>
-        <details class="faq"><summary>為什麼先不申請 SSL？</summary><div class="body">先把 DNS、NPM 與上游路徑分層驗證，可避免把憑證挑戰錯誤和代理錯誤混在一起。正式輸入敏感資料前仍必須完成 HTTPS。</div></details>
-        <details class="faq"><summary>Public Access List 代表服務可以安全公開嗎？</summary><div class="body">不代表。它只表示沒有套用 NPM Access List；應用程式本身仍需更新、驗證與適當的安全政策。</div></details>
+      <section id="faq" data-nav="FAQ">
+        <h2 data-icon="faq">FAQ</h2>
+        <details class="faq"><summary>Does Domain Names take a full URL?</summary><div class="body">No. Enter the fully qualified domain name, for example <code>app.example.net</code>; do not add <code>http://</code>, a path or a port.</div></details>
+        <details class="faq"><summary>Can Forward Hostname / IP be localhost?</summary><div class="body">Only when the upstream really runs in the same environment as NPM. Inside the Woow add-on, <code>127.0.0.1</code> points at the add-on itself; it does not automatically stand for the Home Assistant host or any other device on the LAN.</div></details>
+        <details class="faq"><summary>Does the first Host have to have WebSocket turned on?</summary><div class="body">No. Turn it on only when an upstream feature needs WebSocket; it is not a general performance switch.</div></details>
+        <details class="faq"><summary>Why not request SSL first?</summary><div class="body">Verifying DNS, NPM and the upstream path layer by layer first keeps certificate challenge errors from getting mixed up with proxy errors. You must still finish HTTPS before you enter real sensitive data.</div></details>
+        <details class="faq"><summary>Does a Public Access List mean the service is safe to publish?</summary><div class="body">No. It only means no NPM Access List is applied; the application itself still needs updates, authentication and an appropriate security policy.</div></details>
       </section>
 
-      <section id="sources" data-nav="官方來源">
-        <h2 data-icon="book">官方來源</h2>
+      <section id="sources" data-nav="Official sources">
+        <h2 data-icon="book">Official sources</h2>
         <ul>
-          <li><a href="https://github.com/WOOWTECH/Woow_ha_nginxpm/blob/main/nginxpm/README.md">WOOWTECH add-on README</a>（Proxy Host 操作、80／81／443 與預設帳密）</li>
-          <li><a href="https://github.com/WOOWTECH/Woow_ha_nginxpm/blob/main/nginxpm/config.yaml">WOOWTECH add-on config.yaml</a>（實際連接埠映射與 Web UI）</li>
-          <li><a href="https://nginxproxymanager.com/guide/">Nginx Proxy Manager 官方 Guide</a>（反向代理、SSL 與家庭網路入口概念）</li>
-          <li><a href="https://github.com/NginxProxyManager/nginx-proxy-manager/blob/v2.12.4/frontend/js/app/nginx/proxy/form.ejs">NPM v2.12.4 Proxy Host 表單原始碼</a>（Details、Locations、SSL、Advanced 與欄位名稱）</li>
+          <li><a href="https://github.com/WOOWTECH/Woow_ha_nginxpm/blob/main/nginxpm/README.md">WOOWTECH add-on README</a> (Proxy Host operations, 80/81/443 and the default credentials)</li>
+          <li><a href="https://github.com/WOOWTECH/Woow_ha_nginxpm/blob/main/nginxpm/config.yaml">WOOWTECH add-on config.yaml</a> (the actual port mappings and the Web UI)</li>
+          <li><a href="https://nginxproxymanager.com/guide/">Nginx Proxy Manager official Guide</a> (reverse proxy, SSL and home-network entry point concepts)</li>
+          <li><a href="https://github.com/NginxProxyManager/nginx-proxy-manager/blob/v2.12.4/frontend/js/app/nginx/proxy/form.ejs">NPM v2.12.4 Proxy Host form source</a> (Details, Locations, SSL, Advanced and the field names)</li>
         </ul>
       </section>
 

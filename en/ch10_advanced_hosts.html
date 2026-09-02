@@ -57,16 +57,16 @@
     </ol>
     <div class="toc-in-chapter">
       <h2>This chapter</h2>
-      <a href="#choose-host-type">選對物件</a>
-      <a href="#redirect-concepts">301 與 302</a>
-      <a href="#create-redirection">建立重導向</a>
-      <a href="#streams">Streams 與埠限制</a>
-      <a href="#websocket">WebSocket 設定</a>
+      <a href="#choose-host-type">Pick the object</a>
+      <a href="#redirect-concepts">301 and 302</a>
+      <a href="#create-redirection">Create a redirect</a>
+      <a href="#streams">Streams and ports</a>
+      <a href="#websocket">WebSocket settings</a>
       <a href="#custom-locations">Custom Locations</a>
-      <a href="#advanced-config">Advanced 設定</a>
-      <a href="#advanced-troubleshooting">進階功能排錯</a>
-      <a href="#advanced-faq">常見問題</a>
-      <a href="#advanced-sources">官方來源</a>
+      <a href="#advanced-config">Advanced config</a>
+      <a href="#advanced-troubleshooting">Advanced problems</a>
+      <a href="#advanced-faq">FAQ</a>
+      <a href="#advanced-sources">Official sources</a>
     </div>
 
   </aside>
@@ -75,128 +75,128 @@
       <div class="callout i18n-pending"><strong>This chapter has not been translated yet.</strong> You are reading the original Chinese text. <a href="../ch10_advanced_hosts.html" hreflang="zh-Hant">Open the Chinese version</a></div>
       <div class="chapter-header">
         <div class="kicker">Chapter 10</div>
-        <h1>重導向、Streams 與 WebSocket</h1>
-        <p class="lead">先辨認流量是 HTTP、WebSocket，還是一般 TCP／UDP，再用正確的 NPM 物件處理。這一章也會說明 Woow Home Assistant add-on 的連接埠限制，以及何時不該加入自訂 Nginx 指令。</p>
+        <h1>Redirects, Streams and WebSocket</h1>
+        <p class="lead">Work out first whether the traffic is HTTP, WebSocket or plain TCP/UDP, then handle it with the right NPM object. This chapter also covers the port limits of the Woow Home Assistant add-on, and when not to add custom Nginx directives.</p>
       </div>
 
-      <section id="choose-host-type" data-nav="選對物件">
-        <h2 data-icon="compare">先選對 NPM 物件</h2>
-        <p>Proxy Host、Redirection Host 與 Stream 看起來都像「轉送」，實際處理的層級不同。選錯物件時，最常見的結果是無限重導、502，或服務明明建立了卻完全連不到。</p>
+      <section id="choose-host-type" data-nav="Pick the object">
+        <h2 data-icon="compare">Pick the right NPM object first</h2>
+        <p>Proxy Host, Redirection Host and Stream all look like "forwarding", but they work at different layers. Pick the wrong object and the usual results are a redirect loop, a 502, or a service you clearly created but cannot reach at all.</p>
         <table class="data-table">
-          <thead><tr><th scope="col">需求</th><th scope="col">使用物件</th><th scope="col">判斷重點</th></tr></thead>
+          <thead><tr><th scope="col">What you want</th><th scope="col">Object to use</th><th scope="col">Key test</th></tr></thead>
           <tbody>
-            <tr><td>以網域代理網站或 API</td><td>Proxy Host</td><td>理解 HTTP／HTTPS，可套用憑證、Access List 與路徑規則</td></tr>
-            <tr><td>把舊網址導到新網址</td><td>Redirection Host</td><td>回傳 301 或 302，瀏覽器會改向目標網址</td></tr>
-            <tr><td>依路徑送到不同 HTTP 服務</td><td>Proxy Host 的 Custom Locations</td><td>例如同一網域的 <code>/api</code> 與 <code>/</code> 使用不同 upstream</td></tr>
-            <tr><td>轉送不理解內容的 TCP／UDP</td><td>Stream</td><td>依 incoming port 轉到指定主機與埠，不依網域或 URL 路徑分流</td></tr>
+            <tr><td>Proxy a website or an API by domain</td><td>Proxy Host</td><td>Understands HTTP/HTTPS; you can apply a certificate, an Access List and path rules</td></tr>
+            <tr><td>Send an old address to a new one</td><td>Redirection Host</td><td>Returns 301 or 302, and the browser goes to the target address</td></tr>
+            <tr><td>Send different paths to different HTTP services</td><td>Custom Locations on a Proxy Host</td><td>For example, <code>/api</code> and <code>/</code> on the same domain go to different upstreams</td></tr>
+            <tr><td>Forward TCP/UDP without understanding the content</td><td>Stream</td><td>Forwards by incoming port to a set host and port; it does not route by domain or URL path</td></tr>
           </tbody>
         </table>
-        <div class="callout warn"><strong>不要公開管理介面：</strong>port 81 是 NPM Admin Web Port，不是一般服務入口。它只應從可信任的管理網段存取，絕對不要在路由器或 Cloudflare 公開它。若仍使用預設 <code>admin@example.com</code>／<code>changeme</code>，先立即更換 email 與密碼，再做本章操作。</div>
+        <div class="callout warn"><strong>Do not expose the admin interface:</strong> port 81 is the NPM Admin Web Port, not an ordinary service entry point. It should only be reachable from a trusted management network segment, and must never be published on your router or through Cloudflare. If you are still on the default <code>admin@example.com</code>/<code>changeme</code>, change the email and the password immediately before you do anything in this chapter.</div>
       </section>
 
-      <section id="redirect-concepts" data-nav="301 與 302">
-        <h2 data-icon="url">理解 301、302 與路徑保留</h2>
-        <p>Redirection Host 會讓用戶端收到重新導向回應，而不是由 NPM 在背景取回目標內容。Woow add-on 文件明列支援 301 與 302；目前 add-on 使用的 NPM 2.12.4 介面也提供 Forward Scheme、Forward Domain、HTTP Code 與 Preserve Path 等欄位。</p>
+      <section id="redirect-concepts" data-nav="301 and 302">
+        <h2 data-icon="url">Understanding 301, 302 and path preservation</h2>
+        <p>A Redirection Host makes the client receive a redirect response, rather than having NPM fetch the target content in the background. The Woow add-on documentation lists support for 301 and 302; the NPM 2.12.4 interface the add-on currently uses also offers fields such as Forward Scheme, Forward Domain, HTTP Code and Preserve Path.</p>
         <ul>
-          <li><strong>301 永久重導：</strong>適合已確定不會回復的網域搬遷。瀏覽器、搜尋引擎或中介快取可能記住結果，測試錯誤時較難立即撤回。</li>
-          <li><strong>302 暫時重導：</strong>適合維護、活動頁或先驗證規則。確認無誤後再評估是否改成 301。</li>
-          <li><strong>Preserve Path：</strong>啟用時，舊網址後面的路徑會帶到新網域；停用前先確認你是否只想導到首頁。</li>
+          <li><strong>301 permanent redirect:</strong> for a domain move you are sure you will not undo. Browsers, search engines and intermediate caches may remember the result, so a mistake made while testing is hard to take back straight away.</li>
+          <li><strong>302 temporary redirect:</strong> for maintenance, a campaign page, or validating a rule first. Once you have confirmed it is correct, decide whether to switch it to 301.</li>
+          <li><strong>Preserve Path:</strong> when it is on, the path after the old address is carried over to the new domain; before you turn it off, confirm whether you really only want to land on the home page.</li>
         </ul>
-        <div class="callout tip">初次上線先用 302，在無痕視窗與外部網路驗證主機名稱、路徑、查詢字串及 HTTPS，再決定是否改為 301。</div>
+        <div class="callout tip">Go live with 302 first. Verify the hostname, the path, the query string and HTTPS from a private window and from an external network, then decide whether to switch to 301.</div>
       </section>
 
-      <section id="create-redirection" data-nav="建立重導向">
-        <h2 data-icon="steps">建立一個安全的重導向</h2>
+      <section id="create-redirection" data-nav="Create a redirect">
+        <h2 data-icon="steps">Create a safe redirect</h2>
         <ol class="steps">
-          <li><h3>先盤點來源與目標</h3><p>以改寫過的測試資料記下來源網域、目標網域、是否保留路徑及預計使用 302 或 301。網域與憑證資訊都視為敏感維運資料，不要直接貼到公開討論區。</p></li>
-          <li><h3>新增 Redirection Host</h3><p>在 NPM 的 Hosts／Redirection Hosts 新增項目，填入來源 Domain Names、Forward Scheme 與 Forward Domain Name。測試階段選 302，依需求決定 Preserve Path。</p></li>
-          <li><h3>處理來源網域的 HTTPS</h3><p>若用戶會以 HTTPS 開啟舊網域，來源端仍須有有效憑證，TLS 完成後瀏覽器才收得到重導回應。在 SSL 分頁選正確憑證；不要把私鑰或 DNS API token 寫入筆記。</p></li>
-          <li><h3>從外部驗證</h3><p>確認回應碼與 <code>Location</code> 目標符合預期，並測試深層路徑。不要只看最後畫面，否則瀏覽器自動跟隨重導後會藏起中間錯誤。</p></li>
+          <li><h3>Take stock of the source and the target</h3><p>Using rewritten test data, write down the source domain, the target domain, whether the path is preserved, and whether you plan to use 302 or 301. Treat domain and certificate details as sensitive operations data; do not paste them straight into a public forum.</p></li>
+          <li><h3>Add a Redirection Host</h3><p>In NPM, add an entry under Hosts / Redirection Hosts and fill in the source Domain Names, Forward Scheme and Forward Domain Name. Choose 302 while you are testing, and set Preserve Path to suit what you need.</p></li>
+          <li><h3>Handle HTTPS on the source domain</h3><p>If people will open the old domain over HTTPS, the source side still needs a valid certificate: the browser only receives the redirect response once TLS has completed. Pick the right certificate on the SSL tab, and do not write a private key or a DNS API token into your notes.</p></li>
+          <li><h3>Verify from outside</h3><p>Confirm that the response code and the <code>Location</code> target are what you expect, and test a deep path as well. Do not judge by the final page alone, or the browser will follow the redirect automatically and hide the errors in between.</p></li>
         </ol>
       </section>
 
-      <section id="streams" data-nav="Streams 與埠限制">
-        <h2 data-icon="protocol">Streams 是 TCP／UDP 轉送</h2>
-        <p>NPM 官方說明將 Stream 定義為把 TCP／UDP 流量直接轉到網路中的另一台主機，適合無法用 HTTP Proxy Host 處理的協定。設定至少包含 Incoming Port、Forwarding Host、Forwarding Port，以及 TCP、UDP 的選擇。</p>
+      <section id="streams" data-nav="Streams and ports">
+        <h2 data-icon="protocol">Streams forward TCP/UDP</h2>
+        <p>The official NPM documentation defines a Stream as forwarding TCP/UDP traffic straight to another machine on the network, which suits protocols an HTTP Proxy Host cannot handle. At a minimum the settings cover Incoming Port, Forwarding Host, Forwarding Port, and the choice of TCP and UDP.</p>
         <table class="data-table">
-          <thead><tr><th scope="col">檢查</th><th scope="col">原因</th><th scope="col">安全做法</th></tr></thead>
+          <thead><tr><th scope="col">Check</th><th scope="col">Why</th><th scope="col">Safe practice</th></tr></thead>
           <tbody>
-            <tr><td>協定</td><td>TCP 與 UDP 並不互通</td><td>只啟用服務實際需要的協定</td></tr>
-            <tr><td>Incoming Port</td><td>Stream 只依連接埠接收，不依網域分流</td><td>避免與 80、81、443 或其他服務衝突</td></tr>
-            <tr><td>Forwarding Host／Port</td><td>NPM 必須能從 add-on 網路連到 upstream</td><td>使用固定私有位址並限制 upstream 防火牆</td></tr>
-            <tr><td>外部暴露</td><td>非 HTTP 服務通常沒有 NPM Access List 保護</td><td>先用 VPN；確需公開時，以來源 IP 與服務自身驗證限縮</td></tr>
+            <tr><td>Protocol</td><td>TCP and UDP are not interchangeable</td><td>Enable only the protocol the service actually needs</td></tr>
+            <tr><td>Incoming Port</td><td>A Stream accepts by port only; it does not route by domain</td><td>Avoid clashing with 80, 81, 443 or another service</td></tr>
+            <tr><td>Forwarding Host / Port</td><td>NPM must be able to reach the upstream from the add-on network</td><td>Use a fixed private address and restrict the upstream firewall</td></tr>
+            <tr><td>Exposure to the outside</td><td>A non-HTTP service usually has no NPM Access List protecting it</td><td>Use a VPN first; if it really must be public, narrow it down with source IP rules and the service's own authentication</td></tr>
           </tbody>
         </table>
-        <div class="callout danger"><strong>Woow add-on 的實際限制：</strong>目前 <code>config.yaml</code> 只宣告 80/tcp、81/tcp、443/tcp，沒有任意 Stream port 的選項。只在 NPM UI 建立 Stream，不代表 HA 主機已發布該 incoming port。不要占用 81，也不要為了讓 Stream 可用而把管理埠轉送到網際網路；請先核對新版 add-on 設定，或改採能明確映射所需埠的受控部署。</div>
+        <div class="callout danger"><strong>What the Woow add-on actually allows:</strong> right now <code>config.yaml</code> declares only 80/tcp, 81/tcp and 443/tcp, with no option for an arbitrary Stream port. Creating a Stream in the NPM UI does not mean the HA host has published that incoming port. Do not use 81 as a substitute, and never forward the admin port to the public internet to make a Stream work; check the settings of a newer add-on release first, or move to a managed deployment that can map the ports you need explicitly.</div>
       </section>
 
-      <section id="websocket" data-nav="WebSocket 設定">
-        <h2 data-icon="network">讓 WebSocket 正確升級</h2>
-        <p>WebSocket 先從 HTTP 請求開始，再透過 Upgrade 機制切換成長連線。NPM 2.12.4 的 Proxy Host 有 Websockets Support 選項；對應官方範本會設定 <code>Upgrade</code>、<code>Connection</code> 與 HTTP/1.1。通常不必手寫重複指令。</p>
+      <section id="websocket" data-nav="WebSocket settings">
+        <h2 data-icon="network">Let WebSocket upgrade correctly</h2>
+        <p>A WebSocket starts as an HTTP request and then switches to a long-lived connection through the Upgrade mechanism. A Proxy Host in NPM 2.12.4 has a Websockets Support option; the matching official template sets <code>Upgrade</code>, <code>Connection</code> and HTTP/1.1. You normally do not need to write those directives out again by hand.</p>
         <ol class="steps">
-          <li><h3>先直接測 upstream</h3><p>從同一內網確認應用程式本身能建立 WebSocket。若直連就斷線，先修應用程式，不要從 NPM 猜測。</p></li>
-          <li><h3>編輯正確的 Proxy Host</h3><p>在 Details 啟用 Websockets Support，保存後重新測試。若 Custom Location 指向另一個 upstream，也要確認該位置的 WebSocket 設定與路徑。</p></li>
-          <li><h3>用瀏覽器開發者工具確認</h3><p>查看 Network 的 WS 項目、握手狀態與關閉碼。記錄前先遮罩網域、Cookie、Authorization、查詢參數與私有／公開 IP。</p></li>
-          <li><h3>逐一排除中介層</h3><p>若 NPM 直連正常、經 Cloudflare 才失敗，再查 Cloudflare 或 Tunnel；不要同時修改 NPM、DNS 與應用程式。</p></li>
+          <li><h3>Test the upstream directly first</h3><p>From the same LAN, confirm that the application itself can establish a WebSocket. If it drops on a direct connection, fix the application first rather than guessing from NPM.</p></li>
+          <li><h3>Edit the right Proxy Host</h3><p>Turn on Websockets Support under Details, save, and test again. If a Custom Location points at a different upstream, check that location's WebSocket settings and path as well.</p></li>
+          <li><h3>Confirm with the browser developer tools</h3><p>Look at the WS entries under Network, the handshake status and the close code. Before you record anything, redact domains, Cookie, Authorization, query parameters and private and public IPs.</p></li>
+          <li><h3>Rule out the layers in between, one at a time</h3><p>If a direct connection to NPM works and it only fails through Cloudflare, then look at Cloudflare or the Tunnel. Do not change NPM, DNS and the application at the same time.</p></li>
         </ol>
       </section>
 
       <section id="custom-locations" data-nav="Custom Locations">
-        <h2 data-icon="location">用 Custom Locations 做路徑分流</h2>
-        <p>Custom Locations 是同一 Proxy Host 內的 HTTP 路徑規則。NPM 2.12.4 的官方範本會為每個 location 產生自己的 scheme、forward host、forward port 與可選的 advanced config，並套用存取控制、SSL 強制與 WebSocket 相關片段。</p>
+        <h2 data-icon="location">Split by path with Custom Locations</h2>
+        <p>Custom Locations are HTTP path rules inside a single Proxy Host. The official NPM 2.12.4 template gives each location its own scheme, forward host, forward port and optional advanced config, and applies the access control, SSL enforcement and WebSocket fragments.</p>
         <ol class="steps">
-          <li><h3>畫出路徑表</h3><p>先列出 <code>/</code>、<code>/api</code>、<code>/socket</code> 各自要到哪個 upstream。較長、較明確的路徑要單獨測試。</p></li>
-          <li><h3>新增一個位置</h3><p>在 Proxy Host 的 Custom Locations 加入路徑與 Forward Scheme／Hostname／Port。先保持最少設定，不要一開始就貼入網路上的 Nginx 片段。</p></li>
-          <li><h3>確認應用程式的 base path</h3><p>有些應用只能部署在根路徑，有些需要設定 external URL 或 base path。若頁面開得出來但資源 404，優先檢查應用程式產生的 URL。</p></li>
-          <li><h3>逐路徑驗證</h3><p>測試首頁、API、靜態資源、登入回呼與 WebSocket。每次只調整一個位置，保留可回復的設定紀錄。</p></li>
+          <li><h3>Map out a path table</h3><p>List which upstream <code>/</code>, <code>/api</code> and <code>/socket</code> should each go to. Test the longer, more specific paths on their own.</p></li>
+          <li><h3>Add one location</h3><p>Under Custom Locations on the Proxy Host, add the path and the Forward Scheme / Hostname / Port. Keep the settings to a minimum at first, and do not start by pasting in an Nginx snippet you found online.</p></li>
+          <li><h3>Check the application's base path</h3><p>Some applications can only be deployed at the root path; others need an external URL or a base path set. If the page opens but its assets return 404, check the URLs the application generates first.</p></li>
+          <li><h3>Verify path by path</h3><p>Test the home page, the API, static assets, the login callback and WebSocket. Change one location at a time, and keep a record of the settings you can roll back to.</p></li>
         </ol>
-        <div class="callout warn">Custom Location 的路徑規則與 Advanced 設定可能蓋過預期行為。改動前先備份；不要加入來源不明的 <code>include</code>、繞過驗證的規則，或會把憑證、token、密碼寫入回應與 log 的指令。</div>
+        <div class="callout warn">The path rules on a Custom Location and the Advanced config can override the behavior you expect. Back up before you change anything, and do not add an <code>include</code> of unknown origin, a rule that bypasses authentication, or a directive that writes certificates, tokens or passwords into responses and logs.</div>
       </section>
 
-      <section id="advanced-config" data-nav="Advanced 設定">
-        <h2 data-icon="advanced">自訂 Nginx 前先守住邊界</h2>
-        <p>NPM 官方確實提供進階 Nginx 設定，但這不代表任何網路片段都適合直接貼上。Woow add-on 又把上游的資料路徑由 <code>/data</code> 改到 <code>/config</code>，並把多種 Nginx log 導向 add-on 輸出；套用一般 Docker 教學時尤其要小心。</p>
+      <section id="advanced-config" data-nav="Advanced config">
+        <h2 data-icon="advanced">Hold the line before you customize Nginx</h2>
+        <p>NPM does provide an advanced Nginx config, but that does not mean every snippet on the internet is fit to paste in. The Woow add-on also moves the upstream data path from <code>/data</code> to <code>/config</code> and sends several Nginx logs to the add-on output, so take particular care when you follow a generic Docker tutorial.</p>
         <ul>
-          <li>先用 UI 原生選項：WebSocket、SSL、Access List、Custom Locations。</li>
-          <li>一次只加入一個可解釋的 directive，保存前備份，保存後立即測試既有路徑。</li>
-          <li>不要手改 <code>/config/nginx/proxy_host/</code> 的自動產生檔案；UI 重建設定時可能覆寫。</li>
-          <li>不要在 Advanced 欄位放密碼、DNS API token、私鑰、完整內外網位址清單或未遮罩 log。</li>
-          <li>若設定讓 Nginx reload 失敗，先移除最後一筆自訂內容，不要刪除資料庫或憑證目錄。</li>
+          <li>Use the built-in UI options first: WebSocket, SSL, Access List, Custom Locations.</li>
+          <li>Add one directive at a time, one you can explain; back up before you save, and test your existing paths straight after.</li>
+          <li>Do not hand-edit the auto-generated files in <code>/config/nginx/proxy_host/</code>; the UI may overwrite them when it rebuilds the config.</li>
+          <li>Do not put passwords, DNS API tokens, private keys, a full list of internal and external addresses, or unredacted logs into the Advanced field.</li>
+          <li>If a setting makes an Nginx reload fail, remove the last thing you customized first; do not delete the database or the certificate directory.</li>
         </ul>
       </section>
 
-      <section id="advanced-troubleshooting" data-nav="進階功能排錯">
-        <h2 data-icon="troubleshoot">常見故障與具體修正</h2>
+      <section id="advanced-troubleshooting" data-nav="Advanced problems">
+        <h2 data-icon="troubleshoot">Common failures and specific fixes</h2>
         <table class="data-table">
-          <thead><tr><th scope="col">問題</th><th scope="col">先看哪裡</th><th scope="col">具體處理</th></tr></thead>
+          <thead><tr><th scope="col">Problem</th><th scope="col">Where to look first</th><th scope="col">What to do</th></tr></thead>
           <tbody>
-            <tr><td>重導後一直循環</td><td>來源與目標 scheme／網域，以及 Force SSL</td><td>暫用 302，確認目標沒有再導回來源；每次只停用一條規則測試</td></tr>
-            <tr><td>301 改了仍去舊網址</td><td>瀏覽器與 CDN 快取</td><td>用無痕視窗、不同用戶端或不自動跟隨的 HTTP 檢查；不要持續改 DNS</td></tr>
-            <tr><td>Stream 已建立但外部連不到</td><td>HA add-on 是否真的發布 incoming port</td><td>核對 <code>config.yaml</code> 與 HA Network；目前 Woow 版本只有 80、81、443，不要拿 81 代用</td></tr>
-            <tr><td>WebSocket 連上後立刻斷線</td><td>upstream 直連、WS 路徑與 Websockets Support</td><td>先直連 upstream，再啟用選項；若只在 Cloudflare 後失敗才查該層</td></tr>
-            <tr><td>Custom Location 顯示 404</td><td>應用程式 base path 與實際請求路徑</td><td>確認應用是否支援子路徑，並檢查靜態資源與登入回呼 URL</td></tr>
-            <tr><td>保存 Advanced 設定後 Host Offline</td><td>Add-on log 的 Nginx 語法或 reload 錯誤</td><td>撤回最後新增的 directive；不要刪資料庫、憑證或整個 host</td></tr>
+            <tr><td>A redirect keeps looping</td><td>The source and target scheme / domain, and Force SSL</td><td>Use 302 for now and confirm the target does not redirect back to the source; disable one rule at a time as you test</td></tr>
+            <tr><td>You changed the 301 but it still goes to the old address</td><td>Browser and CDN caches</td><td>Check with a private window, a different client, or an HTTP request that does not follow redirects; do not keep changing DNS</td></tr>
+            <tr><td>The Stream exists but nothing outside can reach it</td><td>Whether the HA add-on really publishes that incoming port</td><td>Cross-check <code>config.yaml</code> and HA Network; the current Woow release has only 80, 81 and 443, and 81 is not a substitute</td></tr>
+            <tr><td>The WebSocket connects and drops immediately</td><td>A direct connection to the upstream, the WS path and Websockets Support</td><td>Test the upstream directly first, then turn the option on; look at the Cloudflare layer only if it fails behind Cloudflare alone</td></tr>
+            <tr><td>A Custom Location returns 404</td><td>The application's base path and the actual request path</td><td>Confirm whether the application supports a subpath, and check the URLs for static assets and the login callback</td></tr>
+            <tr><td>The Host goes Offline after you save the Advanced config</td><td>An Nginx syntax or reload error in the add-on log</td><td>Roll back the directive you added last; do not delete the database, the certificates or the whole host</td></tr>
           </tbody>
         </table>
       </section>
 
-      <section id="advanced-faq" data-nav="常見問題">
-        <h2 data-icon="faq">常見問題</h2>
-        <details class="faq"><summary>Redirection Host 能當反向代理嗎？</summary><div class="body">不能視為同一件事。重導向會叫瀏覽器前往另一個 URL；反向代理則由 NPM 代表用戶端連到 upstream，瀏覽器可維持原網域。</div></details>
-        <details class="faq"><summary>一個 Stream 可以依網域送到不同伺服器嗎？</summary><div class="body">一般 Stream 是依 incoming port 轉送 TCP／UDP，不使用 HTTP Host 或 URL 路徑分流。若需求是網站網域分流，使用 Proxy Host。</div></details>
-        <details class="faq"><summary>啟用 Websockets Support 會自動修好所有即時連線嗎？</summary><div class="body">不會。它補上 NPM 代理所需的升級設定，但 upstream 路徑、應用程式設定、逾時與其他中介層仍可能造成斷線。</div></details>
-        <details class="faq"><summary>可以直接複製社群提供的 Advanced 設定嗎？</summary><div class="body">不建議。先理解每一條 directive、確認適用 NPM 2.12.4 與 Woow 的 <code>/config</code> 路徑，並在可回復備份後逐條測試。</div></details>
+      <section id="advanced-faq" data-nav="FAQ">
+        <h2 data-icon="faq">FAQ</h2>
+        <details class="faq"><summary>Can a Redirection Host act as a reverse proxy?</summary><div class="body">They are not the same thing. A redirect tells the browser to go to another URL; with a reverse proxy, NPM connects to the upstream on the client's behalf and the browser can stay on the original domain.</div></details>
+        <details class="faq"><summary>Can one Stream send different domains to different servers?</summary><div class="body">A normal Stream forwards TCP/UDP by incoming port; it does not route on the HTTP Host or the URL path. If what you want is routing by website domain, use a Proxy Host.</div></details>
+        <details class="faq"><summary>Does turning on Websockets Support fix every real-time connection automatically?</summary><div class="body">No. It adds the upgrade settings the NPM proxy needs, but the upstream path, the application's own settings, timeouts and other layers in between can still drop the connection.</div></details>
+        <details class="faq"><summary>Can I copy an Advanced config from the community as-is?</summary><div class="body">Not advisable. Understand every directive first, confirm it applies to NPM 2.12.4 and to Woow's <code>/config</code> path, and test them one at a time once you have a backup you can restore from.</div></details>
       </section>
 
-      <section id="advanced-sources" data-nav="官方來源">
-        <h2 data-icon="book">官方來源與版本邊界</h2>
-        <p>本章以 Woow add-on 目前宣告的 NPM 2.12.4-v2 為操作邊界；上游介面持續演進，欄位名稱有差異時，以你安裝版本與官方 release notes 為準。</p>
+      <section id="advanced-sources" data-nav="Official sources">
+        <h2 data-icon="book">Official sources and version scope</h2>
+        <p>This chapter takes the NPM 2.12.4-v2 that the Woow add-on currently declares as the boundary for what you do here. The upstream interface keeps evolving, so where a field name differs, go by the version you installed and the official release notes.</p>
         <ul>
-          <li><a href="https://github.com/WOOWTECH/Woow_ha_nginxpm/blob/main/nginxpm/README.md">WOOWTECH：Woow Nginx Proxy Manager add-on README</a></li>
-          <li><a href="https://github.com/WOOWTECH/Woow_ha_nginxpm/blob/main/nginxpm/config.yaml">WOOWTECH：add-on config.yaml 連接埠與備份設定</a></li>
-          <li><a href="https://github.com/NginxProxyManager/nginx-proxy-manager/blob/v2.12.4/backend/templates/proxy_host.conf">Nginx Proxy Manager v2.12.4：Proxy Host 官方範本</a></li>
-          <li><a href="https://github.com/NginxProxyManager/nginx-proxy-manager/blob/v2.12.4/backend/templates/_location.conf">Nginx Proxy Manager v2.12.4：Custom Location 官方範本</a></li>
-          <li><a href="https://github.com/NginxProxyManager/nginx-proxy-manager/blob/develop/README.md">Nginx Proxy Manager：官方功能與部署說明</a></li>
+          <li><a href="https://github.com/WOOWTECH/Woow_ha_nginxpm/blob/main/nginxpm/README.md">WOOWTECH: Woow Nginx Proxy Manager add-on README</a></li>
+          <li><a href="https://github.com/WOOWTECH/Woow_ha_nginxpm/blob/main/nginxpm/config.yaml">WOOWTECH: add-on config.yaml port and backup settings</a></li>
+          <li><a href="https://github.com/NginxProxyManager/nginx-proxy-manager/blob/v2.12.4/backend/templates/proxy_host.conf">Nginx Proxy Manager v2.12.4: the official Proxy Host template</a></li>
+          <li><a href="https://github.com/NginxProxyManager/nginx-proxy-manager/blob/v2.12.4/backend/templates/_location.conf">Nginx Proxy Manager v2.12.4: the official Custom Location template</a></li>
+          <li><a href="https://github.com/NginxProxyManager/nginx-proxy-manager/blob/develop/README.md">Nginx Proxy Manager: official features and deployment notes</a></li>
         </ul>
       </section>
 

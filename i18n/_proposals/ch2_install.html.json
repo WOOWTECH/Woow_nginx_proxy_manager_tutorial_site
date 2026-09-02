@@ -1,0 +1,16 @@
+{
+  "file": "ch2_install.html",
+  "_note": "The two entries below share an identical code block (it occurs twice in the file, in two different units). apply_code_translations.js requires each proposal's zh to occur exactly once in the target file, so it will reject both with '原文區塊在 en/ 出現 2 次'. Both units need the same substitution: <HA區網位址> -> <ha-lan-address> (i18n/glossary.json decisions.code_placeholders). Apply per-unit or add both whitelist rows by hand.",
+  "entries": [
+    {
+      "unit": "#start-and-check",
+      "zh": "<code>http://&lt;HA區網位址&gt;:81</code>",
+      "en": "<code>http://&lt;ha-lan-address&gt;:81</code>"
+    },
+    {
+      "unit": "#troubleshooting",
+      "zh": "<code>http://&lt;HA區網位址&gt;:81</code>",
+      "en": "<code>http://&lt;ha-lan-address&gt;:81</code>"
+    }
+  ]
+}

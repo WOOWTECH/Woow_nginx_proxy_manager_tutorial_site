@@ -1,0 +1,16 @@
+{
+  "file": "ch8_cloudflare_tunnel.html",
+  "_note": "Chinese inside frozen code blocks (gate B). English forms are verbatim from the binding terms table /home/user/out/terms_nginx_proxy_manager.txt (Code placeholders section): 訪客瀏覽器 -> Visitor's browser, HTTPS（Cloudflare 邊緣憑證） -> HTTPS (Cloudflare edge certificate), Cloudflare 邊緣 -> Cloudflare edge, HTTP，僅在受信任／隔離內網送到 NPM port 80 -> HTTP, only over a trusted/isolated LAN to NPM port 80, 依內部服務實際支援的 HTTP 或 HTTPS -> HTTP or HTTPS, whichever the internal service supports, 內部服務 -> Internal service, <NPM 私有位址> -> <npm-private-address>. Line prefixes, box-drawing characters and every non-Chinese token are unchanged. Each zh block occurs exactly once in en/ch8_cloudflare_tunnel.html.",
+  "entries": [
+    {
+      "unit": "#topology",
+      "zh": "<pre class=\"code-block\"><code>訪客瀏覽器\n  │ HTTPS（Cloudflare 邊緣憑證）\n  ▼\nCloudflare 邊緣\n  │ Cloudflare Tunnel\n  ▼\ncloudflared\n  │ HTTP，僅在受信任／隔離內網送到 NPM port 80\n  ▼\nNPM Proxy Host\n  │ 依內部服務實際支援的 HTTP 或 HTTPS\n  ▼\n內部服務</code></pre>",
+      "en": "<pre class=\"code-block\"><code>Visitor's browser\n  │ HTTPS (Cloudflare edge certificate)\n  ▼\nCloudflare edge\n  │ Cloudflare Tunnel\n  ▼\ncloudflared\n  │ HTTP, only over a trusted/isolated LAN to NPM port 80\n  ▼\nNPM Proxy Host\n  │ HTTP or HTTPS, whichever the internal service supports\n  ▼\nInternal service</code></pre>"
+    },
+    {
+      "unit": "#publish-hostname",
+      "zh": "<code>http://&lt;NPM 私有位址&gt;:80</code>",
+      "en": "<code>http://&lt;npm-private-address&gt;:80</code>"
+    }
+  ]
+}

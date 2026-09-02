@@ -1,0 +1,21 @@
+{
+  "file": "ch5_proxy_host.html",
+  "_note": "Chinese placeholders inside frozen code blocks. Wording from /home/user/out/terms_nginx_proxy_manager.txt (decisions.code_placeholders): [內部服務位址] -> [internal-service-address], [服務連接埠] -> [service-port], 'NPM 的 80/tcp' -> \"NPM's 80/tcp\". Each zh string occurs exactly once in en/ch5_proxy_host.html.",
+  "entries": [
+    {
+      "unit": "#request-path",
+      "zh": "<pre class=\"code-block\"><code>app.example.net → NPM 的 80/tcp → http://[內部服務位址]:[服務連接埠]</code></pre>",
+      "en": "<pre class=\"code-block\"><code>app.example.net → NPM's 80/tcp → http://[internal-service-address]:[service-port]</code></pre>"
+    },
+    {
+      "unit": "#fields",
+      "zh": "<code>[內部服務位址]</code>",
+      "en": "<code>[internal-service-address]</code>"
+    },
+    {
+      "unit": "#fields",
+      "zh": "<code>[服務連接埠]</code>",
+      "en": "<code>[service-port]</code>"
+    }
+  ]
+}

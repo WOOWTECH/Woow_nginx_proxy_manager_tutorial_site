@@ -1,0 +1,21 @@
+{
+  "file": "ch6_dns.html",
+  "_note": "Chinese placeholders inside frozen code blocks. English forms come from i18n/glossary.json decisions.code_placeholders / the binding terms table (/home/user/out/terms_nginx_proxy_manager.txt). Each zh block occurs exactly once in en/ch6_dns.html.",
+  "entries": [
+    {
+      "unit": "#dns-role",
+      "zh": "<pre class=\"code-block\"><code>app.example.net\n  └─ DNS → [路由器公開 IP]\n       └─ TCP 80/443 NAT → [NPM 位址]\n            └─ Proxy Host → [內部服務位址]:[服務連接埠]</code></pre>",
+      "en": "<pre class=\"code-block\"><code>app.example.net\n  └─ DNS → [router-public-ip]\n       └─ TCP 80/443 NAT → [npm-address]\n            └─ Proxy Host → [internal-service-address]:[service-port]</code></pre>"
+    },
+    {
+      "unit": "#inventory",
+      "zh": "<code>[公開 IP]</code>",
+      "en": "<code>[public-ip]</code>"
+    },
+    {
+      "unit": "#inventory",
+      "zh": "<code>[內部 IP]</code>",
+      "en": "<code>[internal-ip]</code>"
+    }
+  ]
+}

@@ -57,16 +57,16 @@
     </ol>
     <div class="toc-in-chapter">
       <h2>This chapter</h2>
-      <a href="#installation-scope">本章完成什麼</a>
-      <a href="#preflight">安裝前盤點</a>
-      <a href="#add-repository">加入官方倉庫</a>
-      <a href="#install-addon">安裝 add-on</a>
-      <a href="#ports">80、81、443 用途</a>
-      <a href="#start-and-check">啟動與區網檢查</a>
-      <a href="#exposure-check">公開前防線</a>
-      <a href="#troubleshooting">安裝排錯</a>
-      <a href="#faq">常見問題</a>
-      <a href="#official-sources">官方資料來源</a>
+      <a href="#installation-scope">Chapter scope</a>
+      <a href="#preflight">Preflight</a>
+      <a href="#add-repository">Add repository</a>
+      <a href="#install-addon">Install add-on</a>
+      <a href="#ports">80, 81, 443</a>
+      <a href="#start-and-check">Start and check</a>
+      <a href="#exposure-check">Before exposure</a>
+      <a href="#troubleshooting">Install problems</a>
+      <a href="#faq">FAQ</a>
+      <a href="#official-sources">Official sources</a>
     </div>
 
   </aside>
@@ -75,112 +75,112 @@
     <div class="callout i18n-pending"><strong>This chapter has not been translated yet.</strong> You are reading the original Chinese text. <a href="../ch2_install.html" hreflang="zh-Hant">Open the Chinese version</a></div>
     <div class="chapter-header">
       <div class="kicker">Chapter 2</div>
-      <h1>安裝 Woow Nginx Proxy Manager</h1>
-      <p class="lead">在 Home Assistant OS 或 Supervised 加入 WOOWTECH add-on 倉庫、安裝 NPM，並先確認 TCP 80、81、443 的用途與邊界。</p>
+      <h1>Install Woow Nginx Proxy Manager</h1>
+      <p class="lead">On Home Assistant OS or Supervised, add the WOOWTECH add-on repository, install NPM, and first confirm what TCP 80, 81 and 443 are for and where their boundaries lie.</p>
     </div>
 
-    <section id="installation-scope" data-nav="本章完成什麼">
-      <h2 data-icon="what">本章完成什麼</h2>
-      <p>你會安裝名為 <strong>Woow Nginx Proxy Manager</strong> 的 Home Assistant add-on，啟動後只從可信任區網確認管理介面可用。本章不設定網域、不申請憑證，也不要求你先開路由器連接埠。</p>
-      <p>WOOWTECH 倉庫目前說明此 add-on 適用於 Home Assistant OS（HAOS）或 Home Assistant Supervised，支援 <code>amd64</code>、<code>aarch64</code>，並需要 TCP 80、81、443。若你使用 Home Assistant Container 或 Core，這套 add-on 步驟不適用。</p>
-      <div class="callout"><strong>版本提醒：</strong>倉庫會更新 add-on。安裝頁顯示的版本可能不同於本章核對時的設定檔；以你看到的最新 README、更新記錄與 config.yaml 為準。</div>
+    <section id="installation-scope" data-nav="Chapter scope">
+      <h2 data-icon="what">What this chapter completes</h2>
+      <p>You will install the Home Assistant add-on called <strong>Woow Nginx Proxy Manager</strong>, start it, and confirm the admin interface works from a trusted LAN only. This chapter sets up no domain, requests no certificate, and does not ask you to open a router port first.</p>
+      <p>The WOOWTECH repository currently states that this add-on is for Home Assistant OS (HAOS) or Home Assistant Supervised, supports <code>amd64</code> and <code>aarch64</code>, and needs TCP 80, 81 and 443. If you run Home Assistant Container or Core, these add-on steps do not apply.</p>
+      <div class="callout"><strong>Version note:</strong> the repository updates the add-on. The version shown on the install page may differ from the config file this chapter was checked against; go by the latest README, changelog and config.yaml you can see.</div>
     </section>
 
-    <section id="preflight" data-nav="安裝前盤點">
-      <h2 data-icon="plan">安裝前盤點</h2>
+    <section id="preflight" data-nav="Preflight">
+      <h2 data-icon="plan">Take stock before installing</h2>
       <ol class="steps">
-        <li><h3>確認安裝類型</h3><p>在 Home Assistant 的系統資訊確認是 HAOS 或 Supervised，且你能開啟「設定」中的 add-on 商店。</p></li>
-        <li><h3>確認 CPU 架構</h3><p>確認系統為 <code>amd64</code> 或 <code>aarch64</code>。WOOWTECH config.yaml 目前只宣告這兩種架構。</p></li>
-        <li><h3>盤點連接埠</h3><p>檢查同一 Home Assistant 主機是否已有服務使用 TCP 80、81、443。只記錄必要資訊，分享時遮罩主機名稱、私有 IP 與完整記錄。</p></li>
-        <li><h3>保留回復資訊</h3><p>記下目前運作中的 add-on 與連接埠配置。若發現衝突，先理解既有服務用途，不要直接停用或刪除。</p></li>
+        <li><h3>Confirm the installation type</h3><p>In Home Assistant's system information, confirm you are on HAOS or Supervised, and that you can open the Add-on Store under Settings.</p></li>
+        <li><h3>Confirm the CPU architecture</h3><p>Confirm the system is <code>amd64</code> or <code>aarch64</code>. The WOOWTECH config.yaml currently declares only those two architectures.</p></li>
+        <li><h3>Take stock of the ports</h3><p>Check whether a service on the same Home Assistant host already uses TCP 80, 81 or 443. Record only what you need, and redact hostnames, private IPs and full logs before you share anything.</p></li>
+        <li><h3>Keep what you need to roll back</h3><p>Write down the add-ons currently running and their port assignments. If you find a conflict, understand what the existing service is for first; do not disable or delete it outright.</p></li>
       </ol>
     </section>
 
-    <section id="add-repository" data-nav="加入官方倉庫">
-      <h2 data-icon="addons">加入官方倉庫</h2>
+    <section id="add-repository" data-nav="Add repository">
+      <h2 data-icon="addons">Add the official repository</h2>
       <ol class="steps">
-        <li><h3>進入 add-on 商店</h3><p>在 Home Assistant 開啟「設定」→「附加元件」→「附加元件商店」。不同版本的繁體中文翻譯可能顯示為「Add-ons」或近似名稱。</p></li>
-        <li><h3>開啟倉庫清單</h3><p>選右上角選單，再開啟「Repositories／儲存庫」。</p></li>
-        <li><h3>貼上正確網址</h3><p>加入 <code>https://github.com/WOOWTECH/Woow_ha_nginxpm</code>。核對擁有者是 <code>WOOWTECH</code>，不要使用名稱相似或已封存的舊倉庫。</p></li>
-        <li><h3>等待清單更新</h3><p>關閉倉庫視窗並等待商店重新整理，搜尋 <strong>Woow Nginx Proxy Manager</strong>。</p></li>
+        <li><h3>Open the Add-on Store</h3><p>In Home Assistant, open Settings → Add-ons → Add-on Store. Note: a localized Home Assistant interface may label this differently; look for the Add-on Store.</p></li>
+        <li><h3>Open the repository list</h3><p>Open the menu at the top right, then open Repositories.</p></li>
+        <li><h3>Paste the right URL</h3><p>Add <code>https://github.com/WOOWTECH/Woow_ha_nginxpm</code>. Check that the owner is <code>WOOWTECH</code>, and do not use a similarly named or archived old repository.</p></li>
+        <li><h3>Wait for the list to refresh</h3><p>Close the repository dialog, wait for the store to reload, then search for <strong>Woow Nginx Proxy Manager</strong>.</p></li>
       </ol>
-      <div class="callout warn"><strong>舊倉庫提醒：</strong>WOOWTECH README 指出專案已從舊的 <code>Woow_nginxpm_docker_compose_all</code> 的 <code>ha</code> 分支遷移；已封存倉庫不再收到更新。</div>
+      <div class="callout warn"><strong>Note on the old repository:</strong> the WOOWTECH README states that the project has migrated away from the old <code>Woow_nginxpm_docker_compose_all</code> and its <code>ha</code> branch; an archived repository no longer receives updates.</div>
     </section>
 
-    <section id="install-addon" data-nav="安裝 add-on">
-      <h2 data-icon="steps">安裝 add-on</h2>
+    <section id="install-addon" data-nav="Install add-on">
+      <h2 data-icon="steps">Install the add-on</h2>
       <ol class="steps">
-        <li><h3>開啟正確項目</h3><p>選擇 <strong>Woow Nginx Proxy Manager</strong>，再次確認來源連到 WOOWTECH 的 <code>Woow_ha_nginxpm</code>。</p></li>
-        <li><h3>閱讀版本資訊</h3><p>查看 README、更新記錄、支援架構與權限，再按「INSTALL／安裝」。</p></li>
-        <li><h3>等待安裝完成</h3><p>安裝時間依硬體與網路而異。不要因畫面暫時沒有變化就重複按安裝或重開主機。</p></li>
-        <li><h3>先不要設定 WAN 轉送</h3><p>安裝完成後留在 add-on 頁面。此時不需要把任何連接埠公開到網際網路，尤其不可公開 TCP 81。</p></li>
+        <li><h3>Open the right entry</h3><p>Select <strong>Woow Nginx Proxy Manager</strong> and check once more that the source points at WOOWTECH's <code>Woow_ha_nginxpm</code>.</p></li>
+        <li><h3>Read the version information</h3><p>Read the README, the changelog, the supported architectures and the permissions, then press INSTALL.</p></li>
+        <li><h3>Wait for the install to finish</h3><p>How long it takes depends on your hardware and network. Do not press install again or reboot the host because the screen has stopped changing for a moment.</p></li>
+        <li><h3>Do not set up WAN forwarding yet</h3><p>Stay on the add-on page once the install finishes. At this point no port needs to be exposed to the public internet, and TCP 81 must never be.</p></li>
       </ol>
-      <p>WOOWTECH 的 add-on README 說明此 add-on 不需要額外選項，管理操作都在 TCP 81 的 Web UI 完成。</p>
+      <p>The WOOWTECH add-on README states that this add-on needs no extra options; all administration happens in the Web UI on TCP 81.</p>
     </section>
 
-    <section id="ports" data-nav="80、81、443 用途">
-      <h2 data-icon="network">80、81、443 用途</h2>
+    <section id="ports" data-nav="80, 81, 443">
+      <h2 data-icon="network">What 80, 81 and 443 are for</h2>
       <table class="data-table">
-        <thead><tr><th>主機連接埠</th><th>用途</th><th>公開原則</th></tr></thead>
+        <thead><tr><th>Host port</th><th>What it is for</th><th>Exposure rule</th></tr></thead>
         <tbody>
-          <tr><td><code>80/tcp</code></td><td>HTTP 反向代理入口；直接公開且採 HTTP-01 時也用於驗證</td><td>只有架構確實需要時才由 WAN 轉送；Tunnel 或 DNS-01 不應被誤解成一律要開</td></tr>
-          <tr><td><code>81/tcp</code></td><td>NPM 管理 Web UI</td><td><strong>不可公開</strong>；只允許可信任區網或受控管理通道</td></tr>
-          <tr><td><code>443/tcp</code></td><td>HTTPS 反向代理入口</td><td>直接公開架構通常只轉送到 NPM；Tunnel 架構依通道設計，不另外留下不必要入口</td></tr>
+          <tr><td><code>80/tcp</code></td><td>The HTTP reverse proxy entry point; also used for validation when you expose it directly and use HTTP-01</td><td>Forward it from the WAN only when your design genuinely needs it; do not read a Tunnel or DNS-01 setup as meaning this port must always be open</td></tr>
+          <tr><td><code>81/tcp</code></td><td>The NPM admin Web UI</td><td><strong>Never expose it</strong>; only a trusted LAN or a controlled management channel is allowed</td></tr>
+          <tr><td><code>443/tcp</code></td><td>The HTTPS reverse proxy entry point</td><td>A directly exposed design normally forwards it to NPM only; a Tunnel design follows the tunnel layout and leaves no unnecessary extra entry point</td></tr>
         </tbody>
       </table>
-      <p>WOOWTECH 的 config.yaml 將 <code>80/tcp</code>、<code>81/tcp</code>、<code>443/tcp</code> 分別對應到主機的 80、81、443；官方 NPM Setup 也把它們標為 Public HTTP、Admin Web、Public HTTPS。這描述的是服務用途，不代表三個連接埠都應對 WAN 公開。</p>
-      <div class="callout danger"><strong>路由器只談 WAN 入口：</strong>絕對不要建立外部 81 → Home Assistant 81 的轉送。若路由器已存在這條規則，先記錄影響範圍，再安全移除或停用該公開入口。</div>
+      <p>The WOOWTECH config.yaml maps <code>80/tcp</code>, <code>81/tcp</code> and <code>443/tcp</code> to ports 80, 81 and 443 on the host; the official NPM Setup page also labels them Public HTTP, Admin Web and Public HTTPS. That describes what each one is for, not that all three ports should be exposed to the WAN.</p>
+      <div class="callout danger"><strong>On the router, WAN entry points only:</strong> never create a forward from external 81 → Home Assistant 81. If your router already has that rule, record what it affects first, then safely remove or disable that public entry point.</div>
     </section>
 
-    <section id="start-and-check" data-nav="啟動與區網檢查">
-      <h2 data-icon="test">啟動與區網檢查</h2>
+    <section id="start-and-check" data-nav="Start and check">
+      <h2 data-icon="test">Start it and check from the LAN</h2>
       <ol class="steps">
-        <li><h3>啟動 add-on</h3><p>在 add-on 資訊頁按「START／啟動」，等待狀態成為執行中。</p></li>
-        <li><h3>先看簡短記錄</h3><p>只在本機檢查啟動是否完成，以及是否有連接埠衝突。記錄可能含位址、網域、憑證或請求資訊，不要公開貼出全文。</p></li>
-        <li><h3>從可信任區網開啟 Web UI</h3><p>使用 add-on 的「OPEN WEB UI／開啟 Web UI」。若按鈕不可用，可從可信任區網嘗試 <code>http://&lt;HA區網位址&gt;:81</code>；不要把真實位址寫入公開筆記。</p></li>
-        <li><h3>停在登入頁</h3><p>看到 NPM 登入畫面就代表本章檢查完成。預設帳密將在下一章使用，登入後要立即更改。</p></li>
+        <li><h3>Start the add-on</h3><p>On the add-on info page, press START and wait for the status to become running.</p></li>
+        <li><h3>Read a short log first</h3><p>Check locally only, to see whether startup finished and whether there is a port conflict. A log can contain addresses, domains, certificates or request details, so do not post the whole thing publicly.</p></li>
+        <li><h3>Open the Web UI from a trusted LAN</h3><p>Use the add-on's OPEN WEB UI button. If the button is unavailable, try <code>http://&lt;HA區網位址&gt;:81</code> from a trusted LAN; never write your real address into public notes.</p></li>
+        <li><h3>Stop at the login page</h3><p>Reaching the NPM login screen means this chapter's checks are done. You will use the default credentials in the next chapter, and you must change them immediately after you log in.</p></li>
       </ol>
-      <div class="callout warn"><strong>預設帳密尚未加固：</strong>在完成下一章前，保持 TCP 81 僅限可信任區網，且不要開始公開 Proxy Host。</div>
+      <div class="callout warn"><strong>The default credentials are not hardened yet:</strong> until you finish the next chapter, keep TCP 81 restricted to a trusted LAN, and do not start publishing a Proxy Host.</div>
     </section>
 
-    <section id="exposure-check" data-nav="公開前防線">
-      <h2 data-icon="security">公開前防線</h2>
+    <section id="exposure-check" data-nav="Before exposure">
+      <h2 data-icon="security">Your defenses before going public</h2>
       <ul>
-        <li>檢查路由器：不得有 WAN TCP 81 對應到 Home Assistant 或 NPM。</li>
-        <li>檢查防火牆：TCP 81 只允許必要的可信任管理來源，不要允許任意網際網路來源。</li>
-        <li>檢查 DNS：不要為管理介面建立公開記錄；真實網域與公私有 IP 均視為敏感資料。</li>
-        <li>檢查分享內容：完整 add-on 記錄、憑證、密碼與 DNS API Token 不得放進 issue、聊天或截圖。</li>
-        <li>尚未決定直接公開或 Tunnel 前，不要預先打開 WAN 80／443。</li>
+        <li>Check the router: there must be no WAN TCP 81 mapped to Home Assistant or NPM.</li>
+        <li>Check the firewall: TCP 81 allows only the trusted management sources you actually need, never an arbitrary source on the public internet.</li>
+        <li>Check DNS: do not create a public record for the admin interface; treat your real domain and both public and private IPs as sensitive data.</li>
+        <li>Check what you share: full add-on logs, certificates, passwords and DNS API tokens must never go into an issue, a chat or a screenshot.</li>
+        <li>Until you have decided between direct exposure and a Tunnel, do not open WAN 80/443 in advance.</li>
       </ul>
-      <p>直接公開時，上游官方指南的基本流程是將 80、443 送到 NPM；WOOWTECH 文件另列出 Tunnel 不需路由器轉送的方案。兩者應依你的設計擇一落實，而不是把所有入口都打開。</p>
+      <p>For direct exposure, the basic flow in the upstream official guide is to send 80 and 443 to NPM; the WOOWTECH documentation also lists a Tunnel option that needs no router forwarding. Implement whichever one your design calls for, rather than opening every entry point.</p>
     </section>
 
-    <section id="troubleshooting" data-nav="安裝排錯">
-      <h2 data-icon="troubleshoot">安裝排錯</h2>
-      <h3>問題一：商店找不到 Woow Nginx Proxy Manager</h3><p>確認倉庫網址完整、擁有者為 WOOWTECH，重新整理商店並查看 Home Assistant 是否能連到 GitHub。不要改加來路不明的鏡像。</p>
-      <h3>問題二：顯示不支援此架構</h3><p>核對系統是 <code>amd64</code> 或 <code>aarch64</code>。目前 config.yaml 未宣告其他架構；不要用錯誤映像強制安裝。</p>
-      <h3>問題三：啟動失敗並提到 address already in use</h3><p>通常是 TCP 80、81 或 443 已被占用。盤點同主機服務與 add-on 連接埠；先理解依賴，再決定調整哪一方。</p>
-      <h3>問題四：add-on 執行中但 Web UI 打不開</h3><p>先用「開啟 Web UI」，再從同一可信任區網檢查 <code>http://&lt;HA區網位址&gt;:81</code>。確認本機防火牆與 VLAN 規則，不要用 WAN 轉送來繞過問題。</p>
-      <h3>問題五：安裝一直停住</h3><p>檢查可用儲存空間、網路與 Supervisor 記錄中的明確錯誤。只摘錄必要行並遮罩敏感值，不要貼完整記錄。</p>
+    <section id="troubleshooting" data-nav="Install problems">
+      <h2 data-icon="troubleshoot">Install troubleshooting</h2>
+      <h3>Problem 1: the store cannot find Woow Nginx Proxy Manager</h3><p>Confirm the repository URL is complete and the owner is WOOWTECH, reload the store, and check whether Home Assistant can reach GitHub. Do not add an unvetted mirror instead.</p>
+      <h3>Problem 2: it says this architecture is not supported</h3><p>Check that the system is <code>amd64</code> or <code>aarch64</code>. The current config.yaml declares no other architecture; do not force the install with the wrong image.</p>
+      <h3>Problem 3: it fails to start and mentions address already in use</h3><p>Usually TCP 80, 81 or 443 is already taken. Take stock of the services and add-on ports on the same host; understand what depends on what before you decide which side to change.</p>
+      <h3>Problem 4: the add-on is running but the Web UI will not open</h3><p>Use OPEN WEB UI first, then check <code>http://&lt;HA區網位址&gt;:81</code> from the same trusted LAN. Check the local firewall and the VLAN rules; do not use WAN forwarding to work around the problem.</p>
+      <h3>Problem 5: the install never finishes</h3><p>Check the free storage, the network and the Supervisor log for a specific error. Quote only the lines you need and redact sensitive values; do not paste the whole log.</p>
     </section>
 
-    <section id="faq" data-nav="常見問題">
-      <h2 data-icon="faq">常見問題</h2>
-      <details class="faq"><summary>安裝時一定要先有網域嗎？</summary><div class="body">不用。你可以先在可信任區網安裝與加固帳號，等架構與 DNS 都準備好再建立 Proxy Host。</div></details>
-      <details class="faq"><summary>為什麼安裝後會看到三個連接埠？</summary><div class="body">80 與 443 是代理流量入口，81 是管理介面。它們被 add-on 發布到主機，不等於都要由路由器公開。</div></details>
-      <details class="faq"><summary>可以把主機 81 改成其他數字後公開嗎？</summary><div class="body">不可以用改號碼取代存取控制。無論外部號碼為何，管理介面都不應直接暴露到網際網路。</div></details>
-      <details class="faq"><summary>Home Assistant Container 能照這章安裝嗎？</summary><div class="body">不能。WOOWTECH README 的需求是 HAOS 或 Supervised；Container 使用者應依官方 NPM Docker 文件另行規劃。</div></details>
+    <section id="faq" data-nav="FAQ">
+      <h2 data-icon="faq">FAQ</h2>
+      <details class="faq"><summary>Do I need a domain before I install?</summary><div class="body">No. You can install it on a trusted LAN and harden the account first, then create a Proxy Host once your architecture and DNS are ready.</div></details>
+      <details class="faq"><summary>Why do I see three ports after installing?</summary><div class="body">80 and 443 are the entry points for proxied traffic; 81 is the admin interface. The add-on publishes them on the host, which does not mean the router should expose them all.</div></details>
+      <details class="faq"><summary>Can I move host port 81 to another number and expose that?</summary><div class="body">Changing the number is not a substitute for access control. Whatever the external number is, the admin interface must never be exposed directly to the public internet.</div></details>
+      <details class="faq"><summary>Can I follow this chapter on Home Assistant Container?</summary><div class="body">No. The WOOWTECH README requires HAOS or Supervised; Container users should plan separately, following the official NPM Docker documentation.</div></details>
     </section>
 
-    <section id="official-sources" data-nav="官方資料來源">
-      <h2 data-icon="book">官方資料來源</h2>
+    <section id="official-sources" data-nav="Official sources">
+      <h2 data-icon="book">Official sources</h2>
       <ul>
-        <li><a href="https://github.com/WOOWTECH/Woow_ha_nginxpm" rel="noopener">WOOWTECH／Woow_ha_nginxpm README</a>：倉庫加入方式、add-on 名稱、預設登入與遷移提醒。</li>
-        <li><a href="https://github.com/WOOWTECH/Woow_ha_nginxpm/blob/main/nginxpm/README.md" rel="noopener">Woow add-on README</a>：系統需求、安裝流程、連接埠、Tunnel 與排錯。</li>
-        <li><a href="https://github.com/WOOWTECH/Woow_ha_nginxpm/blob/main/nginxpm/config.yaml" rel="noopener">Woow add-on config.yaml</a>：slug、Web UI、架構、連接埠與備份排除設定。</li>
-        <li><a href="https://nginxproxymanager.com/setup/" rel="noopener">Nginx Proxy Manager 官方 Setup</a>：上游對 80、81、443 的用途說明。</li>
+        <li><a href="https://github.com/WOOWTECH/Woow_ha_nginxpm" rel="noopener">WOOWTECH/Woow_ha_nginxpm README</a>: how to add the repository, the add-on name, the default login and the migration note.</li>
+        <li><a href="https://github.com/WOOWTECH/Woow_ha_nginxpm/blob/main/nginxpm/README.md" rel="noopener">Woow add-on README</a>: system requirements, the install flow, ports, Tunnel and troubleshooting.</li>
+        <li><a href="https://github.com/WOOWTECH/Woow_ha_nginxpm/blob/main/nginxpm/config.yaml" rel="noopener">Woow add-on config.yaml</a>: the slug, Web UI, architectures, ports and backup exclusion settings.</li>
+        <li><a href="https://nginxproxymanager.com/setup/" rel="noopener">Nginx Proxy Manager official Setup page</a>: what upstream says 80, 81 and 443 are for.</li>
       </ul>
-      <p>本章沒有要求或示範截圖。Home Assistant 與 NPM 介面名稱可能改版；若按鈕位置不同，應以 add-on 頁面與官方 README 的當前內容為準。</p>
+      <p>This chapter requires no screenshots and shows none. The Home Assistant and NPM interface names may have changed; if a button is somewhere else, go by the current content of the add-on page and the official README.</p>
     </section>
 
     <div class="pager">

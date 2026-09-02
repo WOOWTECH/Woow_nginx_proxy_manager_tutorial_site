@@ -1,0 +1,11 @@
+{
+  "file": "ch9_access_lists.html",
+  "_note": "Chinese placeholder inside a frozen code block (gate B). English form is verbatim from the binding terms table /home/user/out/terms_nginx_proxy_manager.txt (Code placeholders section): <可信任 CIDR> -> <trusted-cidr>. HEADS-UP FOR THE APPLIER: this exact block occurs TWICE in #ip-rules (rows 1 and 3 of the rule-order table), so scripts/apply_code_translations.js will reject it with \"出現 2 次（需要剛好 1 次）\". Both occurrences are byte-identical and both must become the same English form; replace globally (or run the applier twice after a manual first replace). One whitelist entry covers both, because check_i18n matches gate B per code block on (file, unit, zh, en).",
+  "entries": [
+    {
+      "unit": "#ip-rules",
+      "zh": "<code>allow &lt;可信任 CIDR&gt;</code>",
+      "en": "<code>allow &lt;trusted-cidr&gt;</code>"
+    }
+  ]
+}

@@ -57,18 +57,18 @@
     </ol>
     <div class="toc-in-chapter">
       <h2>This chapter</h2>
-      <a href="#layered-method">分層排查</a>
-      <a href="#safe-evidence">安全蒐證</a>
-      <a href="#dns-diagnosis">DNS 診斷</a>
-      <a href="#ports-nat">Ports 與 NAT</a>
-      <a href="#upstream-502">Upstream 與 502</a>
-      <a href="#ssl-diagnosis">SSL 診斷</a>
-      <a href="#cloudflare-diagnosis">Cloudflare 診斷</a>
-      <a href="#websocket-diagnosis">WebSocket 診斷</a>
-      <a href="#logs">Logs 判讀</a>
-      <a href="#quick-troubleshooting">故障速查</a>
-      <a href="#troubleshooting-faq">常見問題</a>
-      <a href="#troubleshooting-sources">官方來源</a>
+      <a href="#layered-method">Layered approach</a>
+      <a href="#safe-evidence">Safe evidence</a>
+      <a href="#dns-diagnosis">DNS diagnosis</a>
+      <a href="#ports-nat">Ports and NAT</a>
+      <a href="#upstream-502">Upstream and 502</a>
+      <a href="#ssl-diagnosis">SSL diagnosis</a>
+      <a href="#cloudflare-diagnosis">Cloudflare diagnosis</a>
+      <a href="#websocket-diagnosis">WebSocket diagnosis</a>
+      <a href="#logs">Reading logs</a>
+      <a href="#quick-troubleshooting">Quick reference</a>
+      <a href="#troubleshooting-faq">FAQ</a>
+      <a href="#troubleshooting-sources">Official sources</a>
     </div>
 
   </aside>
@@ -77,172 +77,172 @@
       <div class="callout i18n-pending"><strong>This chapter has not been translated yet.</strong> You are reading the original Chinese text. <a href="../ch12_troubleshooting.html" hreflang="zh-Hant">Open the Chinese version</a></div>
       <div class="chapter-header">
         <div class="kicker">Chapter 12</div>
-        <h1>常見錯誤與完整排查</h1>
-        <p class="lead">從用戶端一路拆成 DNS、外部入口、NPM、upstream、TLS 與 Cloudflare。每次只證明一層、只改一項，避免在 DNS、路由器與 Proxy Host 之間來回猜測。</p>
+        <h1>Common errors and full diagnosis</h1>
+        <p class="lead">Take the path apart from the client onward: DNS, the external entry point, NPM, the upstream, TLS and Cloudflare. Prove one layer at a time and change one thing at a time, so you stop guessing back and forth between DNS, the router and the Proxy Host.</p>
       </div>
 
-      <section id="layered-method" data-nav="分層排查">
-        <h2 data-icon="concept">先畫出請求經過的每一層</h2>
-        <p>「網站打不開」不是診斷。先確認請求走哪條路，再找出最後成功的一層與第一個失敗的層。若使用 Cloudflare Tunnel，路徑與傳統 port forwarding 不同，不能混用同一套假設。</p>
+      <section id="layered-method" data-nav="Layered approach">
+        <h2 data-icon="concept">Map every layer a request passes through</h2>
+        <p>"The site won't open" is not a diagnosis. Work out which path the request takes, then find the last layer that succeeded and the first layer that failed. If you use Cloudflare Tunnel, the path is not the same as traditional port forwarding, and you cannot carry the same assumptions across.</p>
         <table class="data-table">
-          <thead><tr><th scope="col">層級</th><th scope="col">要證明的事</th><th scope="col">常見證據</th></tr></thead>
+          <thead><tr><th scope="col">Layer</th><th scope="col">What to prove</th><th scope="col">Typical evidence</th></tr></thead>
           <tbody>
-            <tr><td>1. 用戶端</td><td>問題是否只發生在單一瀏覽器或網路</td><td>無痕視窗、另一台裝置、行動網路</td></tr>
-            <tr><td>2. DNS</td><td>名稱是否解析到預期公開入口</td><td>A／AAAA／CNAME 回覆與 resolver</td></tr>
-            <tr><td>3. 外部入口</td><td>80／443、NAT 或 Tunnel 是否到得了 NPM</td><td>逾時、拒絕、Cloudflare 錯誤頁</td></tr>
-            <tr><td>4. NPM</td><td>正確 Host 是否啟用且能載入設定</td><td>Host 狀態、add-on log、HTTP 狀態碼</td></tr>
-            <tr><td>5. Upstream</td><td>NPM 是否能以正確 scheme／IP／port 連到服務</td><td>直連結果、connection refused／timeout</td></tr>
-            <tr><td>6. 應用與 TLS</td><td>應用路徑、WebSocket、憑證鏈是否正確</td><td>404、101 握手、瀏覽器憑證資訊</td></tr>
+            <tr><td>1. Client</td><td>Whether the problem only happens in one browser or on one network</td><td>A private window, another device, mobile data</td></tr>
+            <tr><td>2. DNS</td><td>Whether the name resolves to the public entry point you expect</td><td>The A/AAAA/CNAME answer and the resolver</td></tr>
+            <tr><td>3. External entry point</td><td>Whether 80/443, NAT or the Tunnel can reach NPM</td><td>A timeout, a refusal, a Cloudflare error page</td></tr>
+            <tr><td>4. NPM</td><td>Whether the right Host is enabled and can load its config</td><td>Host status, the add-on log, the HTTP status code</td></tr>
+            <tr><td>5. Upstream</td><td>Whether NPM can reach the service with the right scheme/IP/port</td><td>The result of a direct connection, connection refused/timeout</td></tr>
+            <tr><td>6. Application and TLS</td><td>Whether the application path, WebSocket and the certificate chain are correct</td><td>A 404, a 101 handshake, the browser's certificate details</td></tr>
           </tbody>
         </table>
-        <div class="callout danger"><strong>排錯期間也不能公開 port 81：</strong>管理介面只留在可信任網段。若還沒把 <code>admin@example.com</code>／<code>changeme</code> 立即更換，先完成帳號與密碼更新；不要用「暫時測試」為由把 81 轉送到公網。</div>
+        <div class="callout danger"><strong>Port 81 stays private even while troubleshooting:</strong> the admin interface stays on a trusted network segment. If you have not yet changed <code>admin@example.com</code>/<code>changeme</code>, finish updating the account and the password first; do not forward 81 to the public internet on the grounds that it is "only a temporary test".</div>
       </section>
 
-      <section id="safe-evidence" data-nav="安全蒐證">
-        <h2 data-icon="security">建立安全又可比較的證據</h2>
+      <section id="safe-evidence" data-nav="Safe evidence">
+        <h2 data-icon="security">Gather evidence that is safe and comparable</h2>
         <ol class="steps">
-          <li><h3>縮小時間窗</h3><p>記下發生時間、時區、測試 URL 的改寫代稱、用戶端網路，以及最後一次正常時間。一次只重現一個請求。</p></li>
-          <li><h3>記錄症狀而非機密</h3><p>保留 HTTP 狀態碼、錯誤類型與相關的少量 log 行；遮罩網域、公開／私有 IP、Authorization、Cookie、密碼、DNS API token、憑證內容與查詢參數。</p></li>
-          <li><h3>建立對照組</h3><p>比較內網直連 upstream、內網經 NPM、外網經公開入口。若使用 Cloudflare，再比較 Tunnel／代理前後，但不要任意切換生產 DNS。</p></li>
-          <li><h3>一次只改一項</h3><p>保存前記錄原值。不要同時改 DNS、路由器 port、Forward Scheme 與憑證，否則無法知道是哪一項生效。</p></li>
+          <li><h3>Narrow the time window</h3><p>Write down when it happened, the time zone, the rewritten stand-in for the test URL, the client network, and the last time it worked. Reproduce one request at a time.</p></li>
+          <li><h3>Record symptoms, not secrets</h3><p>Keep the HTTP status code, the error type and the few log lines that relate to it; redact domains, public and private IPs, Authorization, Cookie, passwords, DNS API tokens, certificate contents and query parameters.</p></li>
+          <li><h3>Set up a control comparison</h3><p>Compare a direct connection to the upstream from the LAN, a connection through NPM from the LAN, and a connection through the public entry point from outside. If you use Cloudflare, compare before and after the Tunnel or the proxy as well, but do not switch production DNS on a whim.</p></li>
+          <li><h3>Change one thing at a time</h3><p>Record the original value before you save. Do not change DNS, the router port, Forward Scheme and the certificate at once, or you will not know which one made the difference.</p></li>
         </ol>
-        <div class="callout warn">完整 log 往往包含主機名稱、IP、URL、User-Agent 或其他可識別資料。提供支援時只貼最少必要片段；若 token、密碼或私鑰已公開，刪文不夠，還要立即輪替。</div>
+        <div class="callout warn">A full log usually contains hostnames, IPs, URLs, User-Agent strings or other identifying data. When you ask for support, paste only the smallest fragment you need; if a token, a password or a private key has already been exposed, deleting the post is not enough — rotate it immediately.</div>
       </section>
 
-      <section id="dns-diagnosis" data-nav="DNS 診斷">
-        <h2 data-icon="records">DNS：先確認名稱走到哪裡</h2>
+      <section id="dns-diagnosis" data-nav="DNS diagnosis">
+        <h2 data-icon="records">DNS: confirm where the name goes</h2>
         <ol class="steps">
-          <li><h3>查詢實際使用的 resolver</h3><p>分別從內網與行動網路查 A、AAAA 或 CNAME。記錄結果前遮罩完整網域與 IP。內外結果不同可能是 split DNS，也可能是快取或錯誤記錄。</p></li>
-          <li><h3>比對架構</h3><p>傳統 NAT 的 A／AAAA 應導向你的公開入口；Cloudflare proxied 記錄通常回 Cloudflare 位址；Tunnel 的公開 hostname 則由 Cloudflare 路由。不要把看到 Cloudflare IP 誤判成錯誤。</p></li>
-          <li><h3>檢查多餘的 AAAA</h3><p>若只有 IPv6 用戶失敗，確認 AAAA 是否真的有可達的 IPv6 入口。不要只修 A 記錄卻忽略用戶端可能優先使用 AAAA。</p></li>
-          <li><h3>等待 TTL 並查權威設定</h3><p>本機快取只是其中一層。核對 DNS 供應商目前記錄與 TTL，不要透過反覆刪除／重建製造更多變數。</p></li>
-        </ol>
-        <table class="data-table">
-          <thead><tr><th scope="col">現象</th><th scope="col">可能原因</th><th scope="col">下一步</th></tr></thead>
-          <tbody>
-            <tr><td>NXDOMAIN</td><td>記錄不存在、名稱拼錯或委派錯誤</td><td>查權威 DNS 的 zone 與完整名稱</td></tr>
-            <tr><td>內網正常、外網解析錯</td><td>split DNS 或公開 zone 設錯</td><td>分別記錄兩個 resolver 的答案並比對預期架構</td></tr>
-            <tr><td>部分網路仍到舊 IP</td><td>TTL／resolver 快取</td><td>等待 TTL，避免繼續變更</td></tr>
-            <tr><td>IPv4 正常、部分裝置逾時</td><td>無效 AAAA 或 IPv6 路徑</td><td>驗證 IPv6 入口，再決定是否修正 AAAA</td></tr>
-          </tbody>
-        </table>
-      </section>
-
-      <section id="ports-nat" data-nav="Ports 與 NAT">
-        <h2 data-icon="network">80／443：從外部證明入口可達</h2>
-        <p>Woow add-on 宣告 80/tcp 為 HTTP、443/tcp 為 HTTPS、81/tcp 為 Admin。傳統架構通常只把 80／443 導向 HA；Cloudflare Tunnel 架構則不需要路由器對外轉送這些埠。先確認你實際採用哪一種。</p>
-        <ol class="steps">
-          <li><h3>使用真正的外部網路</h3><p>關閉手機 Wi-Fi 後測試，避免 NAT loopback 讓內網結果看似外網可達。記錄是 timeout、connection refused、TLS 錯誤還是 HTTP 回應。</p></li>
-          <li><h3>傳統 NAT：核對 80／443</h3><p>確認路由器規則的目標是正確 HA 私有 IP，協定為 TCP，且 HA 位址沒有因 DHCP 改變。不要建立 WAN → 81。</p></li>
-          <li><h3>確認沒有 port 衝突或上游阻擋</h3><p>若 add-on 無法啟動，查看是否已有其他服務占用 80／81／443。若外部完全 timeout，也要確認 ISP 是否使用 CGNAT 或封鎖入站埠。</p></li>
-          <li><h3>Tunnel：不要同時追 NAT</h3><p>確認 cloudflared connector 在線、public hostname 指向 NPM 可達的內部 service。Tunnel 失敗時，開更多路由器 port 通常不是修正方式。</p></li>
-        </ol>
-        <div class="callout tip">HTTP-01 申請憑證需要公開 80 可到達挑戰端點；DNS-01 不要求開放 80。不要因為使用 DNS-01 就假設 443 或 upstream 一定正常，這些是不同層。</div>
-      </section>
-
-      <section id="upstream-502" data-nav="Upstream 與 502">
-        <h2 data-icon="integration">Upstream：拆解 502 Bad Gateway</h2>
-        <p>在 NPM 看見 502，通常表示 NPM 已收到請求，但無法從設定的 upstream 取得可用回應。先核對 Forward Scheme、Hostname／IP 與 Port，不要從重申請公開憑證開始。</p>
-        <ol class="steps">
-          <li><h3>從內網直連服務</h3><p>以服務實際 scheme 與 port 測試改寫後的 upstream URL。若直連也失敗，先處理應用程式、主機防火牆或服務監聽位址。</p></li>
-          <li><h3>確認不是 localhost 陷阱</h3><p>對 add-on 而言，<code>127.0.0.1</code>／<code>localhost</code> 通常指容器自身，不是 HA 主機或另一台設備。使用 NPM 從其網路可達的私有位址或名稱。</p></li>
-          <li><h3>比對 scheme 與 port</h3><p>把 HTTP upstream 填成 HTTPS，或把 HTTPS port 當 HTTP 使用，都可能失敗。確認服務是否在該 port 真的說該協定。</p></li>
-          <li><h3>讀同一時間的錯誤</h3><p><code>connection refused</code> 常指該位址／port 沒有服務接受；<code>timed out</code> 常指路由、防火牆或服務無回應。保留錯誤類型，遮罩位址後再分享。</p></li>
+          <li><h3>Query the resolver you are actually using</h3><p>Look up A, AAAA or CNAME from the LAN and over mobile data separately. Redact the full domain and the IPs before you record the result. Different answers inside and outside can mean split DNS, but they can equally mean a cache or a wrong record.</p></li>
+          <li><h3>Check the answer against your architecture</h3><p>With traditional NAT, the A/AAAA answer should lead to your public entry point; a Cloudflare Proxied record usually answers with a Cloudflare address; a Tunnel's public hostname is routed by Cloudflare. Do not read a Cloudflare IP as an error.</p></li>
+          <li><h3>Check for a stray AAAA</h3><p>If only IPv6 clients fail, confirm that the AAAA really has a reachable IPv6 entry point behind it. Do not fix the A record alone and overlook that a client may prefer AAAA.</p></li>
+          <li><h3>Wait out the TTL and check the authoritative settings</h3><p>The local cache is only one layer. Check the record and the TTL your DNS provider currently holds; do not create more variables by deleting and recreating it over and over.</p></li>
         </ol>
         <table class="data-table">
-          <thead><tr><th scope="col">502 線索</th><th scope="col">優先檢查</th><th scope="col">避免的誤動作</th></tr></thead>
+          <thead><tr><th scope="col">Symptom</th><th scope="col">Likely cause</th><th scope="col">Next step</th></tr></thead>
           <tbody>
-            <tr><td>connection refused</td><td>upstream 服務是否啟動、port 是否正確</td><td>不要重建 DNS 記錄</td></tr>
-            <tr><td>timeout</td><td>路由、防火牆、私有 IP 是否變更</td><td>不要無限拉長 timeout 掩蓋不可達</td></tr>
-            <tr><td>wrong version number／握手錯誤</td><td>Forward Scheme 是否與 upstream TLS 相符</td><td>不要先更換公開端憑證</td></tr>
-            <tr><td>只有某一路徑 502／404</td><td>Custom Location 與應用 base path</td><td>不要刪掉整個 Proxy Host</td></tr>
+            <tr><td>NXDOMAIN</td><td>The record does not exist, the name is misspelled, or the delegation is wrong</td><td>Check the zone and the full name on the authoritative DNS</td></tr>
+            <tr><td>Fine inside, wrong answer outside</td><td>split DNS, or a mistake in the public zone</td><td>Record both resolvers' answers separately and compare them against the architecture you intended</td></tr>
+            <tr><td>Some networks still reach the old IP</td><td>TTL/resolver cache</td><td>Wait out the TTL and stop making changes</td></tr>
+            <tr><td>IPv4 works, some devices time out</td><td>An invalid AAAA or IPv6 path</td><td>Verify the IPv6 entry point, then decide whether to correct the AAAA</td></tr>
           </tbody>
         </table>
       </section>
 
-      <section id="ssl-diagnosis" data-nav="SSL 診斷">
-        <h2 data-icon="warning">SSL：分清申請、套用與用戶端驗證</h2>
-        <p>「SSL 錯誤」至少可能發生在憑證申請、NPM 套用、瀏覽器驗證或 NPM 到 HTTPS upstream 的連線。先看錯誤出現在哪一段。</p>
+      <section id="ports-nat" data-nav="Ports and NAT">
+        <h2 data-icon="network">80/443: prove the entry point is reachable from outside</h2>
+        <p>The Woow add-on declares 80/tcp as HTTP, 443/tcp as HTTPS and 81/tcp as Admin. A traditional setup usually forwards only 80/443 to HA; a Cloudflare Tunnel setup does not need the router to forward those ports at all. Confirm which one you actually run first.</p>
         <ol class="steps">
-          <li><h3>確認瀏覽器實際收到的憑證</h3><p>檢查 Subject Alternative Name、有效期與簽發鏈是否對應目前網域。只記錄必要欄位，不匯出或分享私鑰。</p></li>
-          <li><h3>確認 Proxy Host 選到正確憑證</h3><p>同一張萬用或多網域憑證不代表已自動套到 Host。核對 SSL 分頁選擇、Force SSL 與 Host 狀態。</p></li>
-          <li><h3>申請失敗就檢查 challenge 路徑</h3><p>HTTP-01 查 DNS 與外部 80；DNS-01 查 DNS provider、zone 權限與最低權限 token。不要把 token 貼進 log 或問題單。</p></li>
-          <li><h3>排除時間與續期問題</h3><p>確認 HA 主機時間正確，並查看接近續期時間的 add-on log。避免因一次失敗重複申請而碰到 CA 速率限制。</p></li>
+          <li><h3>Use a genuinely external network</h3><p>Turn off Wi-Fi on your phone and test over mobile data, so NAT loopback does not make an internal result look like external reachability. Record whether you got a timeout, connection refused, a TLS error or an HTTP response.</p></li>
+          <li><h3>Traditional NAT: check 80/443</h3><p>Confirm that the router rule targets the right HA private IP, that the protocol is TCP, and that the HA address has not changed because of DHCP. Do not create a WAN → 81 rule.</p></li>
+          <li><h3>Rule out a port clash or an upstream block</h3><p>If the add-on will not start, check whether another service already holds 80/81/443. If everything from outside times out, also check whether your ISP uses CGNAT or blocks inbound ports.</p></li>
+          <li><h3>Tunnel: do not chase NAT at the same time</h3><p>Confirm that the cloudflared connector is online and that the public hostname points at an internal service NPM can reach. When a Tunnel fails, opening more router ports is usually not the fix.</p></li>
         </ol>
-        <div class="callout warn">不要為了消除警告而關閉用戶端憑證驗證，也不要把 origin 的自簽憑證問題與公開端 Let's Encrypt 憑證混為一談。每一段 TLS 都要單獨確認。</div>
+        <div class="callout tip">Requesting a certificate with HTTP-01 needs the challenge endpoint to be reachable on public port 80; DNS-01 does not require 80 to be open. Do not assume that because you use DNS-01, 443 or the upstream must be fine — those are different layers.</div>
       </section>
 
-      <section id="cloudflare-diagnosis" data-nav="Cloudflare 診斷">
-        <h2 data-icon="remote">Cloudflare：確認錯誤在哪一側</h2>
-        <p>Cloudflare 官方指出 502／504 表示 Cloudflare 無法與 origin web server 建立聯繫，來源可能是 origin，也可能是 Cloudflare。看到 Cloudflare 頁面不等於 NPM 一定沒收到請求；要用時間、Ray ID 與 origin／Tunnel log 對照。</p>
+      <section id="upstream-502" data-nav="Upstream and 502">
+        <h2 data-icon="integration">Upstream: taking apart 502 Bad Gateway</h2>
+        <p>A 502 in NPM usually means NPM did receive the request but could not get a usable response from the upstream you configured. Check Forward Scheme, Hostname/IP and Port first; do not start by requesting the public certificate again.</p>
         <ol class="steps">
-          <li><h3>辨認是 Proxy 還是 Tunnel</h3><p>橘雲 DNS Proxy 通常仍需 Cloudflare 能到公開 origin；Tunnel 則由 cloudflared 主動建立連線。不要用 Tunnel 的修法去加 NAT 規則。</p></li>
-          <li><h3>記錄錯誤碼與 Ray ID</h3><p>保留發生時間、Cloudflare 錯誤碼與 Ray ID；送出前仍要遮罩網域與 IP。再查同時段的 NPM 與 cloudflared log。</p></li>
-          <li><h3>在內網驗證 Tunnel service</h3><p>確認 cloudflared 設定的 service scheme、私有 IP／hostname 與 port 從 connector 所在網路可達。若它指到錯誤的 HTTPS 或 81，就先修 service。</p></li>
-          <li><h3>不要盲目切 DNS only</h3><p>切換會改變公開路徑，可能揭露 origin IP 並影響所有使用者。只有在已核准的維護窗口、了解影響並能回復時才做對照測試。</p></li>
+          <li><h3>Connect to the service directly from the LAN</h3><p>Test the rewritten upstream URL with the scheme and port the service actually uses. If the direct connection fails too, deal with the application, the host firewall or the address the service listens on first.</p></li>
+          <li><h3>Rule out the localhost trap</h3><p>For an add-on, <code>127.0.0.1</code>/<code>localhost</code> usually means the container itself, not the HA host or another machine. Use a private address or name that NPM can reach from its own network.</p></li>
+          <li><h3>Match the scheme against the port</h3><p>Entering an HTTP upstream as HTTPS, or treating an HTTPS port as HTTP, can both fail. Confirm that the service really speaks that protocol on that port.</p></li>
+          <li><h3>Read the error from the same moment</h3><p><code>connection refused</code> usually means nothing on that address/port is accepting connections; <code>timed out</code> usually means routing, a firewall or a service that never answered. Keep the error type, and redact the addresses before you share it.</p></li>
         </ol>
-      </section>
-
-      <section id="websocket-diagnosis" data-nav="WebSocket 診斷">
-        <h2 data-icon="protocol">WebSocket：找出握手或長連線問題</h2>
-        <p>WebSocket 的初始 HTTP Upgrade 成功時通常會看到 101 Switching Protocols。若普通頁面正常、即時更新失敗，才把焦點移到 WebSocket，而不是重做整個 Proxy Host。</p>
-        <ol class="steps">
-          <li><h3>先測 upstream</h3><p>確認應用程式的 WS endpoint、scheme 與 path。直連就失敗時，先修應用程式。</p></li>
-          <li><h3>確認 NPM 選項</h3><p>編輯 Proxy Host 並啟用 Websockets Support。NPM 2.12.4 官方範本會加入 Upgrade、Connection 與 HTTP/1.1 設定。</p></li>
-          <li><h3>查看握手與關閉碼</h3><p>在瀏覽器開發者工具查看 WS 請求：403 偏向授權／來源限制，404 偏向路徑，502 偏向 upstream，成功後斷線則查 timeout 與應用 log。</p></li>
-          <li><h3>逐層比較</h3><p>內網經 NPM 正常、經 Cloudflare 失敗時才查該層；兩者都失敗則先留在 NPM／upstream。分享畫面前遮罩 URL、Cookie 與訊息內容。</p></li>
-        </ol>
-      </section>
-
-      <section id="logs" data-nav="Logs 判讀">
-        <h2 data-icon="history">Logs：只看同一請求的必要片段</h2>
-        <p>Woow add-on 的 patch 把多種 Nginx access／error log 從檔案改導向 <code>/proc/1/fd/1</code>，因此 Home Assistant 的 add-on log 是重要入口；同時 <code>config.yaml</code> 將 <code>*/logs</code> 排除在備份外。不要假設一般 Docker 教學中的 <code>/data/logs</code> 適用。</p>
-        <ol class="steps">
-          <li><h3>先重現一個請求</h3><p>記下精確時間與預期 Host，避免在大量背景流量中搜尋。</p></li>
-          <li><h3>讀 HA add-on log</h3><p>找同一時間附近的 Nginx、NPM backend、certificate 或 reload 訊息。先判斷是啟動、設定語法、upstream 還是 challenge。</p></li>
-          <li><h3>與應用／Tunnel log 對時</h3><p>NPM 有請求而 upstream 沒有，問題在兩者之間；cloudflared 有 502 而 NPM 無紀錄，則先查 Tunnel 到 NPM 的 service。</p></li>
-          <li><h3>產生最小化摘錄</h3><p>只保留錯誤前後必要行，將真實網域、IP、token、密碼、憑證、Cookie 與完整 URL 改寫。不要上傳整份 log。</p></li>
-        </ol>
-        <div class="callout tip">狀態碼是方向，不是根因。把它與「哪一層產生」「NPM 是否有同時段紀錄」「upstream 是否收到請求」一起判讀。</div>
-      </section>
-
-      <section id="quick-troubleshooting" data-nav="故障速查">
-        <h2 data-icon="troubleshoot">常見故障速查與下一步</h2>
         <table class="data-table">
-          <thead><tr><th scope="col">具體問題</th><th scope="col">最可能的失敗層</th><th scope="col">第一個安全動作</th></tr></thead>
+          <thead><tr><th scope="col">502 clue</th><th scope="col">Check first</th><th scope="col">Wrong move to avoid</th></tr></thead>
           <tbody>
-            <tr><td>網域回 NXDOMAIN</td><td>DNS</td><td>查權威 zone 的記錄與委派，不改 NPM</td></tr>
-            <tr><td>外網 timeout、內網可開 NPM</td><td>NAT／ISP／Tunnel</td><td>用外部網路核對架構與入口；不要公開 81</td></tr>
-            <tr><td>502 Bad Gateway</td><td>NPM → upstream</td><td>直連 upstream 並核對 scheme、私有 IP、port</td></tr>
-            <tr><td>憑證網域不符</td><td>NPM Host／憑證選擇</td><td>確認實際收到的 SAN 與 Proxy Host 選用憑證</td></tr>
-            <tr><td>Cloudflare 502／504</td><td>Cloudflare → origin</td><td>記錄時間／Ray ID，對照 NPM 或 Tunnel log</td></tr>
-            <tr><td>頁面正常但即時功能斷線</td><td>WebSocket</td><td>查 WS 握手、路徑與 Websockets Support</td></tr>
-            <tr><td>保存 Host 後顯示 Offline</td><td>Nginx 設定 reload</td><td>看 add-on log，撤回最後一筆 Advanced 設定</td></tr>
-            <tr><td>只有內網失敗、外網正常</td><td>split DNS／NAT loopback</td><td>比較內外 resolver 與內部路由，不重申請憑證</td></tr>
+            <tr><td>connection refused</td><td>Whether the upstream service is running and the port is right</td><td>Do not rebuild the DNS record</td></tr>
+            <tr><td>timeout</td><td>Whether routing, the firewall or the private IP changed</td><td>Do not stretch the timeout indefinitely to cover up something unreachable</td></tr>
+            <tr><td>wrong version number/a handshake error</td><td>Whether Forward Scheme matches the upstream's TLS</td><td>Do not start by replacing the public-facing certificate</td></tr>
+            <tr><td>Only one path returns 502/404</td><td>The Custom Location and the application's base path</td><td>Do not delete the whole Proxy Host</td></tr>
           </tbody>
         </table>
       </section>
 
-      <section id="troubleshooting-faq" data-nav="常見問題">
-        <h2 data-icon="faq">常見問題</h2>
-        <details class="faq"><summary>看到 502，要先重申請 SSL 憑證嗎？</summary><div class="body">通常不要。先確認 NPM 到 upstream 的 scheme、IP／hostname、port 與可達性。公開端憑證與 upstream 502 是不同層。</div></details>
-        <details class="faq"><summary>用內網 Wi-Fi 測試，能證明 port forwarding 正常嗎？</summary><div class="body">不能。路由器可能支援 NAT loopback，讓內網測試繞回成功。請用行動網路等真正外部連線測試。</div></details>
-        <details class="faq"><summary>Cloudflare 出錯時可以先切成 DNS only 嗎？</summary><div class="body">不要盲目切換。這會改變所有使用者的路徑，也可能揭露 origin IP。應先用 Ray ID、時間與 NPM／Tunnel log 定位，經核准後才做可回復測試。</div></details>
-        <details class="faq"><summary>可以把完整 add-on log 貼到 GitHub Issue 嗎？</summary><div class="body">不可以直接貼。先擷取最小時間窗，遮罩網域、公開／私有 IP、完整 URL、Cookie、Authorization、密碼、DNS token 與憑證資料。</div></details>
+      <section id="ssl-diagnosis" data-nav="SSL diagnosis">
+        <h2 data-icon="warning">SSL: separate issuance, assignment and client validation</h2>
+        <p>An "SSL error" can arise in more than one place: requesting the certificate, assigning it in NPM, the browser validating it, or NPM's own connection to an HTTPS upstream. Work out which hop the error is on first.</p>
+        <ol class="steps">
+          <li><h3>Check the certificate the browser actually receives</h3><p>Check that the Subject Alternative Name, the validity dates and the issuing chain match the domain you are on. Record only the fields you need; do not export or share the private key.</p></li>
+          <li><h3>Confirm the Proxy Host picked the right certificate</h3><p>One wildcard or multi-domain certificate does not mean it was applied to the Host automatically. Check the selection on the SSL tab, Force SSL, and the Host status.</p></li>
+          <li><h3>If issuance fails, check the challenge path</h3><p>For HTTP-01, check DNS and port 80 from outside; for DNS-01, check the DNS provider, the zone permissions and the least-privilege token. Never paste a token into a log or a support ticket.</p></li>
+          <li><h3>Rule out clock and renewal problems</h3><p>Confirm that the clock on the HA host is correct, and read the add-on log from around the renewal time. Do not repeat a failed request over and over, or you will run into the CA rate limit.</p></li>
+        </ol>
+        <div class="callout warn">Do not turn off client certificate validation just to make the warning go away, and do not confuse a self-signed certificate problem on the origin with the public-facing Let's Encrypt certificate. Confirm each TLS hop on its own.</div>
       </section>
 
-      <section id="troubleshooting-sources" data-nav="官方來源">
-        <h2 data-icon="book">官方來源與版本提醒</h2>
-        <p>以下來源在 2026-08-17 核對。Woow add-on 目前以 NPM 2.12.4-v2 為基礎，上游文件可能描述較新的介面；排錯時以已安裝版本、Woow patch 與實際架構為準。</p>
+      <section id="cloudflare-diagnosis" data-nav="Cloudflare diagnosis">
+        <h2 data-icon="remote">Cloudflare: work out which side the error is on</h2>
+        <p>Cloudflare's own documentation states that a 502/504 means Cloudflare could not reach the origin web server, and that the cause can be on the origin or on Cloudflare. Seeing a Cloudflare page does not prove NPM never received the request; cross-check the time, the Ray ID and the origin or Tunnel log.</p>
+        <ol class="steps">
+          <li><h3>Tell a Proxy apart from a Tunnel</h3><p>An orange-cloud DNS Proxy still generally needs Cloudflare to reach a public origin; with a Tunnel, cloudflared opens the connection itself. Do not try to fix a Tunnel by adding NAT rules.</p></li>
+          <li><h3>Record the error code and the Ray ID</h3><p>Keep the time it happened, the Cloudflare error code and the Ray ID; still redact domains and IPs before you send anything. Then read the NPM and cloudflared logs from the same period.</p></li>
+          <li><h3>Verify the Tunnel service from the LAN</h3><p>Confirm that the service scheme, private IP/hostname and port configured in cloudflared are reachable from the network the connector runs on. If it points at the wrong HTTPS or at 81, fix the service first.</p></li>
+          <li><h3>Do not flip to DNS only blindly</h3><p>Switching changes the public path, can expose the origin IP and affects every user. Run that comparison only during an approved maintenance window, when you understand the impact and can undo it.</p></li>
+        </ol>
+      </section>
+
+      <section id="websocket-diagnosis" data-nav="WebSocket diagnosis">
+        <h2 data-icon="protocol">WebSocket: find the handshake or long-connection problem</h2>
+        <p>When a WebSocket's initial HTTP Upgrade succeeds, you normally see 101 Switching Protocols. Move your attention to the WebSocket only when ordinary pages work and live updates fail, rather than rebuilding the whole Proxy Host.</p>
+        <ol class="steps">
+          <li><h3>Test the upstream first</h3><p>Confirm the application's WS endpoint, scheme and path. If a direct connection already fails, fix the application first.</p></li>
+          <li><h3>Check the NPM option</h3><p>Edit the Proxy Host and turn on Websockets Support. The official NPM 2.12.4 template adds the Upgrade, Connection and HTTP/1.1 settings.</p></li>
+          <li><h3>Read the handshake and the close code</h3><p>Look at the WS request in the browser developer tools: a 403 points at authorization or an origin restriction, a 404 at the path, a 502 at the upstream; if it connects and then drops, look at timeouts and the application log.</p></li>
+          <li><h3>Compare layer by layer</h3><p>Look at the Cloudflare layer only when it works through NPM on the LAN and fails through Cloudflare; if both fail, stay on NPM and the upstream. Redact URLs, Cookie and message contents before you share a screen.</p></li>
+        </ol>
+      </section>
+
+      <section id="logs" data-nav="Reading logs">
+        <h2 data-icon="history">Logs: read only the lines for one request</h2>
+        <p>A Woow add-on patch redirects several Nginx access and error logs from files to <code>/proc/1/fd/1</code>, which makes the Home Assistant add-on log your main way in; at the same time <code>config.yaml</code> keeps <code>*/logs</code> out of backups. Do not assume the <code>/data/logs</code> of a generic Docker tutorial applies here.</p>
+        <ol class="steps">
+          <li><h3>Reproduce one request first</h3><p>Note the exact time and the Host you expect, so you are not searching through a mass of background traffic.</p></li>
+          <li><h3>Read the HA add-on log</h3><p>Find the Nginx, NPM backend, certificate or reload messages from around that time. Decide first whether it is a startup, a config syntax, an upstream or a challenge problem.</p></li>
+          <li><h3>Line it up with the application and Tunnel logs</h3><p>If NPM has the request and the upstream does not, the problem lies between them; if cloudflared shows a 502 and NPM has no record of it, check the Tunnel's service to NPM first.</p></li>
+          <li><h3>Produce a minimal extract</h3><p>Keep only the lines you need around the error, and rewrite the real domains, IPs, tokens, passwords, certificates, Cookie and full URLs. Do not upload the whole log.</p></li>
+        </ol>
+        <div class="callout tip">A status code is a direction, not a root cause. Read it together with "which layer produced it", "whether NPM has a record from the same moment" and "whether the upstream received the request".</div>
+      </section>
+
+      <section id="quick-troubleshooting" data-nav="Quick reference">
+        <h2 data-icon="troubleshoot">Failure quick reference and next steps</h2>
+        <table class="data-table">
+          <thead><tr><th scope="col">Specific problem</th><th scope="col">Most likely failing layer</th><th scope="col">First safe action</th></tr></thead>
+          <tbody>
+            <tr><td>The domain returns NXDOMAIN</td><td>DNS</td><td>Check the record and the delegation in the authoritative zone; do not change NPM</td></tr>
+            <tr><td>Times out from outside, NPM opens on the LAN</td><td>NAT/ISP/Tunnel</td><td>Check the architecture and the entry point from an external network; do not expose 81</td></tr>
+            <tr><td>502 Bad Gateway</td><td>NPM → upstream</td><td>Connect to the upstream directly and check the scheme, the private IP and the port</td></tr>
+            <tr><td>The certificate does not match the domain</td><td>NPM Host/certificate selection</td><td>Check the SAN you actually receive and the certificate the Proxy Host uses</td></tr>
+            <tr><td>Cloudflare 502/504</td><td>Cloudflare → origin</td><td>Record the time and the Ray ID, and cross-check the NPM or Tunnel log</td></tr>
+            <tr><td>Pages load but live features drop</td><td>WebSocket</td><td>Check the WS handshake, the path and Websockets Support</td></tr>
+            <tr><td>The Host shows Offline after you save it</td><td>Nginx config reload</td><td>Read the add-on log and roll back the last Advanced config entry</td></tr>
+            <tr><td>Fails only on the LAN, works from outside</td><td>split DNS/NAT loopback</td><td>Compare the internal and external resolvers and the internal routing; do not request the certificate again</td></tr>
+          </tbody>
+        </table>
+      </section>
+
+      <section id="troubleshooting-faq" data-nav="FAQ">
+        <h2 data-icon="faq">FAQ</h2>
+        <details class="faq"><summary>If I see a 502, should I request the SSL certificate again first?</summary><div class="body">Usually not. Check the scheme, IP/hostname, port and reachability from NPM to the upstream first. The public-facing certificate and an upstream 502 are different layers.</div></details>
+        <details class="faq"><summary>Does testing over the LAN Wi-Fi prove that port forwarding works?</summary><div class="body">No. The router may support NAT loopback, which lets an internal test loop back and succeed. Test over a genuinely external connection such as mobile data.</div></details>
+        <details class="faq"><summary>When Cloudflare returns an error, can I switch to DNS only first?</summary><div class="body">Do not flip it blindly. It changes the path for every user and can expose the origin IP. Locate the problem with the Ray ID, the time and the NPM or Tunnel log first, and run a reversible test only once it has been approved.</div></details>
+        <details class="faq"><summary>Can I paste the full add-on log into a GitHub Issue?</summary><div class="body">Not as it is. Cut it down to the smallest time window first, and redact domains, public and private IPs, full URLs, Cookie, Authorization, passwords, DNS tokens and certificate data.</div></details>
+      </section>
+
+      <section id="troubleshooting-sources" data-nav="Official sources">
+        <h2 data-icon="book">Official sources and version note</h2>
+        <p>The sources below were verified on 2026-08-17. The Woow add-on is currently based on NPM 2.12.4-v2, and upstream documentation may describe a newer interface; when you troubleshoot, go by the version you installed, the Woow patch and your actual architecture.</p>
         <ul>
-          <li><a href="https://github.com/WOOWTECH/Woow_ha_nginxpm/blob/main/nginxpm/README.md">WOOWTECH：連接埠、SSL、資料路徑與疑難排解</a></li>
-          <li><a href="https://github.com/WOOWTECH/Woow_ha_nginxpm/blob/main/nginxpm/config.yaml">WOOWTECH：add-on ports、map 與 backup_exclude</a></li>
-          <li><a href="https://github.com/WOOWTECH/Woow_ha_nginxpm/blob/main/nginxpm/patches/0002-Patch-redirect-logs-to-docker-output.patch">WOOWTECH：Nginx logs 導向 add-on 輸出的 patch</a></li>
-          <li><a href="https://github.com/NginxProxyManager/nginx-proxy-manager/blob/v2.12.4/backend/templates/proxy_host.conf">Nginx Proxy Manager v2.12.4：Proxy Host 與 WebSocket 範本</a></li>
-          <li><a href="https://nginxproxymanager.com/faq/">Nginx Proxy Manager：官方 FAQ</a></li>
-          <li><a href="https://developers.cloudflare.com/support/troubleshooting/http-status-codes/cloudflare-5xx-errors/error-502-504/">Cloudflare：502／504 官方排錯</a></li>
-          <li><a href="https://developers.cloudflare.com/cloudflare-one/connections/connect-networks/troubleshoot-tunnels/">Cloudflare：Tunnel 官方排錯</a></li>
-          <li><a href="https://letsencrypt.org/docs/challenge-types/">Let's Encrypt：Challenge Types</a></li>
+          <li><a href="https://github.com/WOOWTECH/Woow_ha_nginxpm/blob/main/nginxpm/README.md">WOOWTECH: ports, SSL, data paths and troubleshooting</a></li>
+          <li><a href="https://github.com/WOOWTECH/Woow_ha_nginxpm/blob/main/nginxpm/config.yaml">WOOWTECH: add-on ports, map and backup_exclude</a></li>
+          <li><a href="https://github.com/WOOWTECH/Woow_ha_nginxpm/blob/main/nginxpm/patches/0002-Patch-redirect-logs-to-docker-output.patch">WOOWTECH: the patch that sends Nginx logs to the add-on output</a></li>
+          <li><a href="https://github.com/NginxProxyManager/nginx-proxy-manager/blob/v2.12.4/backend/templates/proxy_host.conf">Nginx Proxy Manager v2.12.4: the Proxy Host and WebSocket template</a></li>
+          <li><a href="https://nginxproxymanager.com/faq/">Nginx Proxy Manager: the official FAQ</a></li>
+          <li><a href="https://developers.cloudflare.com/support/troubleshooting/http-status-codes/cloudflare-5xx-errors/error-502-504/">Cloudflare: official 502/504 troubleshooting</a></li>
+          <li><a href="https://developers.cloudflare.com/cloudflare-one/connections/connect-networks/troubleshoot-tunnels/">Cloudflare: official Tunnel troubleshooting</a></li>
+          <li><a href="https://letsencrypt.org/docs/challenge-types/">Let's Encrypt: Challenge Types</a></li>
         </ul>
       </section>
 

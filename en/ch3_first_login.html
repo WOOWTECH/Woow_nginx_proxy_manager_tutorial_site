@@ -57,16 +57,16 @@
     </ol>
     <div class="toc-in-chapter">
       <h2>This chapter</h2>
-      <a href="#before-login">登入前先封閉管理面</a>
-      <a href="#first-login">使用預設值登入一次</a>
-      <a href="#change-identity">立即更改電子郵件</a>
-      <a href="#change-password">立即設定新密碼</a>
-      <a href="#verify-credentials">登出後驗證</a>
-      <a href="#management-boundary">維持管理面邊界</a>
-      <a href="#account-record">留下安全的管理紀錄</a>
-      <a href="#troubleshooting">登入與加固排錯</a>
-      <a href="#faq">常見問題</a>
-      <a href="#official-sources">官方資料來源</a>
+      <a href="#before-login">Close admin first</a>
+      <a href="#first-login">First login</a>
+      <a href="#change-identity">Change email</a>
+      <a href="#change-password">Change password</a>
+      <a href="#verify-credentials">Verify credentials</a>
+      <a href="#management-boundary">Keep the boundary</a>
+      <a href="#account-record">Safe records</a>
+      <a href="#troubleshooting">Login problems</a>
+      <a href="#faq">FAQ</a>
+      <a href="#official-sources">Official sources</a>
     </div>
 
   </aside>
@@ -75,121 +75,121 @@
     <div class="callout i18n-pending"><strong>This chapter has not been translated yet.</strong> You are reading the original Chinese text. <a href="../ch3_first_login.html" hreflang="zh-Hant">Open the Chinese version</a></div>
     <div class="chapter-header">
       <div class="kicker">Chapter 3</div>
-      <h1>首次登入與帳號安全</h1>
-      <p class="lead">第一次登入只做一件優先事項：立刻淘汰公開的預設電子郵件與密碼，再驗證新憑證確實可用。</p>
+      <h1>First login and account security</h1>
+      <p class="lead">Your first login has one priority: retire the publicly known default email and password right away, then verify that the new credentials really work.</p>
     </div>
 
-    <section id="before-login" data-nav="登入前先封閉管理面">
-      <h2 data-icon="security">登入前先封閉管理面</h2>
-      <p>WOOWTECH README 明列初始登入資料為 <code>admin@example.com</code>／<code>changeme</code>，並要求登入後立即更改。上游 NPM 2.12.4 的初始化程式也以這組值建立第一位管理員；它們是公開資訊，不是祕密。</p>
+    <section id="before-login" data-nav="Close admin first">
+      <h2 data-icon="security">Close the admin surface before you log in</h2>
+      <p>The WOOWTECH README lists the initial login details as <code>admin@example.com</code> / <code>changeme</code> and requires you to change them as soon as you log in. The upstream NPM 2.12.4 setup routine creates the first administrator with the same pair; they are public information, not secrets.</p>
       <ul>
-        <li>確認你正從可信任區網連線，而不是行動網路或公開 Wi-Fi。</li>
-        <li>確認路由器沒有 WAN TCP 81 轉送，防火牆也沒有讓任意網際網路來源碰到 81。</li>
-        <li>關閉錄影、直播與會同步表單內容的工具；密碼、電子郵件、IP 與登入畫面都視為敏感資料。</li>
-        <li>先準備可信任的密碼管理器，但不要把新密碼貼入聊天、issue、截圖或一般筆記。</li>
+        <li>Confirm you are connecting from a trusted LAN, not over mobile data or public Wi-Fi.</li>
+        <li>Confirm the router has no WAN port forwarding for TCP 81, and that no firewall rule lets an arbitrary internet source reach 81.</li>
+        <li>Close screen recorders, live streams and anything that syncs form contents; treat the password, the email address, IPs and the login screen as sensitive data.</li>
+        <li>Have a trusted password manager ready, but do not paste the new password into a chat, an issue, a screenshot or ordinary notes.</li>
       </ul>
-      <div class="callout danger"><strong>先封閉，再登入。</strong>如果 TCP 81 已公開，不要只靠「等一下會改密碼」承擔風險；先移除公開入口，才繼續本章。</div>
+      <div class="callout danger"><strong>Close it first, then log in.</strong> If TCP 81 is already public, do not carry the risk on a promise to "change the password in a minute"; remove the public entry point before you continue with this chapter.</div>
     </section>
 
-    <section id="first-login" data-nav="使用預設值登入一次">
-      <h2 data-icon="login">使用預設值登入一次</h2>
+    <section id="first-login" data-nav="First login">
+      <h2 data-icon="login">Log in once with the defaults</h2>
       <ol class="steps">
-        <li><h3>開啟正確的 Web UI</h3><p>從 Home Assistant add-on 頁面選「OPEN WEB UI／開啟 Web UI」，或在可信任區網開啟 <code>http://&lt;HA區網位址&gt;:81</code>。核對位址是你自己的 NPM，不要從搜尋結果進入登入頁。</p></li>
-        <li><h3>輸入初始電子郵件</h3><p>輸入 <code>admin@example.com</code>。這個值只能用於首次加固，不要保留成日常登入識別。</p></li>
-        <li><h3>輸入初始密碼</h3><p>輸入 <code>changeme</code> 並登入。不要讓瀏覽器把這個預設值儲存為正式密碼。</p></li>
-        <li><h3>直接前往帳號設定</h3><p>登入成功後不要先建立 Proxy Host、憑證或其他使用者；先完成下一節的帳號詳細資料與密碼變更。</p></li>
+        <li><h3>Open the right Web UI</h3><p>From the Home Assistant add-on page choose "OPEN WEB UI", or open <code>http://&lt;HA區網位址&gt;:81</code> from a trusted LAN. Check that the address is your own NPM; do not reach the login page from a search result.</p></li>
+        <li><h3>Enter the initial email</h3><p>Enter <code>admin@example.com</code>. Use this value for the initial hardening only; do not keep it as your day-to-day login identity.</p></li>
+        <li><h3>Enter the initial password</h3><p>Enter <code>changeme</code> and log in. Do not let the browser save this default as a real password.</p></li>
+        <li><h3>Go straight to the account settings</h3><p>Once you are in, do not start by creating a Proxy Host, a certificate or another user; finish the account details and password change in the next sections first.</p></li>
       </ol>
-      <div class="callout warn"><strong>只使用一次：</strong>若預設帳密登入失敗，不要反覆猜測或重設資料庫；先確認是否已有管理者完成初始化。</div>
+      <div class="callout warn"><strong>Use it once only:</strong> if the default credentials do not work, do not keep guessing and do not reset the database; first check whether an administrator has already completed the initial setup.</div>
     </section>
 
-    <section id="change-identity" data-nav="立即更改電子郵件">
-      <h2 data-icon="profile">立即更改電子郵件</h2>
+    <section id="change-identity" data-nav="Change email">
+      <h2 data-icon="profile">Change the email immediately</h2>
       <ol class="steps">
-        <li><h3>開啟 Users</h3><p>在 NPM 主選單開啟 <strong>Users</strong>，找到目前的 Administrator 帳號。</p></li>
-        <li><h3>編輯詳細資料</h3><p>開啟該帳號的動作選單，選 <strong>Edit Details</strong>（繁體中文介面可能顯示對應翻譯）。</p></li>
-        <li><h3>換掉預設電子郵件</h3><p>把 <code>admin@example.com</code> 改成你控制且不與他人共用的登入電子郵件，並確認姓名與暱稱不洩漏不必要資訊。電子郵件也是敏感資料，不要放進截圖。</p></li>
-        <li><h3>儲存並接續改密碼</h3><p>按 <strong>Save</strong>。add-on 所用的 NPM 2.12.4 介面不允許保留預設電子郵件；從預設帳號儲存新資料後，會接著開啟密碼視窗。</p></li>
+        <li><h3>Open Users</h3><p>In the NPM main menu, open <strong>Users</strong> and find the current Administrator account.</p></li>
+        <li><h3>Edit the details</h3><p>Open the account's action menu and choose <strong>Edit Details</strong> (a localized interface may show a translated label).</p></li>
+        <li><h3>Replace the default email</h3><p>Change <code>admin@example.com</code> to a login email you control and do not share with anyone else, and check that the name and nickname do not give away anything unnecessary. An email address is sensitive data too; keep it out of screenshots.</p></li>
+        <li><h3>Save, then change the password</h3><p>Click <strong>Save</strong>. The NPM 2.12.4 interface used by the add-on does not allow you to keep the default email; once you save new details on the default account, the password dialog opens next.</p></li>
       </ol>
-      <p>若介面改版後流程不同，原則不變：先在目前管理員的詳細資料更改預設電子郵件，再使用同一帳號的 Change Password 功能。不要建立第二個管理員來規避加固。</p>
+      <p>If a later interface revision changes the flow, the principle does not: change the default email in the current administrator's details first, then use Change Password on the same account. Do not create a second administrator to work around the hardening.</p>
     </section>
 
-    <section id="change-password" data-nav="立即設定新密碼">
-      <h2 data-icon="enter">立即設定新密碼</h2>
+    <section id="change-password" data-nav="Change password">
+      <h2 data-icon="enter">Set a new password immediately</h2>
       <ol class="steps">
-        <li><h3>確認正在修改自己</h3><p>密碼視窗應顯示目前管理員。若不是，取消操作並回到 Users 選擇正確帳號。</p></li>
-        <li><h3>輸入目前密碼</h3><p>首次加固時，目前密碼是剛才使用的預設值。介面要求修改自己的密碼時提供 Current Password。</p></li>
-        <li><h3>產生唯一的新密碼</h3><p>用密碼管理器產生長且隨機、未在其他網站使用的密碼。NPM 2.12.4 前端欄位最低長度為 8 個字元，但最低門檻不等於安全建議。</p></li>
-        <li><h3>確認後儲存</h3><p>在 New Password 與 Confirm Password 輸入同一個新值並儲存。只把新密碼保存在可信任的密碼管理器，不要抄進公開或會同步的文件。</p></li>
+        <li><h3>Confirm you are editing your own account</h3><p>The password dialog should show the current administrator. If it does not, cancel and go back to Users to pick the right account.</p></li>
+        <li><h3>Enter the current password</h3><p>During the initial hardening, the current password is the default you used a moment ago. The interface asks for Current Password whenever you change your own password.</p></li>
+        <li><h3>Generate a unique new password</h3><p>Use a password manager to generate a long, random password you have not used on any other site. The NPM 2.12.4 frontend field has a minimum length of 8 characters, but a minimum is not a security recommendation.</p></li>
+        <li><h3>Confirm and save</h3><p>Enter the same new value in New Password and Confirm Password, then save. Keep the new password in a trusted password manager only; do not copy it into a public or synced document.</p></li>
       </ol>
-      <div class="callout"><strong>電子郵件與密碼都要換：</strong>只改其中一個並不算完成。最終狀態必須不再使用 <code>admin@example.com</code>，也不再接受 <code>changeme</code>。</div>
+      <div class="callout"><strong>Change both the email and the password:</strong> changing one of them is not enough. The end state must no longer use <code>admin@example.com</code> and must no longer accept <code>changeme</code>.</div>
     </section>
 
-    <section id="verify-credentials" data-nav="登出後驗證">
-      <h2 data-icon="test">登出後驗證</h2>
+    <section id="verify-credentials" data-nav="Verify credentials">
+      <h2 data-icon="test">Log out and verify</h2>
       <ol class="steps">
-        <li><h3>主動登出</h3><p>完成儲存後使用 NPM 的登出功能，不要只關閉分頁。</p></li>
-        <li><h3>以新憑證登入</h3><p>重新開啟同一個可信任區網 Web UI，從密碼管理器填入新的電子郵件與新密碼。</p></li>
-        <li><h3>確認帳號身分</h3><p>回到 Users，確認目前管理員顯示新的電子郵件，且管理功能仍可用。不要截取含真實資料的畫面。</p></li>
-        <li><h3>確認預設值失效</h3><p>在私人瀏覽視窗對正確的區網位址測試一次舊的預設組合，應無法登入。避免連續重試；一次足以確認。</p></li>
+        <li><h3>Log out deliberately</h3><p>Once you have saved, use NPM's log out function; do not only close the tab.</p></li>
+        <li><h3>Log in with the new credentials</h3><p>Open the same trusted-LAN Web UI again and fill in the new email and the new password from your password manager.</p></li>
+        <li><h3>Confirm the account identity</h3><p>Go back to Users and confirm that the current administrator shows the new email and that the admin functions still work. Do not capture a screen that contains real data.</p></li>
+        <li><h3>Confirm the defaults no longer work</h3><p>In a private browsing window, test the old default pair once against the correct LAN address; it should fail to log in. Avoid repeated retries; one attempt is enough to confirm it.</p></li>
       </ol>
-      <p>通過條件是「新憑證成功、預設憑證失敗」。若只驗證新憑證可用，仍無法證明預設密碼已淘汰。</p>
+      <p>The passing condition is "new credentials succeed, default credentials fail". Verifying only that the new credentials work still does not prove the default password is retired.</p>
     </section>
 
-    <section id="management-boundary" data-nav="維持管理面邊界">
-      <h2 data-icon="warning">維持管理面邊界</h2>
+    <section id="management-boundary" data-nav="Keep the boundary">
+      <h2 data-icon="warning">Keep the admin boundary</h2>
       <table class="data-table">
-        <thead><tr><th>項目</th><th>安全作法</th><th>不安全作法</th></tr></thead>
+        <thead><tr><th>Item</th><th>Safe practice</th><th>Unsafe practice</th></tr></thead>
         <tbody>
-          <tr><td>TCP 81</td><td>只從可信任區網或受控管理通道存取</td><td>路由器 WAN 轉送、任意來源防火牆規則</td></tr>
-          <tr><td>登入電子郵件</td><td>使用你控制的非預設識別，存於可信任保管庫</td><td>留用 <code>admin@example.com</code> 或出現在公開截圖</td></tr>
-          <tr><td>管理密碼</td><td>長、隨機、唯一，交由密碼管理器保管</td><td>重複使用、分享、寫入 Proxy Host 設定或一般筆記</td></tr>
-          <tr><td>工作階段</td><td>共用裝置用完即登出，管理裝置保持更新</td><td>在公用電腦保存登入或長期不鎖定裝置</td></tr>
-          <tr><td>求助資料</td><td>只貼必要錯誤並遮罩</td><td>上傳完整記錄、憑證、Token、網域或公私有 IP</td></tr>
+          <tr><td>TCP 81</td><td>Reachable only from a trusted LAN or a controlled management channel</td><td>Router WAN port forwarding, any-source firewall rules</td></tr>
+          <tr><td>Login email</td><td>A non-default identity you control, held in a trusted vault</td><td>Keeping <code>admin@example.com</code>, or letting it appear in a public screenshot</td></tr>
+          <tr><td>Admin password</td><td>Long, random, unique, held in a password manager</td><td>Reused, shared, or written into a Proxy Host config or ordinary notes</td></tr>
+          <tr><td>Session</td><td>Log out on a shared device as soon as you are done; keep the admin device updated</td><td>Saving the login on a public computer, or leaving a device unlocked for long stretches</td></tr>
+          <tr><td>Help requests</td><td>Post only the error text you need, redacted</td><td>Uploading full logs, certificates, tokens, domains, or public and private IPs</td></tr>
         </tbody>
       </table>
-      <p>改完密碼不會把管理介面變成適合公開的服務。TCP 81 仍不可暴露到網際網路，後續章節也不會以公開 Proxy Host 包裝它。</p>
+      <p>Changing the password does not turn the admin interface into something fit to publish. TCP 81 must still never be exposed to the public internet, and later chapters will not wrap it in a public Proxy Host either.</p>
     </section>
 
-    <section id="account-record" data-nav="留下安全的管理紀錄">
-      <h2 data-icon="records">留下安全的管理紀錄</h2>
-      <p>你可以留下不含祕密的維運紀錄，例如「預設帳號已於某日停用」「管理面僅限可信任網段」「下次權限檢查日期」。不要在紀錄中寫出真實電子郵件、密碼、完整網域或 IP。</p>
+    <section id="account-record" data-nav="Safe records">
+      <h2 data-icon="records">Keep a safe admin record</h2>
+      <p>You can keep an operations record that holds no secrets, for example "the default account was retired on this date", "the admin surface is limited to the trusted network segment", "the date of the next permissions review". Do not write a real email address, password, full domain or IP into that record.</p>
       <ul>
-        <li>密碼與登入電子郵件：只存在受保護的密碼管理器項目。</li>
-        <li>DNS API Token：日後若使用 DNS Challenge，獨立保存並給最小權限。</li>
-        <li>憑證與私鑰：交由 NPM／備份機制保護，不貼進 issue。</li>
-        <li>記錄檔：只摘錄與錯誤直接相關的少量行，先遮罩網域、公私有 IP、帳號、Token 與憑證內容。</li>
+        <li>Password and login email: in a protected password manager entry only.</li>
+        <li>DNS API token: if you use a DNS Challenge later, store it separately and give it least privilege.</li>
+        <li>Certificates and private keys: leave them to NPM and your backup mechanism; do not paste them into an issue.</li>
+        <li>Logs: quote only the few lines directly related to the error, and redact domains, public and private IPs, accounts, tokens and certificate contents first.</li>
       </ul>
-      <div class="callout tip"><strong>完成標記：</strong>可以記「新憑證登入成功、預設組合失敗、81 無 WAN 入口」，但不要記下新憑證本身。</div>
+      <div class="callout tip"><strong>Mark it done:</strong> you can record "login with the new credentials succeeded, the default pair failed, 81 has no WAN entry point", but do not record the new credentials themselves.</div>
     </section>
 
-    <section id="troubleshooting" data-nav="登入與加固排錯">
-      <h2 data-icon="troubleshoot">登入與加固排錯</h2>
-      <h3>問題一：預設帳密無法登入</h3><p>先確認網址是自己的 NPM TCP 81、鍵盤大小寫與輸入法正確。若此實例曾使用過，可能已建立管理員；不要為了恢復預設值而刪除資料庫。</p>
-      <h3>問題二：儲存時拒絕 admin@example.com</h3><p>這是 NPM 2.12.4 的預期保護：預設電子郵件不允許繼續保留。改成你控制的非預設登入電子郵件再儲存。</p>
-      <h3>問題三：新密碼與確認值不一致</h3><p>清空兩欄，從密碼管理器重新填入同一筆產生值。不要為方便而改用短或重複使用的密碼。</p>
-      <h3>問題四：Current Password 顯示無效</h3><p>確認你修改的是自己的帳號，並輸入目前仍有效的密碼。若電子郵件已改但密碼視窗中斷，回到 Users 的該帳號選 Change Password。</p>
-      <h3>問題五：改完後新憑證仍無法登入</h3><p>先停止連續嘗試，確認新電子郵件是否已儲存、密碼管理器項目是否更新，再從可信任區網重試。不要在公開頻道貼出表單或完整記錄。</p>
-      <h3>問題六：從外網竟然可以打開 81</h3><p>這不是便利功能，而是暴露。先移除路由器 WAN 轉送與過寬防火牆規則，再檢查是否還有公開 DNS 或代理路徑。</p>
+    <section id="troubleshooting" data-nav="Login problems">
+      <h2 data-icon="troubleshoot">Login and hardening troubleshooting</h2>
+      <h3>Problem 1: the default credentials do not work</h3><p>First confirm that the address is your own NPM on TCP 81, and that capitalization and your input method are correct. If this instance has been used before, an administrator may already exist; do not delete the database in order to get the defaults back.</p>
+      <h3>Problem 2: saving is rejected for admin@example.com</h3><p>This is the expected protection in NPM 2.12.4: the default email is not allowed to stay. Change it to a non-default login email you control, then save.</p>
+      <h3>Problem 3: the new password and the confirmation do not match</h3><p>Clear both fields and refill them from the password manager with the same generated value. Do not switch to a short or reused password for convenience.</p>
+      <h3>Problem 4: Current Password comes back as invalid</h3><p>Confirm that the account you are editing is your own, and enter the password that is still valid. If the email change went through but the password dialog was interrupted, go back to that account in Users and choose Change Password.</p>
+      <h3>Problem 5: the new credentials still do not work after the change</h3><p>Stop retrying first, check whether the new email was saved and whether the password manager entry was updated, then try again from the trusted LAN. Do not post the form or a full log in a public channel.</p>
+      <h3>Problem 6: 81 turns out to open from outside your network</h3><p>That is not a convenience feature, it is exposure. Remove the router's WAN port forwarding and any over-broad firewall rule first, then check whether a public DNS entry or a proxy path still leads there.</p>
     </section>
 
-    <section id="faq" data-nav="常見問題">
-      <h2 data-icon="faq">常見問題</h2>
-      <details class="faq"><summary>可以只改密碼，不改預設電子郵件嗎？</summary><div class="body">不可以。任務目標是同時淘汰公開的預設登入識別與預設密碼；NPM 2.12.4 的帳號表單也不允許保留 <code>admin@example.com</code>。</div></details>
-      <details class="faq"><summary>密碼至少 8 個字元就夠嗎？</summary><div class="body">8 個字元是該版前端欄位的最低門檻，不是安全目標。請使用密碼管理器產生更長、隨機且唯一的密碼。</div></details>
-      <details class="faq"><summary>改完強密碼後能公開 TCP 81 嗎？</summary><div class="body">不能。強密碼不會消除管理介面的漏洞、暴力嘗試與設定錯誤風險；81 仍只限可信任區網或受控管理通道。</div></details>
-      <details class="faq"><summary>忘記新密碼時可以直接刪除資料庫重來嗎？</summary><div class="body">不要。刪除資料庫可能同時失去 Proxy Host、使用者與其他設定。先保留現況與備份，查閱對應版本的官方支援資訊後再採取恢復程序。</div></details>
+    <section id="faq" data-nav="FAQ">
+      <h2 data-icon="faq">FAQ</h2>
+      <details class="faq"><summary>Can I change only the password and keep the default email?</summary><div class="body">No. The task is to retire the publicly known default login identity and the default password together; the NPM 2.12.4 account form does not allow you to keep <code>admin@example.com</code> either.</div></details>
+      <details class="faq"><summary>Is a password of at least 8 characters enough?</summary><div class="body">8 characters is the minimum enforced by that version's frontend field, not a security target. Use a password manager to generate a longer, random and unique password.</div></details>
+      <details class="faq"><summary>Once I have a strong password, can I expose TCP 81?</summary><div class="body">No. A strong password does not remove the risk of vulnerabilities in the admin interface, brute-force attempts and misconfiguration; 81 stays limited to a trusted LAN or a controlled management channel.</div></details>
+      <details class="faq"><summary>If I forget the new password, can I delete the database and start over?</summary><div class="body">Do not. Deleting the database can also lose your Proxy Hosts, users and other settings. Preserve the current state and a backup first, then read the official support material for the matching version before you begin any recovery procedure.</div></details>
     </section>
 
-    <section id="official-sources" data-nav="官方資料來源">
-      <h2 data-icon="book">官方資料來源</h2>
+    <section id="official-sources" data-nav="Official sources">
+      <h2 data-icon="book">Official sources</h2>
       <ul>
-        <li><a href="https://github.com/WOOWTECH/Woow_ha_nginxpm" rel="noopener">WOOWTECH／Woow_ha_nginxpm README</a>：TCP 81 Web UI、預設登入值與立即變更要求。</li>
-        <li><a href="https://github.com/WOOWTECH/Woow_ha_nginxpm/blob/main/nginxpm/README.md" rel="noopener">Woow add-on README</a>：快速安裝、管理介面與預設帳密。</li>
-        <li><a href="https://github.com/NginxProxyManager/nginx-proxy-manager/blob/v2.12.4/backend/setup.js" rel="noopener">NPM v2.12.4 backend/setup.js</a>：第一位管理員的預設電子郵件與密碼。</li>
-        <li><a href="https://github.com/NginxProxyManager/nginx-proxy-manager/blob/v2.12.4/frontend/js/app/user/form.js" rel="noopener">NPM v2.12.4 user/form.js</a>：拒絕保留預設電子郵件及接續密碼表單的行為。</li>
-        <li><a href="https://github.com/NginxProxyManager/nginx-proxy-manager/blob/v2.12.4/frontend/js/app/user/password.ejs" rel="noopener">NPM v2.12.4 password.ejs</a>：目前密碼、新密碼、確認欄位與最低長度。</li>
+        <li><a href="https://github.com/WOOWTECH/Woow_ha_nginxpm" rel="noopener">WOOWTECH/Woow_ha_nginxpm README</a>: the TCP 81 Web UI, the default login values and the requirement to change them immediately.</li>
+        <li><a href="https://github.com/WOOWTECH/Woow_ha_nginxpm/blob/main/nginxpm/README.md" rel="noopener">Woow add-on README</a>: quick install, the admin interface and the default credentials.</li>
+        <li><a href="https://github.com/NginxProxyManager/nginx-proxy-manager/blob/v2.12.4/backend/setup.js" rel="noopener">NPM v2.12.4 backend/setup.js</a>: the default email and password for the first administrator.</li>
+        <li><a href="https://github.com/NginxProxyManager/nginx-proxy-manager/blob/v2.12.4/frontend/js/app/user/form.js" rel="noopener">NPM v2.12.4 user/form.js</a>: refusing to keep the default email, and opening the password form next.</li>
+        <li><a href="https://github.com/NginxProxyManager/nginx-proxy-manager/blob/v2.12.4/frontend/js/app/user/password.ejs" rel="noopener">NPM v2.12.4 password.ejs</a>: the current password, new password and confirmation fields, and the minimum length.</li>
       </ul>
-      <p>Woow add-on 的 config.yaml 在核對時標示 NPM 2.12.4，因此本章用同版上游原始碼核對帳號流程。若 add-on 已升版或介面不同，仍應遵守「立刻更改電子郵件與密碼、81 不公開」的安全要求，並以對應版本官方文件為準。</p>
+      <p>The Woow add-on's config.yaml listed NPM 2.12.4 at the time of verification, so this chapter checked the account flow against the upstream source of that same version. If the add-on has since been updated or the interface differs, the security requirement still holds — change the email and password immediately, and keep 81 off the public internet — and go by the official docs for your version.</p>
     </section>
 
     <div class="pager">

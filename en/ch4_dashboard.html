@@ -57,17 +57,17 @@
     </ol>
     <div class="toc-in-chapter">
       <h2>This chapter</h2>
-      <a href="#dashboard">Dashboard 能看什麼</a>
-      <a href="#object-map">核心物件地圖</a>
-      <a href="#hosts-menu">Hosts 選單</a>
-      <a href="#certificates-access">憑證與 Access Lists</a>
-      <a href="#users-audit">Users 與 Audit Log</a>
-      <a href="#safe-tour">安全導覽步驟</a>
-      <a href="#lifecycle">物件建立順序</a>
-      <a href="#security-boundary">管理面安全邊界</a>
-      <a href="#troubleshooting">介面排錯</a>
-      <a href="#faq">常見問題</a>
-      <a href="#sources">官方來源</a>
+      <a href="#dashboard">Dashboard</a>
+      <a href="#object-map">Object map</a>
+      <a href="#hosts-menu">Hosts menu</a>
+      <a href="#certificates-access">Certs and lists</a>
+      <a href="#users-audit">Users and audit</a>
+      <a href="#safe-tour">Safe tour</a>
+      <a href="#lifecycle">Build order</a>
+      <a href="#security-boundary">Admin boundary</a>
+      <a href="#troubleshooting">Interface problems</a>
+      <a href="#faq">FAQ</a>
+      <a href="#sources">Official sources</a>
     </div>
 
   </aside>
@@ -75,106 +75,106 @@
       <div class="callout i18n-pending"><strong>This chapter has not been translated yet.</strong> You are reading the original Chinese text. <a href="../ch4_dashboard.html" hreflang="zh-Hant">Open the Chinese version</a></div>
       <div class="chapter-header">
         <div class="kicker">Chapter 4</div>
-        <h1>管理介面與核心物件</h1>
-        <p class="lead">先看懂 Dashboard、Hosts、憑證、存取清單與使用者之間的關係，再開始建立第一條反向代理規則。</p>
+        <h1>The admin interface and the core objects</h1>
+        <p class="lead">Get clear on how the Dashboard, Hosts, certificates, access lists and users relate to each other, and only then create your first reverse proxy rule.</p>
       </div>
 
-      <section id="dashboard" data-nav="Dashboard 能看什麼">
-        <h2 data-icon="tabs">Dashboard 能看什麼</h2>
-        <p>登入後的 Dashboard 是主機物件摘要，不是流量監控儀表板。Woow add-on 目前採用的 Nginx Proxy Manager 2.12.4 介面，會依你的權限顯示 Proxy Hosts、Redirection Hosts、Streams 與 404 Hosts 的數量卡片；按卡片可進入相應清單。</p>
-        <div class="callout tip"><strong>先做安全確認：</strong>若你仍能用 <code>admin@example.com</code>／<code>changeme</code> 登入，請立即更改 email 與密碼。管理介面的 <code>81/tcp</code> 只能留在可信任的區域網路或受保護的管理通道，不可直接公開到網際網路。</div>
+      <section id="dashboard" data-nav="Dashboard">
+        <h2 data-icon="tabs">What the Dashboard shows</h2>
+        <p>The Dashboard you land on after logging in is a summary of host objects, not a traffic monitoring dashboard. The Nginx Proxy Manager 2.12.4 interface the Woow add-on currently ships shows count cards for Proxy Hosts, Redirection Hosts, Streams and 404 Hosts, according to your permissions; click a card to open the matching list.</p>
+        <div class="callout tip"><strong>Confirm security first:</strong> if you can still log in with <code>admin@example.com</code> / <code>changeme</code>, change the email and the password immediately. The admin interface on <code>81/tcp</code> belongs only on a trusted LAN or a protected management channel, and must never be exposed directly to the public internet.</div>
       </section>
 
-      <section id="object-map" data-nav="核心物件地圖">
-        <h2 data-icon="concept">核心物件地圖</h2>
-        <p>NPM 把不同目的的設定拆成物件。建立前先選對類型，日後排錯會容易許多。</p>
+      <section id="object-map" data-nav="Object map">
+        <h2 data-icon="concept">A map of the core objects</h2>
+        <p>NPM splits settings with different purposes into separate objects. Pick the right type before you create anything and troubleshooting later gets much easier.</p>
         <table class="data-table">
-          <thead><tr><th>物件</th><th>用途</th><th>典型輸入</th><th>是否處理 HTTP</th></tr></thead>
+          <thead><tr><th>Object</th><th>What it is for</th><th>Typical input</th><th>Handles HTTP?</th></tr></thead>
           <tbody>
-            <tr><td>Proxy Host</td><td>依網域把要求轉送到內部 Web 服務</td><td>網域、上游協定、主機、連接埠</td><td>是</td></tr>
-            <tr><td>Redirection Host</td><td>把來訪者導向另一個 URL</td><td>來源網域、目的 URL、狀態碼</td><td>是，回傳重導向</td></tr>
-            <tr><td>404 Host</td><td>讓指定網域回傳找不到頁面</td><td>網域</td><td>是，回傳 404</td></tr>
-            <tr><td>Stream</td><td>轉送 TCP 或 UDP 連線</td><td>進入連接埠、目標主機與連接埠</td><td>否</td></tr>
-            <tr><td>SSL Certificate</td><td>保存 Let's Encrypt 或自訂憑證，供 Host 引用</td><td>網域、驗證方式或憑證檔</td><td>支援 HTTPS</td></tr>
-            <tr><td>Access List</td><td>以 HTTP 基本驗證或 IP 規則限制 Proxy Host</td><td>帳號規則、允許／拒絕來源</td><td>套用於 Proxy Host</td></tr>
+            <tr><td>Proxy Host</td><td>Forwards requests to an internal web service by domain</td><td>Domain, upstream scheme, host, port</td><td>Yes</td></tr>
+            <tr><td>Redirection Host</td><td>Sends visitors to another URL</td><td>Source domain, destination URL, status code</td><td>Yes, returns a redirect</td></tr>
+            <tr><td>404 Host</td><td>Makes a given domain return a not-found page</td><td>Domain</td><td>Yes, returns 404</td></tr>
+            <tr><td>Stream</td><td>Forwards TCP or UDP connections</td><td>Incoming port, target host and port</td><td>No</td></tr>
+            <tr><td>SSL Certificate</td><td>Holds a Let's Encrypt or custom certificate for a Host to reference</td><td>Domain, challenge method or certificate files</td><td>Supports HTTPS</td></tr>
+            <tr><td>Access List</td><td>Restricts a Proxy Host with HTTP Basic Authentication or IP rules</td><td>Account rules, allowed/denied sources</td><td>Applied to a Proxy Host</td></tr>
           </tbody>
         </table>
       </section>
 
-      <section id="hosts-menu" data-nav="Hosts 選單">
-        <h2 data-icon="network">Hosts 選單怎麼分</h2>
-        <p><strong>Proxy Hosts</strong> 是本教學最常使用的物件：同一組 80／443 入口可依請求中的網域，分流到不同內部服務。<strong>Redirection Hosts</strong> 只負責把瀏覽器帶往別處；<strong>404 Hosts</strong> 用來明確拒絕某個名稱；<strong>Streams</strong> 則處理非 HTTP 的 TCP／UDP 流量。</p>
-        <p>清單中的 Enabled／Disabled 是該物件是否生效，不代表上游服務一定健康。Dashboard 的數量也不能取代實際連線測試。</p>
+      <section id="hosts-menu" data-nav="Hosts menu">
+        <h2 data-icon="network">How the Hosts menu is split</h2>
+        <p><strong>Proxy Hosts</strong> are the objects this tutorial uses most: one 80/443 entry point can route to different internal services according to the domain in the request. <strong>Redirection Hosts</strong> only send the browser somewhere else; <strong>404 Hosts</strong> exist to refuse a name outright; <strong>Streams</strong> handle non-HTTP TCP/UDP traffic.</p>
+        <p>Enabled/Disabled in a list tells you whether that object is active, not that the upstream service is healthy. The counts on the Dashboard are no substitute for a real connection test either.</p>
       </section>
 
-      <section id="certificates-access" data-nav="憑證與 Access Lists">
-        <h2 data-icon="security">憑證與 Access Lists</h2>
-        <p>SSL Certificates 與 Access Lists 都是可重複引用的物件。一張涵蓋正確名稱的憑證可以指派給 Proxy Host；一份 Access List 也可套用到多個 Proxy Host。修改共用物件前，先確認有哪些服務會受影響。</p>
-        <div class="callout warn"><strong>敏感資料：</strong>網域、憑證與私鑰、DNS API token、Access List 密碼都不得貼到公開 issue、截圖或未遮罩的文件。DNS Challenge 憑證資料屬高權限機密，應採最小權限並限制可操作的 DNS zone。</div>
+      <section id="certificates-access" data-nav="Certs and lists">
+        <h2 data-icon="security">Certificates and Access Lists</h2>
+        <p>SSL Certificates and Access Lists are both objects you can reference more than once. A certificate that covers the right name can be assigned to a Proxy Host, and one Access List can be applied to several Proxy Hosts. Before you change a shared object, work out which services it affects.</p>
+        <div class="callout warn"><strong>Sensitive data:</strong> domains, certificates and private keys, DNS API tokens and Access List passwords must never be pasted into a public issue, a screenshot or an unredacted document. DNS Challenge credentials are high-privilege secrets: apply least privilege and limit which DNS zones they can act on.</div>
       </section>
 
-      <section id="users-audit" data-nav="Users 與 Audit Log">
-        <h2 data-icon="persons">Users 與 Audit Log</h2>
-        <p>Users 管理可登入 NPM 的人員與權限；它和 Access List 不同，後者保護的是被代理的網站。官方功能清單也列出使用者管理、權限與 Audit Log。日常操作應使用個別帳號，避免多人共用管理員密碼。</p>
-        <p>Audit Log 用來回查管理操作，不等於 Nginx 的存取或錯誤記錄。匯出或分享任何記錄前，先遮罩帳號、網域、公私有 IP、憑證資訊、要求路徑與完整 log。</p>
+      <section id="users-audit" data-nav="Users and audit">
+        <h2 data-icon="persons">Users and Audit Log</h2>
+        <p>Users manages who can log in to NPM and with what permissions; it is not the same as an Access List, which protects the proxied site instead. The official feature list also names user management, permissions and the Audit Log. Use individual accounts for day-to-day work, and do not let several people share one administrator password.</p>
+        <p>The Audit Log is there to look back at admin actions; it is not the Nginx access or error log. Before you export or share any record, redact accounts, domains, public and private IPs, certificate details, request paths and full logs.</p>
       </section>
 
-      <section id="safe-tour" data-nav="安全導覽步驟">
-        <h2 data-icon="steps">安全導覽步驟</h2>
+      <section id="safe-tour" data-nav="Safe tour">
+        <h2 data-icon="steps">A safe tour, step by step</h2>
         <ol class="steps">
-          <li><h3>確認管理入口</h3><p>從區域網路開啟 Home Assistant 的 add-on Web UI，或使用受保護的管理通道。檢查路由器沒有把外部連接埠 81 轉送到 NPM。</p></li>
-          <li><h3>確認個人帳號</h3><p>從右上角個人選單確認 email 已不是預設值，密碼也已更換為唯一且足夠長的密碼。</p></li>
-          <li><h3>依序打開清單</h3><p>只瀏覽 Hosts、SSL Certificates、Access Lists、Users 與 Audit Log，不新增、刪除或停用既有物件。</p></li>
-          <li><h3>記下相依關係</h3><p>對預計調整的 Proxy Host，記錄它引用的憑證與 Access List 名稱；筆記中以代號取代真實網域、IP 與帳號。</p></li>
+          <li><h3>Confirm the admin entry point</h3><p>Open the Home Assistant add-on Web UI from your LAN, or use a protected management channel. Check that the router does not forward external port 81 to NPM.</p></li>
+          <li><h3>Confirm your own account</h3><p>From the personal menu at the top right, confirm the email is no longer the default and the password has been changed to one that is unique and long enough.</p></li>
+          <li><h3>Open the lists in order</h3><p>Browse Hosts, SSL Certificates, Access Lists, Users and the Audit Log only. Do not add, delete or disable any existing object.</p></li>
+          <li><h3>Write down the dependencies</h3><p>For any Proxy Host you plan to change, record the certificate and the Access List name it references; in your notes, replace real domains, IPs and accounts with placeholders.</p></li>
         </ol>
       </section>
 
-      <section id="lifecycle" data-nav="物件建立順序">
-        <h2 data-icon="plan">物件建立順序</h2>
-        <p>第一次建置可依「確認上游服務 → 建立 DNS → 建立 Proxy Host → 從內外網測試 → 申請並指派憑證 → 視需要套用 Access List」進行。DNS 和 Proxy Host 必須使用相同的完整網域名稱，NPM 才能依 Host header 選到正確規則。</p>
-        <p>憑證、存取規則與 Proxy Host 是分開保存的物件；刪除任何共用項目前，先檢查引用關係並保留可還原的備份。</p>
+      <section id="lifecycle" data-nav="Build order">
+        <h2 data-icon="plan">The order to create objects in</h2>
+        <p>For a first build, work through "confirm the upstream service → create the DNS record → create the Proxy Host → test from inside and outside → request and assign the certificate → apply an Access List if you need one". DNS and the Proxy Host must use the same fully qualified domain name, or NPM cannot pick the right rule from the Host header.</p>
+        <p>Certificates, access rules and Proxy Hosts are stored as separate objects; before you delete anything shared, check what references it and keep a backup you can restore from.</p>
       </section>
 
-      <section id="security-boundary" data-nav="管理面安全邊界">
-        <h2 data-icon="warning">管理面安全邊界</h2>
+      <section id="security-boundary" data-nav="Admin boundary">
+        <h2 data-icon="warning">Admin security boundaries</h2>
         <ul>
-          <li>對外服務入口通常是 80／443；81 是管理埠，路由器與雲端防火牆都不可公開它。</li>
-          <li>不要把 NPM 管理頁本身當作第一個公開的 Proxy Host；若要遠端管理，優先使用 VPN 或具身分驗證的管理通道。</li>
-          <li>共享畫面或求助時，遮罩所有真實網域、公私有 IP、密碼、token、憑證內容與記錄。</li>
-          <li>Advanced 欄位會直接影響 Nginx 行為；沒有依據時保持空白，不貼入來源不明的設定片段。</li>
+          <li>The public service entry point is usually 80/443; 81 is the admin port, and neither the router nor a cloud firewall may expose it.</li>
+          <li>Do not make the NPM admin page itself your first public Proxy Host; for remote administration, prefer a VPN or a management channel with authentication.</li>
+          <li>When you share a screen or ask for help, redact every real domain, public and private IP, password, token, certificate body and log.</li>
+          <li>The Advanced field feeds straight into Nginx behavior; leave it empty when you have nothing to base it on, and never paste in a config snippet of unknown origin.</li>
         </ul>
       </section>
 
-      <section id="troubleshooting" data-nav="介面排錯">
-        <h2 data-icon="troubleshoot">介面排錯</h2>
+      <section id="troubleshooting" data-nav="Interface problems">
+        <h2 data-icon="troubleshoot">Interface troubleshooting</h2>
         <table class="data-table">
-          <thead><tr><th>具體問題</th><th>先檢查</th><th>安全處理</th></tr></thead>
+          <thead><tr><th>Specific problem</th><th>Check first</th><th>Safe handling</th></tr></thead>
           <tbody>
-            <tr><td>Dashboard 數量顯示「-」或一直載入</td><td>重新整理後確認 add-on 仍在執行，並檢查瀏覽器是否阻擋 API 要求</td><td>只擷取錯誤類型；不要公開完整瀏覽器回應或 token</td></tr>
-            <tr><td>看不到 Users、Streams 或部分 Hosts</td><td>確認目前帳號的角色與檢視／管理權限</td><td>由既有管理員調整最小必要權限，不共用管理員帳密</td></tr>
-            <tr><td>Host 顯示 Disabled</td><td>確認是否由維護者刻意停用，並查 Audit Log</td><td>不確定影響範圍時不要直接啟用或刪除</td></tr>
-            <tr><td>開啟 Web UI 出現無法連線</td><td>確認 add-on 已啟動、81 沒被其他服務占用，並從同一區域網路測試</td><td>不要為了排錯把 81 暫時轉送到網際網路</td></tr>
-            <tr><td>儲存表單後出現 Internal Error</td><td>檢查必填欄位、輸入格式與 add-on 記錄中的同一時間點</td><td>分享前只保留必要片段並遮罩網域、IP、憑證與完整 log</td></tr>
+            <tr><td>Dashboard counts show "-" or keep loading</td><td>Refresh, confirm the add-on is still running, and check whether the browser is blocking the API requests</td><td>Capture the error type only; do not publish the full browser response or a token</td></tr>
+            <tr><td>Users, Streams or some Hosts are missing</td><td>Check the role and the view/manage permissions on the account you are using</td><td>Have an existing administrator grant the minimum permissions needed; do not share administrator credentials</td></tr>
+            <tr><td>A Host shows as Disabled</td><td>Check whether a maintainer disabled it deliberately, and look at the Audit Log</td><td>If you are not sure what it affects, do not enable or delete it</td></tr>
+            <tr><td>Opening the Web UI fails to connect</td><td>Confirm the add-on has started, that nothing else is holding 81, and test from the same LAN</td><td>Never forward 81 to the internet just to troubleshoot</td></tr>
+            <tr><td>Saving the form returns Internal Error</td><td>Check the required fields, the input formats, and the add-on log at the same timestamp</td><td>Before sharing, keep only the lines you need and redact domains, IPs, certificates and full logs</td></tr>
           </tbody>
         </table>
       </section>
 
-      <section id="faq" data-nav="常見問題">
-        <h2 data-icon="faq">常見問題</h2>
-        <details class="faq"><summary>Dashboard 的數字能證明代理正常嗎？</summary><div class="body">不能。數字是物件數量摘要；你仍要實際解析網域並用瀏覽器或 <code>curl</code> 測試回應。</div></details>
-        <details class="faq"><summary>Access List 帳號能登入 NPM 嗎？</summary><div class="body">不能把兩者視為同一種帳號。Users 是管理介面使用者；Access List 的 HTTP 基本驗證保護特定 Proxy Host。</div></details>
-        <details class="faq"><summary>可以公開 81 再用強密碼保護嗎？</summary><div class="body">不建議，也不符合本教學安全邊界。81 不可直接暴露到網際網路；請改從可信任區域網路、VPN 或受保護的管理通道進入。</div></details>
-        <details class="faq"><summary>可以先刪掉不認識的 Host 嗎？</summary><div class="body">不可以。先查清建立者、引用的憑證與用途，做好備份；不確定時保持原狀。</div></details>
-        <details class="faq"><summary>為什麼畫面和官方最新截圖不同？</summary><div class="body">Woow add-on 的 README 與 config 目前標示上游 NPM 2.12.4，而官方專案仍持續更新。欄位名稱或版面可能不同，請以你所安裝版本與上游文件為準。</div></details>
+      <section id="faq" data-nav="FAQ">
+        <h2 data-icon="faq">FAQ</h2>
+        <details class="faq"><summary>Do the Dashboard numbers prove the proxy works?</summary><div class="body">No. The numbers summarize how many objects exist; you still have to resolve the domain for real and test the response with a browser or <code>curl</code>.</div></details>
+        <details class="faq"><summary>Can an Access List account log in to NPM?</summary><div class="body">Do not treat the two as the same kind of account. Users are the admin interface users; the HTTP Basic Authentication in an Access List protects a specific Proxy Host.</div></details>
+        <details class="faq"><summary>Can I expose 81 and protect it with a strong password?</summary><div class="body">We do not recommend it, and it falls outside this tutorial's security boundaries. Port 81 must never be exposed directly to the public internet; come in from a trusted LAN, a VPN or a protected management channel instead.</div></details>
+        <details class="faq"><summary>Can I delete a Host I do not recognize?</summary><div class="body">No. First find out who created it, which certificate it references and what it is for, and make a backup; if you are still unsure, leave it as it is.</div></details>
+        <details class="faq"><summary>Why does my screen differ from the latest official screenshots?</summary><div class="body">The Woow add-on's README and config currently state upstream NPM 2.12.4, while the official project keeps releasing. Field names or the layout may differ, so go by the version you installed and the upstream docs.</div></details>
       </section>
 
-      <section id="sources" data-nav="官方來源">
-        <h2 data-icon="book">官方來源</h2>
+      <section id="sources" data-nav="Official sources">
+        <h2 data-icon="book">Official sources</h2>
         <ul>
-          <li><a href="https://github.com/WOOWTECH/Woow_ha_nginxpm/blob/main/nginxpm/README.md">WOOWTECH：Woow Nginx Proxy Manager add-on README</a>（版本、連接埠、功能與安全提醒）</li>
-          <li><a href="https://github.com/WOOWTECH/Woow_ha_nginxpm/blob/main/nginxpm/config.yaml">WOOWTECH：add-on config.yaml</a>（Web UI 與 80／81／443 映射）</li>
-          <li><a href="https://nginxproxymanager.com/guide/">Nginx Proxy Manager 官方 Guide</a>（Hosts、憑證、Access Lists、使用者與 Audit Log 功能）</li>
-          <li><a href="https://github.com/NginxProxyManager/nginx-proxy-manager/blob/v2.12.4/frontend/js/app/dashboard/main.ejs">NPM v2.12.4 Dashboard 原始碼</a>（Dashboard 卡片種類）</li>
+          <li><a href="https://github.com/WOOWTECH/Woow_ha_nginxpm/blob/main/nginxpm/README.md">WOOWTECH: Woow Nginx Proxy Manager add-on README</a> (version, ports, features and security notes)</li>
+          <li><a href="https://github.com/WOOWTECH/Woow_ha_nginxpm/blob/main/nginxpm/config.yaml">WOOWTECH: add-on config.yaml</a> (Web UI and the 80/81/443 mappings)</li>
+          <li><a href="https://nginxproxymanager.com/guide/">Nginx Proxy Manager official Guide</a> (Hosts, certificates, Access Lists, users and Audit Log features)</li>
+          <li><a href="https://github.com/NginxProxyManager/nginx-proxy-manager/blob/v2.12.4/frontend/js/app/dashboard/main.ejs">NPM v2.12.4 Dashboard source</a> (which Dashboard cards exist)</li>
         </ul>
       </section>
 

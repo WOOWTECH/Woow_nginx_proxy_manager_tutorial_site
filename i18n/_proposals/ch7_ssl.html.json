@@ -1,0 +1,21 @@
+{
+  "file": "ch7_ssl.html",
+  "_note": "Chinese placeholders inside frozen code blocks (gate B). English forms come from i18n/glossary.json decisions.code_placeholders / the binding terms table (/home/user/out/terms_nginx_proxy_manager.txt): <只限目標 zone 的 DNS token> -> <dns-token-scoped-to-the-target-zone>, <你的網域> -> <your-domain>. Each zh string occurs exactly once in en/ch7_ssl.html.",
+  "entries": [
+    {
+      "unit": "#dns01",
+      "zh": "<pre class=\"code-block\"><code>dns_cloudflare_api_token = &lt;只限目標 zone 的 DNS token&gt;</code></pre>",
+      "en": "<pre class=\"code-block\"><code>dns_cloudflare_api_token = &lt;dns-token-scoped-to-the-target-zone&gt;</code></pre>"
+    },
+    {
+      "unit": "#force-ssl",
+      "zh": "<code>https://&lt;你的網域&gt;</code>",
+      "en": "<code>https://&lt;your-domain&gt;</code>"
+    },
+    {
+      "unit": "#force-ssl",
+      "zh": "<code>http://&lt;你的網域&gt;</code>",
+      "en": "<code>http://&lt;your-domain&gt;</code>"
+    }
+  ]
+}

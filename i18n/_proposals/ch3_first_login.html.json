@@ -1,0 +1,10 @@
+{
+  "file": "ch3_first_login.html",
+  "entries": [
+    {
+      "unit": "#first-login",
+      "zh": "<code>http://&lt;HA區網位址&gt;:81</code>",
+      "en": "<code>http://&lt;ha-lan-address&gt;:81</code>"
+    }
+  ]
+}

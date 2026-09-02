@@ -57,16 +57,16 @@
     </ol>
     <div class="toc-in-chapter">
       <h2>This chapter</h2>
-      <a href="#maintenance-boundary">維運邊界</a>
-      <a href="#backup-contents">備份包含什麼</a>
-      <a href="#create-backup">建立可用備份</a>
-      <a href="#restore-drill">還原演練</a>
-      <a href="#safe-update">安全更新</a>
-      <a href="#port-81-hardening">保護 port 81</a>
-      <a href="#accounts-secrets">帳號與機密</a>
-      <a href="#security-troubleshooting">備份安全排錯</a>
-      <a href="#backup-faq">常見問題</a>
-      <a href="#backup-sources">官方來源</a>
+      <a href="#maintenance-boundary">Operations boundary</a>
+      <a href="#backup-contents">What is backed up</a>
+      <a href="#create-backup">Make a backup</a>
+      <a href="#restore-drill">Restore drill</a>
+      <a href="#safe-update">Safe updates</a>
+      <a href="#port-81-hardening">Protect port 81</a>
+      <a href="#accounts-secrets">Accounts and secrets</a>
+      <a href="#security-troubleshooting">Backup problems</a>
+      <a href="#backup-faq">FAQ</a>
+      <a href="#backup-sources">Official sources</a>
     </div>
 
   </aside>
@@ -75,138 +75,138 @@
       <div class="callout i18n-pending"><strong>This chapter has not been translated yet.</strong> You are reading the original Chinese text. <a href="../ch11_backup_security.html" hreflang="zh-Hant">Open the Chinese version</a></div>
       <div class="chapter-header">
         <div class="kicker">Chapter 11</div>
-        <h1>備份、更新與安全加固</h1>
-        <p class="lead">把 NPM 當成網路入口維運：先確認備份真的含有資料庫、設定與憑證，再更新；同時把 port 81 留在可信任管理面，不讓備份與日誌變成另一個敏感資料外洩點。</p>
+        <h1>Backup, updates and hardening</h1>
+        <p class="lead">Run NPM the way you would run any network entry point: confirm the backup really holds the database, the config and the certificates before you update, and keep port 81 on a trusted admin surface, so backups and logs do not become another place sensitive data leaks from.</p>
       </div>
 
-      <section id="maintenance-boundary" data-nav="維運邊界">
-        <h2 data-icon="plan">先定義可復原的維運邊界</h2>
-        <p>Woow Nginx Proxy Manager 是 Home Assistant add-on，不是官方 NPM Docker Compose 的原樣部署。目前 add-on <code>config.yaml</code> 把 <code>addon_config</code> 以可寫方式映射給容器，並只發布 80、81、443。Woow 的 patch 則把上游常見的 <code>/data</code> 狀態路徑改為 <code>/config</code>。</p>
+      <section id="maintenance-boundary" data-nav="Operations boundary">
+        <h2 data-icon="plan">Define a recoverable operations boundary first</h2>
+        <p>Woow Nginx Proxy Manager is a Home Assistant add-on, not the official NPM Docker Compose deployment as it comes. The add-on <code>config.yaml</code> currently maps <code>addon_config</code> into the container as writable, and publishes only 80, 81 and 443. Woow's patch changes the <code>/data</code> state path that upstream normally uses to <code>/config</code>.</p>
         <table class="data-table">
-          <thead><tr><th scope="col">平面</th><th scope="col">內容</th><th scope="col">維運原則</th></tr></thead>
+          <thead><tr><th scope="col">Plane</th><th scope="col">What it holds</th><th scope="col">Operating rule</th></tr></thead>
           <tbody>
-            <tr><td>資料平面</td><td>SQLite、NPM 物件、產生的 Nginx 設定、憑證與金鑰</td><td>以 HA 備份保護，不手動拆散後假設可還原</td></tr>
-            <tr><td>管理平面</td><td>port 81、管理者與權限</td><td>限可信任網段，不公開到網際網路</td></tr>
-            <tr><td>流量平面</td><td>80／443 與明確核准的公開服務</td><td>只暴露必要入口，upstream 維持私有</td></tr>
-            <tr><td>稽核平面</td><td>HA add-on log、NPM audit 資訊</td><td>最少保留、遮罩後分享，限制可讀者</td></tr>
+            <tr><td>Data plane</td><td>SQLite, the NPM objects, the generated Nginx config, certificates and keys</td><td>Protect it with HA backups; do not take it apart by hand and then assume it can be restored</td></tr>
+            <tr><td>Management plane</td><td>Port 81, the administrators and their permissions</td><td>Restrict it to a trusted network segment; it must never be exposed to the public internet</td></tr>
+            <tr><td>Traffic plane</td><td>80/443 and the public services you have explicitly approved</td><td>Expose only the entry points you need; keep the upstream private</td></tr>
+            <tr><td>Audit plane</td><td>The HA add-on log and NPM audit information</td><td>Keep the minimum, redact it before you share it, and limit who can read it</td></tr>
           </tbody>
         </table>
-        <div class="callout danger"><strong>立即處理預設帳密：</strong>Woow README 與 CHANGELOG 都確認 add-on 帶有 <code>admin@example.com</code>／<code>changeme</code>。首次登入後必須立即更改 email 與強密碼；完成前不要建立任何公開入口，更不能公開 port 81。</div>
+        <div class="callout danger"><strong>Deal with the default credentials now:</strong> the Woow README and the CHANGELOG both confirm that the add-on ships with <code>admin@example.com</code>/<code>changeme</code>. You must change the email and set a strong password immediately after your first login. Until that is done, do not create any public entry point, and certainly do not expose port 81.</div>
       </section>
 
-      <section id="backup-contents" data-nav="備份包含什麼">
-        <h2 data-icon="records">HA 備份中的 NPM 內容</h2>
-        <p>Woow README 說明 Home Assistant 備份包含所有設定、SSL 憑證與資料庫，而 <code>config.yaml</code> 以 <code>backup_exclude: "*/logs"</code> 排除 log。依目前 add-on 文件，應保護的主要內容如下；實際封裝仍以你建立的備份類型與當下 add-on 版本為準。</p>
+      <section id="backup-contents" data-nav="What is backed up">
+        <h2 data-icon="records">What an HA backup holds for NPM</h2>
+        <p>The Woow README states that a Home Assistant backup includes all settings, SSL certificates and the database, while <code>config.yaml</code> excludes logs with <code>backup_exclude: "*/logs"</code>. Going by the current add-on documentation, the main things to protect are below; what actually ends up in the archive still depends on the backup type you create and on the add-on version at the time.</p>
         <table class="data-table">
-          <thead><tr><th scope="col">內容</th><th scope="col">目前 add-on 路徑</th><th scope="col">敏感性／用途</th></tr></thead>
+          <thead><tr><th scope="col">What it holds</th><th scope="col">Current add-on path</th><th scope="col">Sensitivity / purpose</th></tr></thead>
           <tbody>
-            <tr><td>SQLite 資料庫</td><td><code>/config/database.sqlite</code></td><td>Host、使用者與 NPM 設定的核心狀態，屬敏感資料</td></tr>
-            <tr><td>應用金鑰</td><td><code>/config/keys.json</code></td><td>加密相關金鑰，不得貼到工單或公開倉庫</td></tr>
-            <tr><td>Nginx 設定</td><td><code>/config/nginx/</code></td><td>可能揭露網域、私有 IP、port 與路由結構</td></tr>
-            <tr><td>Let's Encrypt 資料</td><td><code>/config/letsencrypt/</code></td><td>包含憑證相關檔案與私鑰，必須嚴格保護</td></tr>
-            <tr><td>自訂憑證</td><td><code>/config/custom_ssl/</code></td><td>可能包含私鑰，不可透過一般訊息傳送</td></tr>
-            <tr><td>Access Lists</td><td><code>/config/access/</code></td><td>包含存取控制資料，不能當作可公開設定</td></tr>
-            <tr><td>Logs</td><td><code>*/logs</code></td><td>由 add-on 備份規則排除；部分 Nginx log 已由 Woow patch 導向 add-on 輸出</td></tr>
+            <tr><td>SQLite database</td><td><code>/config/database.sqlite</code></td><td>The core state of your Hosts, users and NPM settings; treat it as sensitive data</td></tr>
+            <tr><td>Application keys</td><td><code>/config/keys.json</code></td><td>Encryption-related keys; never paste them into a ticket or a public repository</td></tr>
+            <tr><td>Nginx config</td><td><code>/config/nginx/</code></td><td>May reveal domains, private IPs, ports and your routing structure</td></tr>
+            <tr><td>Let's Encrypt data</td><td><code>/config/letsencrypt/</code></td><td>Holds certificate files and private keys; it must be protected strictly</td></tr>
+            <tr><td>Custom certificates</td><td><code>/config/custom_ssl/</code></td><td>May contain private keys; never send it through ordinary messaging</td></tr>
+            <tr><td>Access Lists</td><td><code>/config/access/</code></td><td>Holds access control data; do not treat it as publishable config</td></tr>
+            <tr><td>Logs</td><td><code>*/logs</code></td><td>Excluded by the add-on's backup rule; the Woow patch already sends some Nginx logs to the add-on output</td></tr>
           </tbody>
         </table>
-        <div class="callout warn">不要只複製 <code>database.sqlite</code> 就宣稱完成備份。資料庫、金鑰、憑證與產生設定彼此相關；使用 Home Assistant 支援的備份／還原流程，並確認備份已選入 Woow add-on。</div>
+        <div class="callout warn">Do not copy <code>database.sqlite</code> on its own and call the backup done. The database, the keys, the certificates and the generated config all depend on each other. Use the backup/restore flow Home Assistant supports, and confirm the Woow add-on is selected in the backup.</div>
       </section>
 
-      <section id="create-backup" data-nav="建立可用備份">
-        <h2 data-icon="steps">更新前建立可用備份</h2>
+      <section id="create-backup" data-nav="Make a backup">
+        <h2 data-icon="steps">Make a usable backup before updating</h2>
         <ol class="steps">
-          <li><h3>記錄目前狀態</h3><p>在私密維運紀錄寫下 HA 版本、Woow add-on 顯示版本、關鍵 Proxy Host 測試結果與備份時間。不要寫入密碼、DNS API token、憑證私鑰、完整網域或未遮罩 IP。</p></li>
-          <li><h3>到 HA 備份頁建立備份</h3><p>前往 Settings／System／Backups 建立手動備份，或確認「更新前備份」已啟用。若使用部分備份，明確選取 Woow Nginx Proxy Manager add-on。</p></li>
-          <li><h3>保存緊急套件</h3><p>Home Assistant 官方文件指出備份可加密，還原加密備份需要對應的 encryption key。把 Backup emergency kit 存在 HA 主機以外的安全位置，且註明適用的備份。</p></li>
-          <li><h3>保存異機副本</h3><p>不要只把備份留在同一台 HA 儲存裝置。官方建議至少保留一份在另一個系統，理想上再有一份異地副本；兩者都要有存取控制。</p></li>
-          <li><h3>確認完成而非只按下按鈕</h3><p>檢查備份工作成功、檔案存在且大小合理，並確認選取內容列出該 add-on。若環境允許，安排隔離的還原演練。</p></li>
+          <li><h3>Record the current state</h3><p>In a private operations record, write down the HA version, the version the Woow add-on shows, the test results for your key Proxy Hosts, and the time of the backup. Do not write down passwords, DNS API tokens, certificate private keys, full domains or unredacted IPs.</p></li>
+          <li><h3>Create the backup on the HA backups page</h3><p>Go to Settings / System / Backups and create a manual backup, or confirm that "backup before update" is enabled. If you use a partial backup, select the Woow Nginx Proxy Manager add-on explicitly.</p></li>
+          <li><h3>Keep the emergency kit</h3><p>The official Home Assistant documentation notes that a backup can be encrypted, and that restoring an encrypted backup needs the matching encryption key. Store the Backup emergency kit somewhere safe, away from the HA host, and note which backups it applies to.</p></li>
+          <li><h3>Keep a copy on another system</h3><p>Do not leave your only backup on the same HA storage device. The official advice is to keep at least one copy on another system, and ideally an off-site copy as well; both need access control.</p></li>
+          <li><h3>Confirm it finished, not only that you pressed the button</h3><p>Check that the backup job succeeded, that the file exists and its size is plausible, and that the add-on is listed in the selected contents. If your environment allows it, schedule an isolated restore drill.</p></li>
         </ol>
       </section>
 
-      <section id="restore-drill" data-nav="還原演練">
-        <h2 data-icon="restore">把「可下載」驗證成「可復原」</h2>
-        <p>未演練的備份只能證明曾經產生檔案，不能證明 NPM 能回到可用狀態。正式 HA 上直接還原會覆寫所選部分，請在維護時段或隔離測試設備進行，不要拿生產環境試錯。</p>
+      <section id="restore-drill" data-nav="Restore drill">
+        <h2 data-icon="restore">Turn "downloadable" into "restorable"</h2>
+        <p>A backup you have never rehearsed only proves that a file was produced once; it does not prove that NPM can come back to a working state. Restoring directly on your live HA overwrites whatever you selected, so do it in a maintenance window or on an isolated test device. Do not experiment on production.</p>
         <ol class="steps">
-          <li><h3>準備隔離環境</h3><p>避免還原後的 80／443 與現有 NPM 同時對外，也避免測試 DNS 指向正式服務。</p></li>
-          <li><h3>使用官方 HA 還原流程</h3><p>選取對應備份與 Woow add-on，依提示提供 encryption key。不要手動解包後覆寫不完整目錄。</p></li>
-          <li><h3>驗證核心物件</h3><p>確認管理者可登入、Proxy／Redirection Hosts、Certificates、Access Lists 與 Streams 數量合理；只用改寫過的盤點資料比對。</p></li>
-          <li><h3>做不對外的服務測試</h3><p>確認 add-on 能啟動、Nginx 設定可載入，以及測試 upstream 可代理。測試完成後關閉隔離實例，避免出現兩套入口。</p></li>
+          <li><h3>Prepare an isolated environment</h3><p>Avoid having the restored 80/443 face the outside at the same time as your existing NPM, and avoid pointing test DNS at the live service.</p></li>
+          <li><h3>Use the official HA restore flow</h3><p>Select the matching backup and the Woow add-on, and supply the encryption key when prompted. Do not unpack it by hand and overwrite an incomplete directory.</p></li>
+          <li><h3>Verify the core objects</h3><p>Confirm that an administrator can log in, and that the counts of Proxy / Redirection Hosts, Certificates, Access Lists and Streams look right; compare against rewritten inventory data only.</p></li>
+          <li><h3>Test the service without exposing it</h3><p>Confirm that the add-on starts, that the Nginx config loads, and that a test upstream can be proxied. Shut the isolated instance down once you are finished, so you do not end up with two entry points.</p></li>
         </ol>
       </section>
 
-      <section id="safe-update" data-nav="安全更新">
-        <h2 data-icon="now">依 add-on 發行節奏更新</h2>
-        <p>目前 Woow <code>config.yaml</code> 宣告版本 2.12.4-v2，<code>addon_info.yaml</code> 對應上游 NPM v2.12.4。上游 NPM 的最新 release 可能更高，但不代表可直接在 add-on 容器內套用 Docker 更新命令。</p>
+      <section id="safe-update" data-nav="Safe updates">
+        <h2 data-icon="now">Update on the add-on's release cadence</h2>
+        <p>The Woow <code>config.yaml</code> currently declares version 2.12.4-v2, and <code>addon_info.yaml</code> maps it to upstream NPM v2.12.4. The latest upstream NPM release may be higher, but that does not mean you can apply the Docker update commands directly inside the add-on container.</p>
         <ol class="steps">
-          <li><h3>讀 Woow CHANGELOG 與發行資訊</h3><p>確認是上游 NPM 版本升級，還是相同上游版本的 fork revision，並查看已知限制。</p></li>
-          <li><h3>完成備份與外部測試基線</h3><p>保留更新前的 HTTP／HTTPS、憑證與 WebSocket 測試結果，確保出錯時能判斷是更新造成。</p></li>
-          <li><h3>從 Home Assistant 更新 add-on</h3><p>使用 HA 提供的 add-on 更新流程，不在容器內執行官方 Docker 文件的 <code>docker compose pull</code> 或替換 image。</p></li>
-          <li><h3>查看啟動 log</h3><p>確認資料庫 migration、NPM 後端與 Nginx 都啟動。Woow CHANGELOG 已註明 UI／API 顯示 <code>0.0.0</code> 是既知的外觀問題，不應只靠該數字判斷更新成敗。</p></li>
-          <li><h3>依序驗證與準備回復</h3><p>先測管理面與內部 upstream，再測外部 80／443、SSL、重導向及 WebSocket。若出現重大回歸，使用已驗證的 HA 備份回復，不要隨意降級資料庫檔。</p></li>
+          <li><h3>Read the Woow CHANGELOG and release notes</h3><p>Work out whether this is an upstream NPM version upgrade or a fork revision of the same upstream version, and look at the known limitations.</p></li>
+          <li><h3>Take a backup and an external test baseline</h3><p>Keep your pre-update HTTP/HTTPS, certificate and WebSocket test results, so that if something breaks you can tell whether the update caused it.</p></li>
+          <li><h3>Update the add-on from Home Assistant</h3><p>Use the add-on update flow HA provides. Do not run <code>docker compose pull</code> from the official Docker documentation inside the container, and do not swap the image.</p></li>
+          <li><h3>Read the startup log</h3><p>Confirm that the database migration, the NPM backend and Nginx all started. The Woow CHANGELOG already notes that the <code>0.0.0</code> the UI/API shows is a known cosmetic problem, so do not judge the update by that number alone.</p></li>
+          <li><h3>Verify in order, and be ready to roll back</h3><p>Test the admin surface and the internal upstream first, then external 80/443, SSL, redirects and WebSocket. If you hit a serious regression, roll back with a verified HA backup; do not casually downgrade the database file.</p></li>
         </ol>
       </section>
 
-      <section id="port-81-hardening" data-nav="保護 port 81">
-        <h2 data-icon="security">port 81 只留在管理面</h2>
-        <p>Woow <code>config.yaml</code> 把 81/tcp 映射為 Admin Web Port，CHANGELOG 更明確指出 80／81／443 會發布在 LAN。這不等於 81 適合從網際網路存取。</p>
+      <section id="port-81-hardening" data-nav="Protect port 81">
+        <h2 data-icon="security">Keep port 81 on the admin surface only</h2>
+        <p>The Woow <code>config.yaml</code> maps 81/tcp as the Admin Web Port, and the CHANGELOG says explicitly that 80/81/443 are published on the LAN. That does not make 81 suitable for access from the internet.</p>
         <ul>
-          <li>路由器只依架構轉送必要的 80／443；任何 WAN → 81 規則都應移除。</li>
-          <li>Cloudflare Tunnel、Proxy Host 或其他公開入口不要指向 <code>http://&lt;HA-private-IP&gt;:81</code>。</li>
-          <li>在路由器、防火牆或 VLAN ACL 僅允許可信任管理裝置／管理網段連到 HA 的 81。</li>
-          <li>訪客、IoT 與一般用戶網段不應能連到 81；遠端管理優先使用受控 VPN，而不是公開管理頁。</li>
-          <li>更改外部映射埠只能降低掃描雜訊，不能取代防火牆、強密碼與最小權限。</li>
+          <li>On the router, forward only the 80/443 your architecture needs; any WAN → 81 rule should be removed.</li>
+          <li>Do not point a Cloudflare Tunnel, a Proxy Host or any other public entry point at <code>http://&lt;HA-private-IP&gt;:81</code>.</li>
+          <li>On the router, the firewall or a VLAN ACL, allow only trusted management devices / the management segment to reach 81 on HA.</li>
+          <li>Guest, IoT and general user segments should not be able to reach 81. For remote administration, prefer a controlled VPN over a public admin page.</li>
+          <li>Changing the external mapped port only cuts down scanning noise; it does not replace a firewall, a strong password and least privilege.</li>
         </ul>
-        <div class="callout danger">port 81 使用 HTTP 管理介面。即使帳密已更換，也不要讓它直接暴露在公網；網域、公開／私有 IP、密碼、DNS API token、憑證與管理 log 全都視為敏感。</div>
+        <div class="callout danger">Port 81 serves the admin interface over HTTP. Even once you have changed the credentials, do not let it be exposed directly to the public internet. Treat domains, public and private IPs, passwords, DNS API tokens, certificates and admin logs all as sensitive.</div>
       </section>
 
-      <section id="accounts-secrets" data-nav="帳號與機密">
-        <h2 data-icon="login">管理帳號、token 與憑證</h2>
+      <section id="accounts-secrets" data-nav="Accounts and secrets">
+        <h2 data-icon="login">Admin accounts, tokens and certificates</h2>
         <table class="data-table">
-          <thead><tr><th scope="col">項目</th><th scope="col">最低要求</th><th scope="col">不可做的事</th></tr></thead>
+          <thead><tr><th scope="col">Item</th><th scope="col">Minimum requirement</th><th scope="col">What you must not do</th></tr></thead>
           <tbody>
-            <tr><td>NPM 管理者</td><td>立即替換預設 email／密碼；每人使用自己的必要權限帳號</td><td>共用預設帳號或把密碼存進瀏覽器截圖</td></tr>
-            <tr><td>DNS API token</td><td>只授予所需 zone 與 DNS 編輯權限，定期輪替</td><td>使用全域 API key，或貼入公開問題單</td></tr>
-            <tr><td>憑證與私鑰</td><td>限制備份、檔案與管理介面的讀取者</td><td>以 email、聊天室或 Git 傳送私鑰</td></tr>
-            <tr><td>網域與 IP</td><td>維運文件限權存放，對外範例全面改寫</td><td>同時公開網域、公開 IP、私有 IP 與 port 對照</td></tr>
-            <tr><td>Logs</td><td>只擷取故障時間附近的必要行並先遮罩</td><td>上傳完整 add-on log、Authorization、Cookie 或 DNS credentials</td></tr>
+            <tr><td>NPM administrator</td><td>Replace the default email/password immediately; give each person their own account with only the permissions they need</td><td>Share the default account, or keep the password in a browser screenshot</td></tr>
+            <tr><td>DNS API token</td><td>Grant only the zones and the DNS edit permission you need, and rotate it regularly</td><td>Use a Global API Key, or paste it into a public issue</td></tr>
+            <tr><td>Certificates and private keys</td><td>Limit who can read the backups, the files and the admin interface</td><td>Send a private key by email, chat or Git</td></tr>
+            <tr><td>Domains and IPs</td><td>Keep operations documents access-restricted, and rewrite every example you publish</td><td>Publish the domain, the public IP, the private IP and the port mapping together</td></tr>
+            <tr><td>Logs</td><td>Take only the lines you need from around the time of the failure, and redact them first</td><td>Upload a full add-on log, Authorization, Cookie or DNS credentials</td></tr>
           </tbody>
         </table>
-        <p>刪除使用者、憑證或 Host 會立即影響服務。若你無法確認用途，先盤點擁有者、相依 Host 與最後使用時間；不要用「清理」名義一次刪除未知項目。</p>
+        <p>Deleting a user, a certificate or a Host affects the service immediately. If you cannot confirm what something is for, first take stock of its owner, the Hosts that depend on it and when it was last used. Do not delete unknown items in bulk in the name of "cleaning up".</p>
       </section>
 
-      <section id="security-troubleshooting" data-nav="備份安全排錯">
-        <h2 data-icon="troubleshoot">常見故障與安全處理</h2>
+      <section id="security-troubleshooting" data-nav="Backup problems">
+        <h2 data-icon="troubleshoot">Common failures and safe handling</h2>
         <table class="data-table">
-          <thead><tr><th scope="col">具體問題</th><th scope="col">確認方式</th><th scope="col">處理方式</th></tr></thead>
+          <thead><tr><th scope="col">Specific problem</th><th scope="col">How to confirm</th><th scope="col">What to do</th></tr></thead>
           <tbody>
-            <tr><td>備份完成但沒有 Woow add-on</td><td>查看備份的內容清單</td><td>重新建立部分備份並明確選取 add-on，或依需求建立完整備份</td></tr>
-            <tr><td>加密備份無法還原</td><td>確認 emergency kit 與備份建立時間是否相符</td><td>使用該備份對應的 key；不要輪替 key 後丟掉舊套件</td></tr>
-            <tr><td>更新後 Proxy Host 消失</td><td>先確認是否登入錯誤實例，再查看 add-on 啟動與資料庫訊息</td><td>停止變更，保留 log 摘要，依已驗證備份走 HA 還原流程</td></tr>
-            <tr><td>外網能開啟 port 81</td><td>從行動網路測試，並查路由器 NAT／Tunnel 規則</td><td>立即移除 WAN／Tunnel 到 81 的入口，限縮防火牆並輪替管理密碼</td></tr>
-            <tr><td>更新後 UI 顯示版本 0.0.0</td><td>比對 HA add-on 版本與 Woow CHANGELOG</td><td>若服務正常，視為文件所述外觀限制；不要因此覆寫容器 image</td></tr>
-            <tr><td>分享 log 後發現含敏感資料</td><td>檢查網域、IP、Authorization、token 與憑證內容</td><td>撤回公開內容，輪替已暴露的密碼／token／憑證，留下不含機密的事件紀錄</td></tr>
+            <tr><td>The backup finished but has no Woow add-on in it</td><td>Look at the backup's content list</td><td>Create the partial backup again and select the add-on explicitly, or create a full backup if that suits you better</td></tr>
+            <tr><td>An encrypted backup will not restore</td><td>Check whether the emergency kit matches the time the backup was created</td><td>Use the key that goes with that backup; never rotate the key and throw the old kit away</td></tr>
+            <tr><td>Proxy Hosts are gone after an update</td><td>First check you are not logged into the wrong instance, then read the add-on startup and database messages</td><td>Stop making changes, keep a summary of the log, and go through the HA restore flow with a verified backup</td></tr>
+            <tr><td>Port 81 opens from an external network</td><td>Test over mobile data, and check the router NAT and Tunnel rules</td><td>Remove the WAN/Tunnel entry point to 81 immediately, tighten the firewall and rotate the admin password</td></tr>
+            <tr><td>The UI shows version 0.0.0 after an update</td><td>Compare the HA add-on version with the Woow CHANGELOG</td><td>If the service works, treat it as the cosmetic limitation the documentation describes; do not overwrite the container image because of it</td></tr>
+            <tr><td>You shared a log and then found sensitive data in it</td><td>Check the domains, IPs, Authorization, tokens and certificate content</td><td>Withdraw what you published, rotate the exposed passwords/tokens/certificates, and keep an incident record that holds no secrets</td></tr>
           </tbody>
         </table>
       </section>
 
-      <section id="backup-faq" data-nav="常見問題">
-        <h2 data-icon="faq">常見問題</h2>
-        <details class="faq"><summary>只備份 database.sqlite 就夠了嗎？</summary><div class="body">不夠。Woow 文件列出的狀態還包含 keys、Nginx 設定、Let's Encrypt、自訂憑證與 Access Lists。應使用 HA 支援的 add-on 備份流程。</div></details>
-        <details class="faq"><summary>備份已加密，還需要限制存取嗎？</summary><div class="body">需要。備份與 emergency kit 應分開、限權且有異機副本；從 HA 頁面下載時，官方文件指出可能會即時解密，下載後的檔案同樣要保護。</div></details>
-        <details class="faq"><summary>可以直接跟著上游 NPM 執行 docker compose pull 嗎？</summary><div class="body">不可以套用在這個 HA add-on。Woow 有自己的映像、patch、版本與 HA 更新流程，應等待並安裝 Woow 發布的 add-on 更新。</div></details>
-        <details class="faq"><summary>把 port 81 改成別的號碼就安全了嗎？</summary><div class="body">不是。換埠只能減少一般掃描，管理介面仍須禁止公網存取，並搭配可信任管理網段、強密碼與最小權限。</div></details>
+      <section id="backup-faq" data-nav="FAQ">
+        <h2 data-icon="faq">FAQ</h2>
+        <details class="faq"><summary>Is backing up database.sqlite enough on its own?</summary><div class="body">No. The state the Woow documentation lists also includes keys, the Nginx config, Let's Encrypt, custom certificates and Access Lists. Use the add-on backup flow HA supports.</div></details>
+        <details class="faq"><summary>The backup is encrypted — do I still need to restrict access?</summary><div class="body">Yes. Keep the backup and the emergency kit apart, restrict access to both, and hold a copy on another system. The official documentation notes that a download from the HA page may be decrypted on the fly, so the downloaded file needs the same protection.</div></details>
+        <details class="faq"><summary>Can I follow upstream NPM and run docker compose pull directly?</summary><div class="body">Not on this HA add-on. Woow has its own image, patches, version and HA update flow, so wait for the add-on update Woow publishes and install that.</div></details>
+        <details class="faq"><summary>Does changing port 81 to a different number make it safe?</summary><div class="body">No. Changing the port only reduces routine scanning. The admin interface must still be closed to the public internet, backed by a trusted management segment, a strong password and least privilege.</div></details>
       </section>
 
-      <section id="backup-sources" data-nav="官方來源">
-        <h2 data-icon="book">官方來源與核對日期</h2>
-        <p>以下來源在 2026-08-17 核對。Woow add-on 與 Home Assistant 備份介面都可能更新；執行維護前再讀一次你所用版本的 release notes。</p>
+      <section id="backup-sources" data-nav="Official sources">
+        <h2 data-icon="book">Official sources and verification date</h2>
+        <p>The sources below were verified on 2026-08-17. Both the Woow add-on and the Home Assistant backup interface may change; read the release notes for the version you are using once more before you carry out maintenance.</p>
         <ul>
-          <li><a href="https://github.com/WOOWTECH/Woow_ha_nginxpm/blob/main/nginxpm/README.md">WOOWTECH：資料存儲、備份與還原說明</a></li>
-          <li><a href="https://github.com/WOOWTECH/Woow_ha_nginxpm/blob/main/nginxpm/config.yaml">WOOWTECH：config.yaml 的版本、ports、map 與 backup_exclude</a></li>
-          <li><a href="https://github.com/WOOWTECH/Woow_ha_nginxpm/blob/main/nginxpm/CHANGELOG.md">WOOWTECH：CHANGELOG 與已知限制</a></li>
-          <li><a href="https://www.home-assistant.io/common-tasks/general/#backups">Home Assistant：Backups 官方文件</a></li>
-          <li><a href="https://www.home-assistant.io/more-info/backup-emergency-kit/">Home Assistant：Backup emergency kit</a></li>
-          <li><a href="https://nginxproxymanager.com/upgrading/">Nginx Proxy Manager：上游 Docker 更新說明</a></li>
+          <li><a href="https://github.com/WOOWTECH/Woow_ha_nginxpm/blob/main/nginxpm/README.md">WOOWTECH: data storage, backup and restore notes</a></li>
+          <li><a href="https://github.com/WOOWTECH/Woow_ha_nginxpm/blob/main/nginxpm/config.yaml">WOOWTECH: version, ports, map and backup_exclude in config.yaml</a></li>
+          <li><a href="https://github.com/WOOWTECH/Woow_ha_nginxpm/blob/main/nginxpm/CHANGELOG.md">WOOWTECH: CHANGELOG and known limitations</a></li>
+          <li><a href="https://www.home-assistant.io/common-tasks/general/#backups">Home Assistant: the official Backups documentation</a></li>
+          <li><a href="https://www.home-assistant.io/more-info/backup-emergency-kit/">Home Assistant: Backup emergency kit</a></li>
+          <li><a href="https://nginxproxymanager.com/upgrading/">Nginx Proxy Manager: upstream Docker upgrade notes</a></li>
         </ul>
       </section>
 
