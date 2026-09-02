@@ -81,7 +81,7 @@
 
       <section id="request-path" data-nav="Request path">
         <h2 data-icon="concept">Understand the request path first</h2>
-        <p>The Proxy Host path is "client → the NPM entry point DNS points at → NPM matches the domain against its rules → the internal web service". NPM does not create DNS for you, and it does not open NAT on your router; every layer has to be set up correctly on its own.</p>
+        <p>The Proxy Host path is "client → the NPM entry point DNS points at → NPM matches the domain against its rules → the internal web service". NPM does not create DNS for you, and it does not automatically open NAT on your router; every layer has to be set up correctly on its own.</p>
         <pre class="code-block"><code>app.example.net → NPM 的 80/tcp → http://[內部服務位址]:[服務連接埠]</code></pre>
         <p><code>example.net</code> and everything in square brackets are placeholders. Real domains, public and private IPs, passwords, certificates and logs are all sensitive data; redact them in your notes and in anything you post when asking for help.</p>
       </section>
@@ -94,7 +94,7 @@
             <tr><td>Upstream service</td><td>It is reachable from the network NPM sits on, over the right protocol and port</td><td>Confirming only that it opens on your own computer, and ignoring the path from NPM to the upstream</td></tr>
             <tr><td>Fully qualified domain name</td><td>Use a name whose DNS you control, for example <code>app.example.net</code></td><td>Entering <code>http://</code>, a path or a port</td></tr>
             <tr><td>NPM entry point</td><td>For a LAN test, the name should resolve to an entry point that reaches NPM</td><td>Resolving to a different web server</td></tr>
-            <tr><td>Admin security</td><td>The default credentials have already been changed, and 81 is limited to a trusted management network</td><td>Port forwarding 81 to the public internet along with 80/443</td></tr>
+            <tr><td>Admin security</td><td>The default credentials were changed immediately, and 81 is limited to a trusted management network</td><td>Port forwarding 81 to the public internet along with 80/443</td></tr>
             <tr><td>Rollback plan</td><td>Write down the original values, and do not modify a working Host that already exists</td><td>Overwriting a production service rule outright</td></tr>
           </tbody>
         </table>
@@ -109,7 +109,7 @@
             <tr><td>Scheme</td><td>Pick <code>http</code> or <code>https</code> to match the actual upstream service</td><td>This is the protocol from NPM to the upstream, not a certificate option for visitors</td></tr>
             <tr><td>Forward Hostname / IP</td><td><code>[內部服務位址]</code></td><td>It must be a host NPM itself can resolve and reach; do not enter <code>127.0.0.1</code> for a remote upstream</td></tr>
             <tr><td>Forward Port</td><td><code>[服務連接埠]</code></td><td>Enter the port the upstream actually listens on, not a fixed 80</td></tr>
-            <tr><td>Access List</td><td>Decide by the risk of the service; Public means no Access List is applied</td><td>Public does not mean the service is inherently safe</td></tr>
+            <tr><td>Access List</td><td>To start with, decide by the risk of the service; Public means no Access List is applied</td><td>Public does not mean the service is inherently safe</td></tr>
           </tbody>
         </table>
       </section>
@@ -129,12 +129,12 @@
       <section id="switches" data-nav="Basic switches">
         <h2 data-icon="tips">Trade-offs on the basic switches</h2>
         <p><strong>Cache Assets</strong> can change how dynamic content refreshes, so keep it off for the first test. <strong>Block Common Exploits</strong> is an extra rule set NPM provides, but it does not replace upstream updates, authentication and minimal exposure. <strong>Websockets Support</strong> handles upgraded connections; an ordinary website does not need to turn it on in the hope of being "faster".</p>
-        <div class="callout warn"><strong>Do not paste Advanced config:</strong> the official interface reserves it for advanced Nginx configuration. Leave it empty until you have verified what the upstream needs and what each directive does.</div>
+        <div class="callout warn"><strong>Do not paste Advanced config:</strong> the official interface explicitly reserves it for advanced Nginx configuration. Leave it empty until you have verified what the upstream needs and what each directive does.</div>
       </section>
 
       <section id="dns-check" data-nav="DNS hits NPM">
         <h2 data-icon="records">Confirm DNS lands on NPM</h2>
-        <p>Once the Proxy Host is saved, the name still has to resolve to the right entry point. In the classic public-facing setup, public DNS points at the router's public IP and NAT sends 80/443 on to NPM; for a LAN-only test you can also use an internal DNS override that you control. Chapter 6 covers how to do it.</p>
+        <p>Once the Proxy Host is saved, the name still has to resolve to the right entry point. In the traditional public-facing setup, public DNS usually points at the router's public IP and NAT sends 80/443 on to NPM; for a LAN-only test you can also use an internal DNS override that you control. Chapter 6 covers how to do it.</p>
         <pre class="code-block"><code>dig +short A app.example.net
 nslookup app.example.net</code></pre>
         <p>The answer should match your design, rather than some fixed IP you expect blindly. A Cloudflare Proxied record answers with a Cloudflare IP and does not show the origin server IP; only DNS-only answers with the record's target directly.</p>
@@ -145,16 +145,16 @@ nslookup app.example.net</code></pre>
         <ol class="steps">
           <li><h3>Test the upstream first</h3><p>From a device that stands in for NPM's position on the network, open the upstream URL and confirm the protocol, host and port really respond. Do not paste a full URL containing a token into your test record.</p></li>
           <li><h3>Then check DNS</h3><p>Use <code>dig</code> or <code>nslookup</code> to confirm the test device gets the entry point you expect. If the answer is wrong, fix DNS first; do not keep changing the Proxy Host.</p></li>
-          <li><h3>Test the HTTP headers</h3><p>Run <code>curl -I http://app.example.net</code>. The status code varies with the upstream; what matters is that the request reached the service you expected, not that it returned one particular status code.</p></li>
-          <li><h3>Verify the features in a browser</h3><p>Open the test domain and check login, static assets and live-updating features. If the application asks for trusted proxies or an external URL, change those only as that application's official documentation says.</p></li>
+          <li><h3>Test the HTTP headers</h3><p>Run <code>curl -I http://app.example.net</code>. The status code may vary with the upstream; what matters is that the request reached the service you expected, rather than treating any particular status code as the sole measure of success.</p></li>
+          <li><h3>Verify the features in a browser</h3><p>Open the test domain and check login, static assets and live features. If the application asks for trusted proxies or an external URL, change those only as that application's official documentation says.</p></li>
         </ol>
       </section>
 
       <section id="security-review" data-nav="Pre-launch check">
         <h2 data-icon="security">Security check before going live</h2>
         <ul>
-          <li>NPM's default <code>admin@example.com</code> / <code>changeme</code> must already have been changed.</li>
-          <li>External NAT or the firewall must not open admin port 81; in the classic setup you send only the necessary 80/443 to NPM.</li>
+          <li>NPM's default <code>admin@example.com</code> / <code>changeme</code> must have been changed immediately.</li>
+          <li>External NAT or the firewall must not open admin port 81; in the traditional setup you send only the necessary 80/443 to NPM.</li>
           <li>Do not expose an admin backend that was only ever meant for the LAN; when it needs extra protection, plan an Access List, application authentication or a VPN first.</li>
           <li>Until SSL is in place, do not enter passwords or other sensitive data over the public internet. Use only test pages that hold no sensitive data for HTTP testing.</li>
           <li>Redact domains, public and private IPs, passwords, DNS tokens, certificates and full logs before you share them.</li>
@@ -179,9 +179,9 @@ nslookup app.example.net</code></pre>
       <section id="faq" data-nav="FAQ">
         <h2 data-icon="faq">FAQ</h2>
         <details class="faq"><summary>Does Domain Names take a full URL?</summary><div class="body">No. Enter the fully qualified domain name, for example <code>app.example.net</code>; do not add <code>http://</code>, a path or a port.</div></details>
-        <details class="faq"><summary>Can Forward Hostname / IP be localhost?</summary><div class="body">Only when the upstream really runs in the same environment as NPM. Inside the Woow add-on, <code>127.0.0.1</code> points at the add-on itself; it does not automatically stand for the Home Assistant host or any other device on the LAN.</div></details>
-        <details class="faq"><summary>Does the first Host have to have WebSocket turned on?</summary><div class="body">No. Turn it on only when an upstream feature needs WebSocket; it is not a general performance switch.</div></details>
-        <details class="faq"><summary>Why not request SSL first?</summary><div class="body">Verifying DNS, NPM and the upstream path layer by layer first keeps certificate challenge errors from getting mixed up with proxy errors. You must still finish HTTPS before you enter real sensitive data.</div></details>
+        <details class="faq"><summary>Can Forward Hostname / IP be localhost?</summary><div class="body">Only when the upstream really runs in the same runtime environment as NPM can that even be correct. Inside the Woow add-on, <code>127.0.0.1</code> points at the add-on itself; it does not automatically stand for the Home Assistant host or any other device on the LAN.</div></details>
+        <details class="faq"><summary>Does the first Host need WebSocket turned on?</summary><div class="body">No. Turn it on only when an upstream feature needs WebSocket; it is not a general performance switch.</div></details>
+        <details class="faq"><summary>Why leave SSL until later?</summary><div class="body">Verifying DNS, NPM and the upstream path layer by layer first helps keep certificate challenge errors from getting mixed up with proxy errors. You must still finish HTTPS before you enter real sensitive data.</div></details>
         <details class="faq"><summary>Does a Public Access List mean the service is safe to publish?</summary><div class="body">No. It only means no NPM Access List is applied; the application itself still needs updates, authentication and an appropriate security policy.</div></details>
       </section>
 

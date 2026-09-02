@@ -76,13 +76,13 @@
     <div class="chapter-header">
       <div class="kicker">Chapter 1</div>
       <h1>Getting to know Nginx Proxy Manager</h1>
-      <p class="lead">Build a mental model of the reverse proxy first, then choose the deployment and exposure option that fits you. This chapter is in no hurry to open a port; it maps out the traffic path and the security boundaries first.</p>
+      <p class="lead">Build a mental model of the reverse proxy first, then choose the deployment and exposure option that fits you. This chapter is in no hurry to open any port; it maps out the traffic path and the security boundaries first.</p>
     </div>
 
     <section id="why-npm" data-nav="Why NPM">
       <h2 data-icon="why">Why you need NPM</h2>
       <p>Your home may run Home Assistant, a NAS or other web services, each on its own LAN address and port. Nginx Proxy Manager (NPM) sits in front of them and forwards HTTP or HTTPS traffic to the right internal service, based on the domain name in the request.</p>
-      <p>It puts the usual Nginx reverse proxy and certificate work into a web admin interface. The upstream project lists domain forwarding, redirects, Streams, SSL certificates, Access Lists, user permissions and an audit log; DNS, the router and the security of the backend services are still yours to manage.</p>
+      <p>It puts the usual Nginx reverse proxy and certificate work into a web admin interface. The capabilities the upstream project lists include domain forwarding, redirects, Streams, SSL certificates, Access Lists, user permissions and an audit log; DNS, the router and the security of the backend services are still yours to manage.</p>
       <div class="callout"><strong>Remember:</strong> NPM is an entry point and a forwarding layer, not a switch that makes internal services secure by itself. Before you expose anything, update the backend, turn on its login protection, and enable only the features you need.</div>
     </section>
 
@@ -92,7 +92,7 @@
         <li><h3>Name resolution</h3><p>The browser queries DNS for the service domain first. With direct exposure the answer usually points at your home's public IP; with a Tunnel the traffic reaches the Tunnel provider first. The domain and the public IP are both sensitive; redact them before you share a screen.</p></li>
         <li><h3>Reaching the entry point</h3><p>With direct exposure the router usually forwards external TCP 80/443 to NPM; in a Tunnel setup the existing tunnel carries the request to the internal entry point. TCP 81, the admin interface, is not on this public service path.</p></li>
         <li><h3>Matching a Proxy Host</h3><p>NPM picks the rule by the HTTP Host name; for HTTPS, NPM can terminate TLS and then connect to the backend's private address and port as configured.</p></li>
-        <li><h3>The backend responds</h3><p>The backend's response returns to NPM, and NPM sends it back to the browser. NPM being able to reach the backend does not mean the backend should be exposed to the internet directly.</p></li>
+        <li><h3>The backend responds</h3><p>The backend's response returns to NPM, and NPM sends it back to the browser. NPM being able to reach the backend does not mean the backend should be exposed to the public internet directly.</p></li>
       </ol>
     </section>
 
@@ -108,7 +108,7 @@
           <tr><td>Admin interface</td><td>Serves the Web UI on TCP 81</td><td>Allow access only from a trusted LAN or a controlled management channel</td></tr>
         </tbody>
       </table>
-      <div class="callout warn"><strong>NPM is not a DNS server, a domain registrar, a VPN or a full WAF.</strong> Having HTTPS on is not a reason to skip the backend login, its updates or least privilege.</div>
+      <div class="callout warn"><strong>NPM is not a DNS server, a domain registrar, a VPN or a full WAF.</strong> Do not skip the backend login, its updates or least privilege just because HTTPS is already on.</div>
     </section>
 
     <section id="deployment-options" data-nav="Deployment options">
@@ -117,7 +117,7 @@
         <thead><tr><th>Method</th><th>Best for</th><th>Main trade-off</th></tr></thead>
         <tbody>
           <tr><td>Woow HAOS add-on</td><td>You run Home Assistant OS or Supervised on an amd64/aarch64 host</td><td>Supervisor manages the lifecycle; 80, 81 and 443 must not clash with another service on the same host</td></tr>
-          <tr><td>Official Docker deployment</td><td>You have a separate Docker host and want to manage it from the official Compose docs</td><td>The host, storage, updates and backups are all yours to manage; the rest of this guide works from the add-on</td></tr>
+          <tr><td>Official Docker deployment</td><td>You have a separate Docker host and want to manage it from the official Compose docs</td><td>The host, storage, updates and backups are all yours to manage; the rest of this guide is based mainly on the add-on</td></tr>
           <tr><td>Expose 80/443 directly</td><td>You control the router, the firewall and public DNS</td><td>A larger public surface; the official guide's home-network flow forwards 80/443 to NPM</td></tr>
           <tr><td>Cloudflare Tunnel with NPM</td><td>You do not want to, or cannot, forward ports on the router</td><td>No router forwarding needed, but it adds a third-party dependency; you still have to restrict the NPM admin interface</td></tr>
         </tbody>
@@ -131,7 +131,7 @@
         <li><h3>List the entry point</h3><p>Decide between direct exposure and a Tunnel. Do not change the router yet; record the data flow on paper only.</p></li>
         <li><h3>List the NPM host</h3><p>Confirm the Home Assistant installation type and the CPU architecture, and confirm that the host is expected to use TCP 80, 81 and 443.</p></li>
         <li><h3>List one test backend</h3><p>Pick a service that already has login protection and is reachable from NPM's network segment. The private IPs and service ports in your notes count as sensitive data too.</p></li>
-        <li><h3>Draw the admin boundary</h3><p>State plainly that TCP 81 is for a trusted LAN or a controlled management channel only, that it never gets a WAN port forward, and that no public DNS record points at it.</p></li>
+        <li><h3>Draw the admin boundary</h3><p>Mark clearly that TCP 81 is for a trusted LAN or a controlled management channel only, that it never gets a WAN port forward, and that no public DNS record points at it.</p></li>
       </ol>
     </section>
 
@@ -139,7 +139,7 @@
       <h2 data-icon="security">Security baseline</h2>
       <ul>
         <li>Your first login uses <code>admin@example.com</code> / <code>changeme</code>; these are published defaults, so you must change the email and the password immediately after you log in.</li>
-        <li>TCP 81 is the admin surface and must never be exposed to the public internet. Do not create a WAN forward for 81 on the router, and do not publish it as an ordinary Proxy Host.</li>
+        <li>TCP 81 is the admin surface and must never be exposed to the public internet. Do not create a WAN port forward for 81 on the router, and do not publish it as an ordinary Proxy Host.</li>
         <li>Treat domains, public and private IPs, passwords, DNS API tokens, certificate private keys and full logs as sensitive data; rewrite or redact them in every example, screenshot and help request.</li>
         <li>Expose 80/443 only when you are certain you need to. With a Tunnel, narrow the firewall entry points to match that design instead of also keeping a direct exposure you do not need.</li>
       </ul>
@@ -162,19 +162,19 @@
 
     <section id="troubleshooting" data-nav="Concept problems">
       <h2 data-icon="troubleshoot">Concept troubleshooting</h2>
-      <h3>Problem 1: assuming that creating a Proxy Host creates DNS</h3><p>NPM does not register a domain for you or set up public DNS on its own. Confirm the DNS and the entry-point plan first, then create the matching host.</p>
-      <h3>Problem 2: treating TCP 81 as a public site entry point</h3><p>81 is the admin interface. Remove any WAN forward or public proxy rule for it, and manage it only from a trusted LAN or a controlled channel.</p>
+      <h3>Problem 1: assuming that creating a Proxy Host automatically creates DNS</h3><p>NPM does not register a domain for you or set up public DNS on its own. Confirm the DNS and the entry-point plan first, then create the matching host.</p>
+      <h3>Problem 2: treating TCP 81 as a public site entry point</h3><p>81 is the admin interface. Remove any WAN port forwarding or public proxy rule for it, and manage it only from a trusted LAN or a controlled channel.</p>
       <h3>Problem 3: 80 or 443 is already in use by another add-on</h3><p>Two services cannot listen on the same port for the same host address and protocol. Take stock of the conflict first; do not disable an existing service before you understand the impact.</p>
       <h3>Problem 4: believing HTTPS means the backend is already secure</h3><p>HTTPS protects the transport; it does not fix a weak password, outdated software or wrong permissions. Go back to the backend and work through the login, the updates and least privilege one by one.</p>
-      <h3>Problem 5: running a Tunnel and an unnecessary WAN forward at the same time</h3><p>That leaves a second entry point. Check the firewall and the router item by item against the design you chose, and keep no public path you do not use.</p>
+      <h3>Problem 5: running a Tunnel and an unnecessary WAN port forward at the same time</h3><p>That leaves a second entry point. Check the firewall and the router item by item against the design you chose, and keep no public path you do not use.</p>
     </section>
 
     <section id="faq" data-nav="FAQ">
       <h2 data-icon="faq">FAQ</h2>
       <details class="faq"><summary>Will NPM replace Home Assistant?</summary><div class="body">No. NPM is the reverse proxy entry point; Home Assistant is still a separate backend service.</div></details>
-      <details class="faq"><summary>Can I install it before I have a domain?</summary><div class="body">You can install it and harden the account on a trusted LAN first, but proxying a real domain and issuing a public certificate still need the matching name resolution and challenge conditions.</div></details>
-      <details class="faq"><summary>If I use a Tunnel, do I still need NPM?</summary><div class="body">It depends on your routing needs. The Woow documentation shows a Tunnel that delivers traffic to NPM, with NPM doing the internal routing; if you have no multi-host routing to do, weigh up whether the extra layer is worth it first.</div></details>
-      <details class="faq"><summary>Can I put the admin interface on a public domain?</summary><div class="body">This guide does not recommend it and does not show how. TCP 81 belongs on a trusted LAN or a controlled management channel, and must never be exposed directly.</div></details>
+      <details class="faq"><summary>Can I install it before I have a domain?</summary><div class="body">You can install it and harden the account on a trusted LAN first, but proxying a domain for real use and issuing a public certificate still need the matching name resolution and challenge conditions.</div></details>
+      <details class="faq"><summary>If I use a Tunnel, do I still need NPM?</summary><div class="body">It depends on your routing needs. The Woow documentation shows a Tunnel that delivers traffic to NPM, with NPM doing the internal routing; if you have no multi-host routing to do, assess first whether you need the extra layer.</div></details>
+      <details class="faq"><summary>Can I put the admin interface on a public domain?</summary><div class="body">We do not recommend it, and this guide does not show how. TCP 81 belongs on a trusted LAN or a controlled management channel, and must never be exposed directly.</div></details>
     </section>
 
     <section id="official-sources" data-nav="Official sources">

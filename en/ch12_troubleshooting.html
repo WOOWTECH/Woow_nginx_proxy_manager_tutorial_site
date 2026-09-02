@@ -89,13 +89,13 @@
           <tbody>
             <tr><td>1. Client</td><td>Whether the problem only happens in one browser or on one network</td><td>A private window, another device, mobile data</td></tr>
             <tr><td>2. DNS</td><td>Whether the name resolves to the public entry point you expect</td><td>The A/AAAA/CNAME answer and the resolver</td></tr>
-            <tr><td>3. External entry point</td><td>Whether 80/443, NAT or the Tunnel can reach NPM</td><td>A timeout, a refusal, a Cloudflare error page</td></tr>
+            <tr><td>3. External entry point</td><td>Whether 80/443, NAT or the Tunnel can reach NPM</td><td>A timeout, a refused connection, a Cloudflare error page</td></tr>
             <tr><td>4. NPM</td><td>Whether the right Host is enabled and can load its config</td><td>Host status, the add-on log, the HTTP status code</td></tr>
             <tr><td>5. Upstream</td><td>Whether NPM can reach the service with the right scheme/IP/port</td><td>The result of a direct connection, connection refused/timeout</td></tr>
             <tr><td>6. Application and TLS</td><td>Whether the application path, WebSocket and the certificate chain are correct</td><td>A 404, a 101 handshake, the browser's certificate details</td></tr>
           </tbody>
         </table>
-        <div class="callout danger"><strong>Port 81 stays private even while troubleshooting:</strong> the admin interface stays on a trusted network segment. If you have not yet changed <code>admin@example.com</code>/<code>changeme</code>, finish updating the account and the password first; do not forward 81 to the public internet on the grounds that it is "only a temporary test".</div>
+        <div class="callout danger"><strong>Port 81 stays private even while troubleshooting:</strong> the admin interface stays on a trusted network segment. If you have not yet changed <code>admin@example.com</code> / <code>changeme</code>, update the account and the password immediately before you do anything else; never forward 81 to the public internet on the grounds that it is a "temporary test".</div>
       </section>
 
       <section id="safe-evidence" data-nav="Safe evidence">
@@ -130,11 +130,11 @@
 
       <section id="ports-nat" data-nav="Ports and NAT">
         <h2 data-icon="network">80/443: prove the entry point is reachable from outside</h2>
-        <p>The Woow add-on declares 80/tcp as HTTP, 443/tcp as HTTPS and 81/tcp as Admin. A traditional setup usually forwards only 80/443 to HA; a Cloudflare Tunnel setup does not need the router to forward those ports at all. Confirm which one you actually run first.</p>
+        <p>The Woow add-on declares 80/tcp as HTTP, 443/tcp as HTTPS and 81/tcp as Admin. A traditional setup usually forwards only 80/443 to HA; a Cloudflare Tunnel setup does not need the router to forward those ports at all. Start by confirming which one you actually run.</p>
         <ol class="steps">
           <li><h3>Use a genuinely external network</h3><p>Turn off Wi-Fi on your phone and test over mobile data, so NAT loopback does not make an internal result look like external reachability. Record whether you got a timeout, connection refused, a TLS error or an HTTP response.</p></li>
           <li><h3>Traditional NAT: check 80/443</h3><p>Confirm that the router rule targets the right HA private IP, that the protocol is TCP, and that the HA address has not changed because of DHCP. Do not create a WAN → 81 rule.</p></li>
-          <li><h3>Rule out a port clash or an upstream block</h3><p>If the add-on will not start, check whether another service already holds 80/81/443. If everything from outside times out, also check whether your ISP uses CGNAT or blocks inbound ports.</p></li>
+          <li><h3>Rule out a port clash or a block further upstream</h3><p>If the add-on will not start, check whether another service already holds 80/81/443. If everything from outside times out, also check whether your ISP uses CGNAT or blocks inbound ports.</p></li>
           <li><h3>Tunnel: do not chase NAT at the same time</h3><p>Confirm that the cloudflared connector is online and that the public hostname points at an internal service NPM can reach. When a Tunnel fails, opening more router ports is usually not the fix.</p></li>
         </ol>
         <div class="callout tip">Requesting a certificate with HTTP-01 needs the challenge endpoint to be reachable on public port 80; DNS-01 does not require 80 to be open. Do not assume that because you use DNS-01, 443 or the upstream must be fine — those are different layers.</div>
@@ -154,7 +154,7 @@
           <tbody>
             <tr><td>connection refused</td><td>Whether the upstream service is running and the port is right</td><td>Do not rebuild the DNS record</td></tr>
             <tr><td>timeout</td><td>Whether routing, the firewall or the private IP changed</td><td>Do not stretch the timeout indefinitely to cover up something unreachable</td></tr>
-            <tr><td>wrong version number/a handshake error</td><td>Whether Forward Scheme matches the upstream's TLS</td><td>Do not start by replacing the public-facing certificate</td></tr>
+            <tr><td>wrong version number/handshake error</td><td>Whether Forward Scheme matches the upstream's TLS</td><td>Do not start by replacing the public-facing certificate</td></tr>
             <tr><td>Only one path returns 502/404</td><td>The Custom Location and the application's base path</td><td>Do not delete the whole Proxy Host</td></tr>
           </tbody>
         </table>
@@ -167,7 +167,7 @@
           <li><h3>Check the certificate the browser actually receives</h3><p>Check that the Subject Alternative Name, the validity dates and the issuing chain match the domain you are on. Record only the fields you need; do not export or share the private key.</p></li>
           <li><h3>Confirm the Proxy Host picked the right certificate</h3><p>One wildcard or multi-domain certificate does not mean it was applied to the Host automatically. Check the selection on the SSL tab, Force SSL, and the Host status.</p></li>
           <li><h3>If issuance fails, check the challenge path</h3><p>For HTTP-01, check DNS and port 80 from outside; for DNS-01, check the DNS provider, the zone permissions and the least-privilege token. Never paste a token into a log or a support ticket.</p></li>
-          <li><h3>Rule out clock and renewal problems</h3><p>Confirm that the clock on the HA host is correct, and read the add-on log from around the renewal time. Do not repeat a failed request over and over, or you will run into the CA rate limit.</p></li>
+          <li><h3>Rule out clock and renewal problems</h3><p>Confirm that the clock on the HA host is correct, and read the add-on log from around the renewal time. Do not repeat a failed request over and over, or you may run into the CA rate limit.</p></li>
         </ol>
         <div class="callout warn">Do not turn off client certificate validation just to make the warning go away, and do not confuse a self-signed certificate problem on the origin with the public-facing Let's Encrypt certificate. Confirm each TLS hop on its own.</div>
       </section>
@@ -176,10 +176,10 @@
         <h2 data-icon="remote">Cloudflare: work out which side the error is on</h2>
         <p>Cloudflare's own documentation states that a 502/504 means Cloudflare could not reach the origin web server, and that the cause can be on the origin or on Cloudflare. Seeing a Cloudflare page does not prove NPM never received the request; cross-check the time, the Ray ID and the origin or Tunnel log.</p>
         <ol class="steps">
-          <li><h3>Tell a Proxy apart from a Tunnel</h3><p>An orange-cloud DNS Proxy still generally needs Cloudflare to reach a public origin; with a Tunnel, cloudflared opens the connection itself. Do not try to fix a Tunnel by adding NAT rules.</p></li>
+          <li><h3>Tell a Proxy apart from a Tunnel</h3><p>A Proxied DNS record (the orange cloud) still generally needs Cloudflare to reach a public origin server; with a Tunnel, cloudflared opens the connection itself. Do not try to fix a Tunnel by adding NAT rules.</p></li>
           <li><h3>Record the error code and the Ray ID</h3><p>Keep the time it happened, the Cloudflare error code and the Ray ID; still redact domains and IPs before you send anything. Then read the NPM and cloudflared logs from the same period.</p></li>
           <li><h3>Verify the Tunnel service from the LAN</h3><p>Confirm that the service scheme, private IP/hostname and port configured in cloudflared are reachable from the network the connector runs on. If it points at the wrong HTTPS or at 81, fix the service first.</p></li>
-          <li><h3>Do not flip to DNS only blindly</h3><p>Switching changes the public path, can expose the origin IP and affects every user. Run that comparison only during an approved maintenance window, when you understand the impact and can undo it.</p></li>
+          <li><h3>Do not flip to DNS-only blindly</h3><p>Switching changes the public path, can expose the origin IP and affects every user. Run that comparison only during an approved maintenance window, when you understand the impact and can undo it.</p></li>
         </ol>
       </section>
 
@@ -196,7 +196,7 @@
 
       <section id="logs" data-nav="Reading logs">
         <h2 data-icon="history">Logs: read only the lines for one request</h2>
-        <p>A Woow add-on patch redirects several Nginx access and error logs from files to <code>/proc/1/fd/1</code>, which makes the Home Assistant add-on log your main way in; at the same time <code>config.yaml</code> keeps <code>*/logs</code> out of backups. Do not assume the <code>/data/logs</code> of a generic Docker tutorial applies here.</p>
+        <p>The Woow add-on's patch redirects several Nginx access and error logs from files to <code>/proc/1/fd/1</code>, which makes the Home Assistant add-on log an important way in; at the same time <code>config.yaml</code> keeps <code>*/logs</code> out of backups. Do not assume the <code>/data/logs</code> of a generic Docker tutorial applies here.</p>
         <ol class="steps">
           <li><h3>Reproduce one request first</h3><p>Note the exact time and the Host you expect, so you are not searching through a mass of background traffic.</p></li>
           <li><h3>Read the HA add-on log</h3><p>Find the Nginx, NPM backend, certificate or reload messages from around that time. Decide first whether it is a startup, a config syntax, an upstream or a challenge problem.</p></li>
@@ -227,7 +227,7 @@
         <h2 data-icon="faq">FAQ</h2>
         <details class="faq"><summary>If I see a 502, should I request the SSL certificate again first?</summary><div class="body">Usually not. Check the scheme, IP/hostname, port and reachability from NPM to the upstream first. The public-facing certificate and an upstream 502 are different layers.</div></details>
         <details class="faq"><summary>Does testing over the LAN Wi-Fi prove that port forwarding works?</summary><div class="body">No. The router may support NAT loopback, which lets an internal test loop back and succeed. Test over a genuinely external connection such as mobile data.</div></details>
-        <details class="faq"><summary>When Cloudflare returns an error, can I switch to DNS only first?</summary><div class="body">Do not flip it blindly. It changes the path for every user and can expose the origin IP. Locate the problem with the Ray ID, the time and the NPM or Tunnel log first, and run a reversible test only once it has been approved.</div></details>
+        <details class="faq"><summary>When Cloudflare returns an error, can I switch to DNS-only first?</summary><div class="body">Do not flip it blindly. It changes the path for every user and can expose the origin IP. Locate the problem with the Ray ID, the time and the NPM or Tunnel log first, and run a reversible test only once it has been approved.</div></details>
         <details class="faq"><summary>Can I paste the full add-on log into a GitHub Issue?</summary><div class="body">Not as it is. Cut it down to the smallest time window first, and redact domains, public and private IPs, full URLs, Cookie, Authorization, passwords, DNS tokens and certificate data.</div></details>
       </section>
 

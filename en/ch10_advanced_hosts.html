@@ -86,19 +86,19 @@
           <thead><tr><th scope="col">What you want</th><th scope="col">Object to use</th><th scope="col">Key test</th></tr></thead>
           <tbody>
             <tr><td>Proxy a website or an API by domain</td><td>Proxy Host</td><td>Understands HTTP/HTTPS; you can apply a certificate, an Access List and path rules</td></tr>
-            <tr><td>Send an old address to a new one</td><td>Redirection Host</td><td>Returns 301 or 302, and the browser goes to the target address</td></tr>
+            <tr><td>Redirect an old address to a new one</td><td>Redirection Host</td><td>Returns 301 or 302, and the browser goes to the target address</td></tr>
             <tr><td>Send different paths to different HTTP services</td><td>Custom Locations on a Proxy Host</td><td>For example, <code>/api</code> and <code>/</code> on the same domain go to different upstreams</td></tr>
             <tr><td>Forward TCP/UDP without understanding the content</td><td>Stream</td><td>Forwards by incoming port to a set host and port; it does not route by domain or URL path</td></tr>
           </tbody>
         </table>
-        <div class="callout warn"><strong>Do not expose the admin interface:</strong> port 81 is the NPM Admin Web Port, not an ordinary service entry point. It should only be reachable from a trusted management network segment, and must never be published on your router or through Cloudflare. If you are still on the default <code>admin@example.com</code>/<code>changeme</code>, change the email and the password immediately before you do anything in this chapter.</div>
+        <div class="callout warn"><strong>Do not expose the admin interface:</strong> port 81 is the NPM Admin Web Port, not an ordinary service entry point. It should only be reachable from a trusted management network segment, and must never be exposed on your router or through Cloudflare. If you are still on the default <code>admin@example.com</code> / <code>changeme</code>, change the email and the password immediately before you do anything in this chapter.</div>
       </section>
 
       <section id="redirect-concepts" data-nav="301 and 302">
         <h2 data-icon="url">Understanding 301, 302 and path preservation</h2>
-        <p>A Redirection Host makes the client receive a redirect response, rather than having NPM fetch the target content in the background. The Woow add-on documentation lists support for 301 and 302; the NPM 2.12.4 interface the add-on currently uses also offers fields such as Forward Scheme, Forward Domain, HTTP Code and Preserve Path.</p>
+        <p>A Redirection Host makes the client receive a redirect response, rather than having NPM fetch the target content in the background. The Woow add-on documentation explicitly lists support for 301 and 302; the NPM 2.12.4 interface the add-on currently uses also offers fields such as Forward Scheme, Forward Domain, HTTP Code and Preserve Path.</p>
         <ul>
-          <li><strong>301 permanent redirect:</strong> for a domain move you are sure you will not undo. Browsers, search engines and intermediate caches may remember the result, so a mistake made while testing is hard to take back straight away.</li>
+          <li><strong>301 permanent redirect:</strong> for a domain move you are sure you will not undo. Browsers, search engines and intermediate caches may remember the result, so a mistake made while testing is hard to take back right away.</li>
           <li><strong>302 temporary redirect:</strong> for maintenance, a campaign page, or validating a rule first. Once you have confirmed it is correct, decide whether to switch it to 301.</li>
           <li><strong>Preserve Path:</strong> when it is on, the path after the old address is carried over to the new domain; before you turn it off, confirm whether you really only want to land on the home page.</li>
         </ul>
@@ -124,10 +124,10 @@
             <tr><td>Protocol</td><td>TCP and UDP are not interchangeable</td><td>Enable only the protocol the service actually needs</td></tr>
             <tr><td>Incoming Port</td><td>A Stream accepts by port only; it does not route by domain</td><td>Avoid clashing with 80, 81, 443 or another service</td></tr>
             <tr><td>Forwarding Host / Port</td><td>NPM must be able to reach the upstream from the add-on network</td><td>Use a fixed private address and restrict the upstream firewall</td></tr>
-            <tr><td>Exposure to the outside</td><td>A non-HTTP service usually has no NPM Access List protecting it</td><td>Use a VPN first; if it really must be public, narrow it down with source IP rules and the service's own authentication</td></tr>
+            <tr><td>Public exposure</td><td>A non-HTTP service usually has no NPM Access List protecting it</td><td>Use a VPN first; if it really must be public, narrow it down with source IP rules and the service's own authentication</td></tr>
           </tbody>
         </table>
-        <div class="callout danger"><strong>What the Woow add-on actually allows:</strong> right now <code>config.yaml</code> declares only 80/tcp, 81/tcp and 443/tcp, with no option for an arbitrary Stream port. Creating a Stream in the NPM UI does not mean the HA host has published that incoming port. Do not use 81 as a substitute, and never forward the admin port to the public internet to make a Stream work; check the settings of a newer add-on release first, or move to a managed deployment that can map the ports you need explicitly.</div>
+        <div class="callout danger"><strong>What the Woow add-on actually allows:</strong> right now <code>config.yaml</code> declares only 80/tcp, 81/tcp and 443/tcp, with no option for an arbitrary Stream port. Creating a Stream in the NPM UI does not mean the HA host has published that incoming port. Do not take over port 81, and never forward the admin port to the public internet to make a Stream work; check the settings of a newer add-on release first, or move to a managed deployment that can map the ports you need explicitly.</div>
       </section>
 
       <section id="websocket" data-nav="WebSocket settings">
@@ -155,10 +155,10 @@
 
       <section id="advanced-config" data-nav="Advanced config">
         <h2 data-icon="advanced">Hold the line before you customize Nginx</h2>
-        <p>NPM does provide an advanced Nginx config, but that does not mean every snippet on the internet is fit to paste in. The Woow add-on also moves the upstream data path from <code>/data</code> to <code>/config</code> and sends several Nginx logs to the add-on output, so take particular care when you follow a generic Docker tutorial.</p>
+        <p>NPM does officially provide an advanced Nginx config, but that does not mean every snippet on the internet is fit to paste in. The Woow add-on also moves the upstream project's data path from <code>/data</code> to <code>/config</code> and sends several Nginx logs to the add-on output, so take particular care when you follow a generic Docker tutorial.</p>
         <ul>
           <li>Use the built-in UI options first: WebSocket, SSL, Access List, Custom Locations.</li>
-          <li>Add one directive at a time, one you can explain; back up before you save, and test your existing paths straight after.</li>
+          <li>Add one directive at a time, one you can explain; back up before you save, and test your existing paths immediately after.</li>
           <li>Do not hand-edit the auto-generated files in <code>/config/nginx/proxy_host/</code>; the UI may overwrite them when it rebuilds the config.</li>
           <li>Do not put passwords, DNS API tokens, private keys, a full list of internal and external addresses, or unredacted logs into the Advanced field.</li>
           <li>If a setting makes an Nginx reload fail, remove the last thing you customized first; do not delete the database or the certificate directory.</li>
@@ -172,7 +172,7 @@
           <tbody>
             <tr><td>A redirect keeps looping</td><td>The source and target scheme / domain, and Force SSL</td><td>Use 302 for now and confirm the target does not redirect back to the source; disable one rule at a time as you test</td></tr>
             <tr><td>You changed the 301 but it still goes to the old address</td><td>Browser and CDN caches</td><td>Check with a private window, a different client, or an HTTP request that does not follow redirects; do not keep changing DNS</td></tr>
-            <tr><td>The Stream exists but nothing outside can reach it</td><td>Whether the HA add-on really publishes that incoming port</td><td>Cross-check <code>config.yaml</code> and HA Network; the current Woow release has only 80, 81 and 443, and 81 is not a substitute</td></tr>
+            <tr><td>The Stream exists but nothing outside can reach it</td><td>Whether the HA add-on really publishes that incoming port</td><td>Cross-check <code>config.yaml</code> and HA Network; the current Woow release has only 80, 81 and 443, and do not use 81 as a substitute</td></tr>
             <tr><td>The WebSocket connects and drops immediately</td><td>A direct connection to the upstream, the WS path and Websockets Support</td><td>Test the upstream directly first, then turn the option on; look at the Cloudflare layer only if it fails behind Cloudflare alone</td></tr>
             <tr><td>A Custom Location returns 404</td><td>The application's base path and the actual request path</td><td>Confirm whether the application supports a subpath, and check the URLs for static assets and the login callback</td></tr>
             <tr><td>The Host goes Offline after you save the Advanced config</td><td>An Nginx syntax or reload error in the add-on log</td><td>Roll back the directive you added last; do not delete the database, the certificates or the whole host</td></tr>
@@ -182,15 +182,15 @@
 
       <section id="advanced-faq" data-nav="FAQ">
         <h2 data-icon="faq">FAQ</h2>
-        <details class="faq"><summary>Can a Redirection Host act as a reverse proxy?</summary><div class="body">They are not the same thing. A redirect tells the browser to go to another URL; with a reverse proxy, NPM connects to the upstream on the client's behalf and the browser can stay on the original domain.</div></details>
+        <details class="faq"><summary>Can a Redirection Host act as a reverse proxy?</summary><div class="body">No — you cannot treat them as the same thing. A redirect tells the browser to go to another URL; with a reverse proxy, NPM connects to the upstream on the client's behalf and the browser can stay on the original domain.</div></details>
         <details class="faq"><summary>Can one Stream send different domains to different servers?</summary><div class="body">A normal Stream forwards TCP/UDP by incoming port; it does not route on the HTTP Host or the URL path. If what you want is routing by website domain, use a Proxy Host.</div></details>
         <details class="faq"><summary>Does turning on Websockets Support fix every real-time connection automatically?</summary><div class="body">No. It adds the upgrade settings the NPM proxy needs, but the upstream path, the application's own settings, timeouts and other layers in between can still drop the connection.</div></details>
-        <details class="faq"><summary>Can I copy an Advanced config from the community as-is?</summary><div class="body">Not advisable. Understand every directive first, confirm it applies to NPM 2.12.4 and to Woow's <code>/config</code> path, and test them one at a time once you have a backup you can restore from.</div></details>
+        <details class="faq"><summary>Can I copy an Advanced config from the community as-is?</summary><div class="body">Not recommended. Understand every directive first, confirm it applies to NPM 2.12.4 and to Woow's <code>/config</code> path, and test them one at a time once you have a backup you can restore from.</div></details>
       </section>
 
       <section id="advanced-sources" data-nav="Official sources">
         <h2 data-icon="book">Official sources and version scope</h2>
-        <p>This chapter takes the NPM 2.12.4-v2 that the Woow add-on currently declares as the boundary for what you do here. The upstream interface keeps evolving, so where a field name differs, go by the version you installed and the official release notes.</p>
+        <p>This chapter takes the NPM 2.12.4-v2 that the Woow add-on currently declares as the boundary for what you do here. The upstream project's interface keeps evolving, so where a field name differs, go by the version you installed and the official release notes.</p>
         <ul>
           <li><a href="https://github.com/WOOWTECH/Woow_ha_nginxpm/blob/main/nginxpm/README.md">WOOWTECH: Woow Nginx Proxy Manager add-on README</a></li>
           <li><a href="https://github.com/WOOWTECH/Woow_ha_nginxpm/blob/main/nginxpm/config.yaml">WOOWTECH: add-on config.yaml port and backup settings</a></li>

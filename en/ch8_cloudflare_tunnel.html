@@ -83,9 +83,9 @@
 
     <section id="goal" data-nav="Why a Tunnel">
       <h2 data-icon="why">No need to put your home entry point on the public internet</h2>
-      <p>With Cloudflare Tunnel, a <code>cloudflared</code> inside your network opens an outbound-only connection, and Cloudflare's documentation states that no publicly routable IP is required. That suits a home network with no fixed public IP, one behind CGNAT, or one where you would rather not maintain inbound forwarding on the router.</p>
+      <p>With Cloudflare Tunnel, a <code>cloudflared</code> inside your network opens an outbound-only connection, and Cloudflare's official documentation states that no publicly routable IP is required. That suits a home network with no fixed public IP, one behind CGNAT, or one where you would rather not maintain inbound forwarding on the router.</p>
       <div class="callout"><strong>The recommended split:</strong> Cloudflare accepts public HTTPS, the Tunnel hands the request to NPM's HTTP entry point on the LAN, and NPM then forwards by Host name to Home Assistant, a NAS or another internal service.</div>
-      <div class="callout danger"><strong>Admin security baseline:</strong> the default <code>admin@example.com</code> / <code>changeme</code> must be changed immediately. A Cloudflare Tunnel may only publish the services you run for people to use, never NPM port 81; port 81 must not get a router forward either.</div>
+      <div class="callout danger"><strong>Admin security baseline:</strong> you must change the default <code>admin@example.com</code> / <code>changeme</code> immediately. A Cloudflare Tunnel may only publish your application services, never NPM port 81; port 81 must never be port-forwarded on the router either.</div>
     </section>
 
     <section id="topology" data-nav="Recommended topology">
@@ -108,7 +108,7 @@ NPM Proxy Host
         <tbody>
           <tr><td>Cloudflare</td><td>Public DNS, external TLS, the Tunnel entry point and any optional security rules</td><td>Never treat the NPM admin interface as a public application</td></tr>
           <tr><td>cloudflared</td><td>Opens the Tunnel outbound and carries the public hostname to NPM</td><td>Never put the tunnel token in Git, a screenshot or a public log</td></tr>
-          <tr><td>NPM</td><td>Picks a Proxy Host by hostname, then forwards to the internal service</td><td>Port 81 must not be public; do not add Force SSL again when the Tunnel connects back over HTTP</td></tr>
+          <tr><td>NPM</td><td>Picks a Proxy Host by hostname, then forwards to the internal service</td><td>Port 81 must not be public; do not add Force SSL again when the Tunnel connects back to the origin over HTTP</td></tr>
           <tr><td>Router</td><td>Allows the outbound connections that are needed</td><td>This topology needs no public inbound 80/443/81</td></tr>
         </tbody>
       </table>
@@ -120,7 +120,7 @@ NPM Proxy Host
         <li><h3>Confirm Cloudflare manages the domain</h3><p>You need to be able to create a Tunnel and a public hostname in your own Cloudflare account. Treat the domain, the account ID and the zone ID as sensitive data.</p></li>
         <li><h3>Prepare a connector that can run long term</h3><p>Run <code>cloudflared</code> on a trusted device that can reach NPM over the network. This chapter does not tie you to any particular third-party add-on; use an installation method Cloudflare officially supports, or a package you have reviewed yourself.</p></li>
         <li><h3>Confirm the internal path</h3><p>The connector must be able to reach NPM port 80, and NPM must be able to reach the upstream service. Both hops only need to work inside the LAN, which is not the same as opening them to every LAN device.</p></li>
-        <li><h3>Take stock of the forwards you already have</h3><p>If you already use public 80/443, record what depends on it and how to roll back. Only once every hostname has been migrated and tested should you disable the old rules, following your change process; do not simply delete them while you are unsure of the impact.</p></li>
+        <li><h3>Take stock of the port forwards you already have</h3><p>If you already use public 80/443, record what depends on it and how to roll back. Only once every hostname has been migrated and tested should you disable the old rules, following your change process; do not simply delete them while you are unsure of the impact.</p></li>
       </ol>
     </section>
 
@@ -130,7 +130,7 @@ NPM Proxy Host
         <li><h3>Add a Proxy Host</h3><p>In NPM, go to <strong>Hosts → Proxy Hosts → Add Proxy Host</strong> and put the full hostname you will publish on the Tunnel later into Domain Names. Keep your real domain out of tutorial screenshots and public tickets.</p></li>
         <li><h3>Set the internal upstream</h3><p>Enter the service's private address and port in Forward Hostname / IP and Forward Port, and set the Scheme to whichever the upstream actually offers, HTTP or HTTPS. A private IP is still sensitive topology data.</p></li>
         <li><h3>Do not request a public certificate yet</h3><p>The recommended Tunnel Service URL reaches NPM on HTTP port 80 and Cloudflare handles external TLS, so at this point NPM does not need a Let's Encrypt certificate for external browsers.</p></li>
-        <li><h3>Do not turn on Force SSL</h3><p>When Cloudflare connects to NPM over HTTP, Force SSL can send the same external HTTPS URL round a redirect again and again. Leave it off; external HTTP to HTTPS is handled by a Cloudflare edge setting.</p></li>
+        <li><h3>Do not turn on Force SSL</h3><p>When Cloudflare connects to NPM over HTTP, Force SSL can send the same external HTTPS URL around a redirect again and again. Leave it off for now; external HTTP to HTTPS is handled by a Cloudflare edge setting.</p></li>
       </ol>
     </section>
 
@@ -139,7 +139,7 @@ NPM Proxy Host
       <ol class="steps">
         <li><h3>Create a named Tunnel in Cloudflare</h3><p>Create the Tunnel through the Zero Trust / Networks / Tunnels flow in the Cloudflare Dashboard; the interface names may have changed, so go by the current official documentation.</p></li>
         <li><h3>Choose the connector environment</h3><p>Use the official installation method Cloudflare shows for your platform. The tunnel token on that screen is the secret that can start a connector, so never paste it into a chat, a command history, a screenshot or a repository.</p></li>
-        <li><h3>Supply the token safely</h3><p>Store the token in that platform's secret or protected settings, readable only by the connector process. If it has ever leaked, rotate or revoke it in Cloudflare straight away rather than just deleting the message.</p></li>
+        <li><h3>Supply the token safely</h3><p>Store the token in that platform's secret or protected settings, readable only by the connector process. If it has ever leaked, rotate or revoke it in Cloudflare immediately rather than just deleting the message.</p></li>
         <li><h3>Confirm the status is Healthy</h3><p>The connector needs outbound DNS, and it connects to port 7844 as described in Cloudflare's official firewall documentation (UDP for QUIC, TCP for HTTP/2). No public inbound rule is needed.</p></li>
       </ol>
     </section>
@@ -196,7 +196,7 @@ NPM Proxy Host
       <table class="data-table">
         <thead><tr><th>Specific problem</th><th>Most likely layer</th><th>How to approach it</th></tr></thead>
         <tbody>
-          <tr><td>Cloudflare shows Error 1033, or the Tunnel is unhealthy</td><td>The connector has not connected to Cloudflare</td><td>Check the process, the token, DNS and outbound port 7844; do not open an inbound port instead</td></tr>
+          <tr><td>Cloudflare shows Error 1033, or the Tunnel is unhealthy</td><td>The connector has not connected to Cloudflare</td><td>Check the process, the token, DNS and outbound port 7844; do not open any inbound port instead</td></tr>
           <tr><td>Visitors see 502 Bad Gateway</td><td>cloudflared to NPM, or NPM to the upstream</td><td>Confirm the Service URL is NPM's private address on port 80, then check NPM's Scheme, the upstream IP and the port</td></tr>
           <tr><td>You get NPM's default page or a 404</td><td>The hostname does not match</td><td>Compare the full strings in the Cloudflare Published application and in NPM's Domain Names</td></tr>
           <tr><td>The browser reports too many redirects</td><td>NPM Force SSL conflicts with the Tunnel's HTTP origin hop</td><td>Turn Force SSL off in NPM and let the Cloudflare edge redirect external HTTP to HTTPS instead</td></tr>
@@ -210,8 +210,8 @@ NPM Proxy Host
     <section id="faq" data-nav="FAQ">
       <h2 data-icon="faq">Cloudflare Tunnel FAQ</h2>
       <details class="faq"><summary>Does this architecture need the router to forward 80 or 443?</summary><div class="body">No. cloudflared opens an outbound-only connection to Cloudflare; the recommended topology uses no public inbound 80 or 443, and never exposes 81.</div></details>
-      <details class="faq"><summary>Can I use it with no public IP, or behind CGNAT?</summary><div class="body">Yes. Cloudflare positions a Tunnel as a connection method that needs no publicly routable IP, but the connector still has to be able to connect outbound and resolve DNS.</div></details>
-      <details class="faq"><summary>Why is Force SSL left off in NPM?</summary><div class="body">This chapter has the Tunnel connect to NPM over HTTP. If NPM forces a redirect back to HTTPS, Cloudflare still comes back over HTTP the next time, which can cause a redirect loop; the external redirect belongs at the Cloudflare edge.</div></details>
+      <details class="faq"><summary>Can I use it with no public IP, or behind CGNAT?</summary><div class="body">Yes. Cloudflare officially positions a Tunnel as a connection method that needs no publicly routable IP, but the connector still has to be able to connect outbound and resolve DNS.</div></details>
+      <details class="faq"><summary>Why is Force SSL left off in NPM?</summary><div class="body">This chapter has the Tunnel connect to NPM over HTTP. If NPM forces a redirect back to HTTPS, Cloudflare still connects back to the origin over HTTP the next time, which can cause a redirect loop; the external redirect belongs at the Cloudflare edge.</div></details>
       <details class="faq"><summary>Can one Tunnel publish several services?</summary><div class="body">Yes. Cloudflare's official documentation explains that several DNS records can point at the same Tunnel; each public hostname should still get an explicit matching Proxy Host in NPM.</div></details>
       <details class="faq"><summary>Does having a Tunnel remove the need for a service login?</summary><div class="body">No. A Tunnel solves the connection path; it does not automatically create user authentication for each application. Keep the application's login, or add Cloudflare Access or an NPM Access List as you need them.</div></details>
     </section>

@@ -95,7 +95,7 @@
           <thead><tr><th>Detail</th><th>Where to confirm it</th><th>What it is for</th></tr></thead>
           <tbody>
             <tr><td>Fully qualified domain name</td><td>Your DNS provider's console</td><td>Goes into both DNS and NPM Domain Names</td></tr>
-            <tr><td>The router's WAN address</td><td>The router's status page</td><td>Tells you whether you hold an address the internet can reach</td></tr>
+            <tr><td>The router's WAN address</td><td>The router's status page</td><td>Tells you whether you hold an address the public internet can reach</td></tr>
             <tr><td>The externally observed address</td><td>A trusted external lookup</td><td>Compare it with the WAN address to help spot upstream NAT</td></tr>
             <tr><td>NPM's LAN address</td><td>Home Assistant and the router's lease</td><td>The internal destination for NAT</td></tr>
             <tr><td>The DNS target hostname</td><td>An existing dynamic DNS name or the platform's docs</td><td>Used when you need a CNAME pointing at another name</td></tr>
@@ -110,7 +110,7 @@
           <thead><tr><th>Record type</th><th>What the value means</th><th>Best for</th><th>Watch out</th></tr></thead>
           <tbody>
             <tr><td>A</td><td>An IPv4 address</td><td>Pointing a name straight at a public IPv4</td><td>When the public IP changes, the record has to be updated with it</td></tr>
-            <tr><td>CNAME</td><td>Another fully qualified hostname</td><td>Several subdomains sharing one dynamic DNS name</td><td>A URL, a path or an IP cannot be the target of a CNAME</td></tr>
+            <tr><td>CNAME</td><td>Another fully qualified domain name</td><td>Several subdomains sharing one dynamic DNS name</td><td>A URL, a path or an IP cannot be the target of a CNAME</td></tr>
           </tbody>
         </table>
         <p>Whether you pick A or CNAME, a DNS record never contains <code>:81</code>, <code>:443</code> or any path. The service port is handled by the client's protocol, by NAT and by your NPM rules.</p>
@@ -119,17 +119,17 @@
       <section id="create-record" data-nav="Create the record">
         <h2 data-icon="steps">Create an A or CNAME record</h2>
         <ol class="steps">
-          <li><h3>Choose a test name</h3><p>Use a separate subdomain, such as <code>app.example.net</code>, so you do not have to change a production record that is still in use.</p></li>
+          <li><h3>Choose a test name</h3><p>Use a separate subdomain, such as <code>app.example.net</code>, so you avoid changing a production record that is still in use.</p></li>
           <li><h3>Decide on the record type</h3><p>If you have a public IPv4 you can keep up to date, create an A record. If you already have a maintained target hostname, create a CNAME pointing at that name.</p></li>
           <li><h3>Fill in the name and the target</h3><p>The content of an A record is a public IPv4; the content of a CNAME is another hostname. Do not enter NPM's internal upstream IP unless the design was internal-DNS-only from the start.</p></li>
-          <li><h3>Choose the TTL and the proxy status</h3><p>TTL controls how long a resolver may cache the record. On Cloudflare, use the later part of this chapter to decide between Proxied and DNS-only; the orange cloud is not a cosmetic option.</p></li>
+          <li><h3>Choose the TTL and the proxy status</h3><p>TTL controls how long a resolver may cache the record. On Cloudflare, use the later part of this chapter to decide between Proxied and DNS-only; do not treat the orange cloud as just a cosmetic option.</p></li>
           <li><h3>Save it, then query it</h3><p>Query from the LAN and over mobile data separately, and keep only the result of "does this match the design". Redact the real domain and IPs when you share anything.</p></li>
         </ol>
       </section>
 
       <section id="public-ip-nat" data-nav="Public IP and NAT">
         <h2 data-icon="network">Public IP and NAT</h2>
-        <p>The traditional public-facing NPM setup needs an entry point the internet can reach. If the WAN address your router gets is in the RFC 1918 private ranges, or falls inside <code>100.64.0.0/10</code>, the range reserved for shared addresses, it is not an IPv4 the public internet can route straight to your router. Even an address that looks public can be behind something: a WAN address that differs from the externally observed one can mean double NAT, CGNAT or another upstream translation, and you need to confirm that with your ISP or network administrator.</p>
+        <p>The traditional public-facing NPM setup needs an entry point the public internet can reach. If the WAN address your router gets is in the RFC 1918 private ranges, or falls inside <code>100.64.0.0/10</code>, the range reserved for shared addresses, it is not an IPv4 the public internet can route straight to your router. Even when the address looks public, a WAN address that differs from the externally observed one can mean double NAT, CGNAT or another upstream translation, and you need to confirm that with your ISP or network administrator.</p>
         <p>A public IP can be dynamic. If it changes and the A record does not, clients go to the old location. You can use a trusted dynamic DNS updater, but its API token must follow least privilege and be stored securely.</p>
       </section>
 
@@ -137,7 +137,7 @@
         <h2 data-icon="steps">Set up NAT and the firewall</h2>
         <ol class="steps">
           <li><h3>Pin NPM's LAN address</h3><p>Use a DHCP reservation on the router, or something equivalent, so NAT does not end up pointing at the wrong place once the Home Assistant address changes.</p></li>
-          <li><h3>Create only the forwards you need</h3><p>The traditional setup sends external TCP 80 to NPM's 80 and external TCP 443 to NPM's 443. Do not create a rule from external 81 to internal 81.</p></li>
+          <li><h3>Create the necessary port forwarding rules</h3><p>The traditional setup sends external TCP 80 to NPM's 80 and external TCP 443 to NPM's 443. Do not create a rule from external 81 to internal 81.</p></li>
           <li><h3>Check the upstream equipment</h3><p>If both the ISP modem and your own router perform NAT, work out what every layer does. While you are unsure, do not set a device wide open or into a DMZ.</p></li>
           <li><h3>Test from a genuinely external network</h3><p>Turn off Wi-Fi on your phone and test the test domain over mobile data. Success on the LAN says nothing about whether public NAT works.</p></li>
         </ol>
@@ -149,7 +149,7 @@
         <table class="data-table">
           <thead><tr><th>Status</th><th>What a DNS query usually returns</th><th>HTTP/HTTPS path</th><th>Security implication</th></tr></thead>
           <tbody>
-            <tr><td>Proxied (the orange cloud)</td><td>A Cloudflare anycast IP, not the origin server's IP</td><td>The client reaches Cloudflare first, and Cloudflare connects to the origin server</td><td>Hides the origin IP in DNS and applies Cloudflare features, but it is no substitute for the origin server's own firewall and updates</td></tr>
+            <tr><td>Proxied (the orange cloud)</td><td>A Cloudflare anycast IP, not the origin server's IP</td><td>The client reaches Cloudflare first, and Cloudflare connects to the origin server</td><td>Can hide the origin IP in DNS and apply Cloudflare features, but it is no substitute for the origin server's own firewall and updates</td></tr>
             <tr><td>DNS-only (the grey cloud)</td><td>The origin IP from the A/AAAA record; a CNAME resolves down the normal DNS chain</td><td>The client connects to the origin server directly</td><td>None of the Cloudflare HTTP proxy protections apply, and it exposes an origin address anyone can resolve</td></tr>
           </tbody>
         </table>
@@ -162,7 +162,7 @@
         <pre class="code-block"><code>dig A app.example.net
 dig CNAME app.example.net
 nslookup app.example.net</code></pre>
-        <p>For a Cloudflare Proxied record, getting a Cloudflare IP back is the expected behavior, and you cannot use it to judge whether the origin's A value is right. Compare your local result separately against a named trusted recursive resolver and against the authoritative DNS answer; do not paste the real answers into a public report.</p>
+        <p>For a Cloudflare Proxied record, getting a Cloudflare IP back is the expected behavior, and you cannot use it to judge whether the origin server's A value is right. You can compare your local result separately against a named trusted recursive resolver and against the authoritative DNS answer; do not paste the real answers into a public report.</p>
         <table class="data-table">
           <thead><tr><th>Where to test</th><th>What to verify</th><th>Check first on failure</th></tr></thead>
           <tbody>
@@ -179,11 +179,11 @@ nslookup app.example.net</code></pre>
           <thead><tr><th>Specific problem</th><th>Most likely layer</th><th>How to approach it</th></tr></thead>
           <tbody>
             <tr><td>The record is not found, or the answer is NXDOMAIN</td><td>The DNS name / the authoritative zone</td><td>Check the record name, the zone and the delegation; do not add duplicate records and hope</td></tr>
-            <tr><td>It still resolves to the old IP</td><td>Cache / the dynamic updater</td><td>Check the TTL, the authoritative answer and the updater's status; deleting and re-creating the record over and over only prolongs the confusion</td></tr>
-            <tr><td>Timeouts from outside, fine on the LAN</td><td>NAT / firewall / CGNAT</td><td>Compare the WAN address with the externally observed one and check TCP 80/443; opening 81 instead is not allowed</td></tr>
-            <tr><td>Fine from outside, fails on the LAN</td><td>hairpin NAT / split DNS</td><td>Check whether the router supports NAT loopback, or create an internal answer for the same name in internal DNS you control</td></tr>
+            <tr><td>It still resolves to the old IP</td><td>Cache / the dynamic updater</td><td>Check the TTL, the authoritative answer and the updater's status; do not delete and re-create the record over and over, which only prolongs the confusion</td></tr>
+            <tr><td>Timeouts from outside, fine on the LAN</td><td>NAT / firewall / CGNAT</td><td>Compare the WAN address with the externally observed one and check TCP 80/443; never open 81 instead</td></tr>
+            <tr><td>Fine from outside, fails on the LAN</td><td>Hairpin NAT / split DNS</td><td>Check whether the router supports NAT loopback, or create an internal answer for the same name in internal DNS you control</td></tr>
             <tr><td>The connection fails after switching to the orange cloud</td><td>Cloudflare to the origin server</td><td>Confirm you are on a supported proxy port, and check the origin server's firewall and NPM's 80/443; do not assume the orange cloud proxies 81 or an arbitrary Stream</td></tr>
-            <tr><td>Under the orange cloud, <code>dig CNAME</code> does not show the original target</td><td>The Cloudflare proxy's answer</td><td>A Proxied record answering with a Cloudflare IP is normal; check the record in the Cloudflare console rather than leaving the origin exposed on DNS-only just to see the target</td></tr>
+            <tr><td>Under the orange cloud, <code>dig CNAME</code> does not show the original target</td><td>The Cloudflare proxy's answer</td><td>A Proxied record answering with a Cloudflare IP is normal; check the record in the Cloudflare console rather than leaving the origin server exposed on DNS-only just to see the target</td></tr>
           </tbody>
         </table>
       </section>
@@ -203,9 +203,9 @@ nslookup app.example.net</code></pre>
           <li><a href="https://github.com/WOOWTECH/Woow_ha_nginxpm/blob/main/nginxpm/README.md">WOOWTECH add-on README</a> (router 80/443, Cloudflare Tunnel and DNS troubleshooting)</li>
           <li><a href="https://github.com/WOOWTECH/Woow_ha_nginxpm/blob/main/nginxpm/config.yaml">WOOWTECH add-on config.yaml</a> (the actual 80/81/443 mappings)</li>
           <li><a href="https://nginxproxymanager.com/guide/">Nginx Proxy Manager official Guide</a> (home-network DNS, public IPs and the concept of port forwarding)</li>
-          <li><a href="https://developers.cloudflare.com/dns/manage-dns-records/how-to/create-dns-records/">Cloudflare official: Create DNS records</a> (record types, Proxy status and TTL)</li>
-          <li><a href="https://developers.cloudflare.com/dns/proxy-status/">Cloudflare official: Proxy status</a> (the Proxied/DNS-only answers and when each applies)</li>
-          <li><a href="https://developers.cloudflare.com/fundamentals/reference/network-ports/">Cloudflare official: Network ports</a> (which ports the HTTP/HTTPS proxy supports)</li>
+          <li><a href="https://developers.cloudflare.com/dns/manage-dns-records/how-to/create-dns-records/">Cloudflare official documentation: Create DNS records</a> (record types, Proxy status and TTL)</li>
+          <li><a href="https://developers.cloudflare.com/dns/proxy-status/">Cloudflare official documentation: Proxy status</a> (the Proxied/DNS-only answers and when each applies)</li>
+          <li><a href="https://developers.cloudflare.com/fundamentals/reference/network-ports/">Cloudflare official documentation: Network ports</a> (which ports the HTTP/HTTPS proxy supports)</li>
         </ul>
       </section>
 

@@ -81,7 +81,7 @@
 
       <section id="dashboard" data-nav="Dashboard">
         <h2 data-icon="tabs">What the Dashboard shows</h2>
-        <p>The Dashboard you land on after logging in is a summary of host objects, not a traffic monitoring dashboard. The Nginx Proxy Manager 2.12.4 interface the Woow add-on currently ships shows count cards for Proxy Hosts, Redirection Hosts, Streams and 404 Hosts, according to your permissions; click a card to open the matching list.</p>
+        <p>The Dashboard you land on after logging in is a summary of host objects, not a traffic monitoring dashboard. The Nginx Proxy Manager 2.12.4 interface the Woow add-on currently uses shows count cards for Proxy Hosts, Redirection Hosts, Streams and 404 Hosts, according to your permissions; click a card to open the matching list.</p>
         <div class="callout tip"><strong>Confirm security first:</strong> if you can still log in with <code>admin@example.com</code> / <code>changeme</code>, change the email and the password immediately. The admin interface on <code>81/tcp</code> belongs only on a trusted LAN or a protected management channel, and must never be exposed directly to the public internet.</div>
       </section>
 
@@ -91,7 +91,7 @@
         <table class="data-table">
           <thead><tr><th>Object</th><th>What it is for</th><th>Typical input</th><th>Handles HTTP?</th></tr></thead>
           <tbody>
-            <tr><td>Proxy Host</td><td>Forwards requests to an internal web service by domain</td><td>Domain, upstream scheme, host, port</td><td>Yes</td></tr>
+            <tr><td>Proxy Host</td><td>Forwards requests to an internal web service by domain</td><td>Domain, upstream protocol, host, port</td><td>Yes</td></tr>
             <tr><td>Redirection Host</td><td>Sends visitors to another URL</td><td>Source domain, destination URL, status code</td><td>Yes, returns a redirect</td></tr>
             <tr><td>404 Host</td><td>Makes a given domain return a not-found page</td><td>Domain</td><td>Yes, returns 404</td></tr>
             <tr><td>Stream</td><td>Forwards TCP or UDP connections</td><td>Incoming port, target host and port</td><td>No</td></tr>
@@ -103,19 +103,19 @@
 
       <section id="hosts-menu" data-nav="Hosts menu">
         <h2 data-icon="network">How the Hosts menu is split</h2>
-        <p><strong>Proxy Hosts</strong> are the objects this tutorial uses most: one 80/443 entry point can route to different internal services according to the domain in the request. <strong>Redirection Hosts</strong> only send the browser somewhere else; <strong>404 Hosts</strong> exist to refuse a name outright; <strong>Streams</strong> handle non-HTTP TCP/UDP traffic.</p>
+        <p><strong>Proxy Hosts</strong> are the objects this tutorial uses most: one 80/443 entry point can route to different internal services according to the domain in the request. <strong>Redirection Hosts</strong> only send the browser somewhere else; <strong>404 Hosts</strong> exist to explicitly refuse a given name; <strong>Streams</strong> handle non-HTTP TCP/UDP traffic.</p>
         <p>Enabled/Disabled in a list tells you whether that object is active, not that the upstream service is healthy. The counts on the Dashboard are no substitute for a real connection test either.</p>
       </section>
 
       <section id="certificates-access" data-nav="Certs and lists">
         <h2 data-icon="security">Certificates and Access Lists</h2>
         <p>SSL Certificates and Access Lists are both objects you can reference more than once. A certificate that covers the right name can be assigned to a Proxy Host, and one Access List can be applied to several Proxy Hosts. Before you change a shared object, work out which services it affects.</p>
-        <div class="callout warn"><strong>Sensitive data:</strong> domains, certificates and private keys, DNS API tokens and Access List passwords must never be pasted into a public issue, a screenshot or an unredacted document. DNS Challenge credentials are high-privilege secrets: apply least privilege and limit which DNS zones they can act on.</div>
+        <div class="callout warn"><strong>Sensitive data:</strong> domains, certificates and private keys, DNS API tokens and Access List passwords must never be pasted into a public issue, a screenshot or an unredacted document. DNS Challenge certificate data is a high-privilege secret: apply least privilege and limit which DNS zones it can act on.</div>
       </section>
 
       <section id="users-audit" data-nav="Users and audit">
         <h2 data-icon="persons">Users and Audit Log</h2>
-        <p>Users manages who can log in to NPM and with what permissions; it is not the same as an Access List, which protects the proxied site instead. The official feature list also names user management, permissions and the Audit Log. Use individual accounts for day-to-day work, and do not let several people share one administrator password.</p>
+        <p>Users manages who can log in to NPM and with what permissions; it is not the same as an Access List, which protects the proxied site instead. The official feature list also names user management, permissions and the Audit Log. Use individual accounts for day-to-day work, and avoid having several people share one administrator password.</p>
         <p>The Audit Log is there to look back at admin actions; it is not the Nginx access or error log. Before you export or share any record, redact accounts, domains, public and private IPs, certificate details, request paths and full logs.</p>
       </section>
 
@@ -125,7 +125,7 @@
           <li><h3>Confirm the admin entry point</h3><p>Open the Home Assistant add-on Web UI from your LAN, or use a protected management channel. Check that the router does not forward external port 81 to NPM.</p></li>
           <li><h3>Confirm your own account</h3><p>From the personal menu at the top right, confirm the email is no longer the default and the password has been changed to one that is unique and long enough.</p></li>
           <li><h3>Open the lists in order</h3><p>Browse Hosts, SSL Certificates, Access Lists, Users and the Audit Log only. Do not add, delete or disable any existing object.</p></li>
-          <li><h3>Write down the dependencies</h3><p>For any Proxy Host you plan to change, record the certificate and the Access List name it references; in your notes, replace real domains, IPs and accounts with placeholders.</p></li>
+          <li><h3>Write down the dependencies</h3><p>For any Proxy Host you plan to change, record the names of the certificate and the Access List it references; in your notes, replace real domains, IPs and accounts with placeholders.</p></li>
         </ol>
       </section>
 
@@ -140,7 +140,7 @@
         <ul>
           <li>The public service entry point is usually 80/443; 81 is the admin port, and neither the router nor a cloud firewall may expose it.</li>
           <li>Do not make the NPM admin page itself your first public Proxy Host; for remote administration, prefer a VPN or a management channel with authentication.</li>
-          <li>When you share a screen or ask for help, redact every real domain, public and private IP, password, token, certificate body and log.</li>
+          <li>When you share a screen or ask for help, redact all real domains, public and private IPs, passwords, tokens, certificate contents and logs.</li>
           <li>The Advanced field feeds straight into Nginx behavior; leave it empty when you have nothing to base it on, and never paste in a config snippet of unknown origin.</li>
         </ul>
       </section>
@@ -165,7 +165,7 @@
         <details class="faq"><summary>Can an Access List account log in to NPM?</summary><div class="body">Do not treat the two as the same kind of account. Users are the admin interface users; the HTTP Basic Authentication in an Access List protects a specific Proxy Host.</div></details>
         <details class="faq"><summary>Can I expose 81 and protect it with a strong password?</summary><div class="body">We do not recommend it, and it falls outside this tutorial's security boundaries. Port 81 must never be exposed directly to the public internet; come in from a trusted LAN, a VPN or a protected management channel instead.</div></details>
         <details class="faq"><summary>Can I delete a Host I do not recognize?</summary><div class="body">No. First find out who created it, which certificate it references and what it is for, and make a backup; if you are still unsure, leave it as it is.</div></details>
-        <details class="faq"><summary>Why does my screen differ from the latest official screenshots?</summary><div class="body">The Woow add-on's README and config currently state upstream NPM 2.12.4, while the official project keeps releasing. Field names or the layout may differ, so go by the version you installed and the upstream docs.</div></details>
+        <details class="faq"><summary>Why does my screen differ from the latest official screenshots?</summary><div class="body">The Woow add-on's README and config currently state upstream NPM 2.12.4, while the official project keeps updating. Field names or the layout may differ, so go by the version you installed and the upstream docs.</div></details>
       </section>
 
       <section id="sources" data-nav="Official sources">

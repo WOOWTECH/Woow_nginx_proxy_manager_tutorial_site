@@ -84,7 +84,7 @@
       <p>The WOOWTECH README lists the initial login details as <code>admin@example.com</code> / <code>changeme</code> and requires you to change them as soon as you log in. The upstream NPM 2.12.4 setup routine creates the first administrator with the same pair; they are public information, not secrets.</p>
       <ul>
         <li>Confirm you are connecting from a trusted LAN, not over mobile data or public Wi-Fi.</li>
-        <li>Confirm the router has no WAN port forwarding for TCP 81, and that no firewall rule lets an arbitrary internet source reach 81.</li>
+        <li>Confirm the router has no WAN port forwarding for TCP 81, and that no firewall rule lets any source on the public internet reach 81.</li>
         <li>Close screen recorders, live streams and anything that syncs form contents; treat the password, the email address, IPs and the login screen as sensitive data.</li>
         <li>Have a trusted password manager ready, but do not paste the new password into a chat, an issue, a screenshot or ordinary notes.</li>
       </ul>
@@ -94,10 +94,10 @@
     <section id="first-login" data-nav="First login">
       <h2 data-icon="login">Log in once with the defaults</h2>
       <ol class="steps">
-        <li><h3>Open the right Web UI</h3><p>From the Home Assistant add-on page choose "OPEN WEB UI", or open <code>http://&lt;HA區網位址&gt;:81</code> from a trusted LAN. Check that the address is your own NPM; do not reach the login page from a search result.</p></li>
+        <li><h3>Open the right Web UI</h3><p>From the Home Assistant add-on page choose OPEN WEB UI, or open <code>http://&lt;HA區網位址&gt;:81</code> from a trusted LAN. Check that the address is your own NPM; do not reach the login page from a search result.</p></li>
         <li><h3>Enter the initial email</h3><p>Enter <code>admin@example.com</code>. Use this value for the initial hardening only; do not keep it as your day-to-day login identity.</p></li>
         <li><h3>Enter the initial password</h3><p>Enter <code>changeme</code> and log in. Do not let the browser save this default as a real password.</p></li>
-        <li><h3>Go straight to the account settings</h3><p>Once you are in, do not start by creating a Proxy Host, a certificate or another user; finish the account details and password change in the next sections first.</p></li>
+        <li><h3>Go straight to the account settings</h3><p>Once you are in, do not start by creating a Proxy Host, a certificate or another user; finish the account details and password change in the next section first.</p></li>
       </ol>
       <div class="callout warn"><strong>Use it once only:</strong> if the default credentials do not work, do not keep guessing and do not reset the database; first check whether an administrator has already completed the initial setup.</div>
     </section>
@@ -127,7 +127,7 @@
     <section id="verify-credentials" data-nav="Verify credentials">
       <h2 data-icon="test">Log out and verify</h2>
       <ol class="steps">
-        <li><h3>Log out deliberately</h3><p>Once you have saved, use NPM's log out function; do not only close the tab.</p></li>
+        <li><h3>Log out deliberately</h3><p>Once you have saved, use NPM's logout function; do not only close the tab.</p></li>
         <li><h3>Log in with the new credentials</h3><p>Open the same trusted-LAN Web UI again and fill in the new email and the new password from your password manager.</p></li>
         <li><h3>Confirm the account identity</h3><p>Go back to Users and confirm that the current administrator shows the new email and that the admin functions still work. Do not capture a screen that contains real data.</p></li>
         <li><h3>Confirm the defaults no longer work</h3><p>In a private browsing window, test the old default pair once against the correct LAN address; it should fail to log in. Avoid repeated retries; one attempt is enough to confirm it.</p></li>
@@ -144,15 +144,15 @@
           <tr><td>Login email</td><td>A non-default identity you control, held in a trusted vault</td><td>Keeping <code>admin@example.com</code>, or letting it appear in a public screenshot</td></tr>
           <tr><td>Admin password</td><td>Long, random, unique, held in a password manager</td><td>Reused, shared, or written into a Proxy Host config or ordinary notes</td></tr>
           <tr><td>Session</td><td>Log out on a shared device as soon as you are done; keep the admin device updated</td><td>Saving the login on a public computer, or leaving a device unlocked for long stretches</td></tr>
-          <tr><td>Help requests</td><td>Post only the error text you need, redacted</td><td>Uploading full logs, certificates, tokens, domains, or public and private IPs</td></tr>
+          <tr><td>Help-request data</td><td>Post only the error text you need, redacted</td><td>Uploading full logs, certificates, tokens, domains, or public and private IPs</td></tr>
         </tbody>
       </table>
-      <p>Changing the password does not turn the admin interface into something fit to publish. TCP 81 must still never be exposed to the public internet, and later chapters will not wrap it in a public Proxy Host either.</p>
+      <p>Changing the password does not turn the admin interface into a service that is fit to be exposed publicly. TCP 81 must still never be exposed to the public internet, and later chapters will not wrap it in a public Proxy Host either.</p>
     </section>
 
     <section id="account-record" data-nav="Safe records">
       <h2 data-icon="records">Keep a safe admin record</h2>
-      <p>You can keep an operations record that holds no secrets, for example "the default account was retired on this date", "the admin surface is limited to the trusted network segment", "the date of the next permissions review". Do not write a real email address, password, full domain or IP into that record.</p>
+      <p>You can keep an operations record that holds no secrets, for example "the default account was disabled on a given date", "the admin surface is limited to the trusted network segment", "the date of the next permissions review". Do not write a real email address, password, full domain or IP into that record.</p>
       <ul>
         <li>Password and login email: in a protected password manager entry only.</li>
         <li>DNS API token: if you use a DNS Challenge later, store it separately and give it least privilege.</li>
@@ -165,11 +165,11 @@
     <section id="troubleshooting" data-nav="Login problems">
       <h2 data-icon="troubleshoot">Login and hardening troubleshooting</h2>
       <h3>Problem 1: the default credentials do not work</h3><p>First confirm that the address is your own NPM on TCP 81, and that capitalization and your input method are correct. If this instance has been used before, an administrator may already exist; do not delete the database in order to get the defaults back.</p>
-      <h3>Problem 2: saving is rejected for admin@example.com</h3><p>This is the expected protection in NPM 2.12.4: the default email is not allowed to stay. Change it to a non-default login email you control, then save.</p>
+      <h3>Problem 2: NPM refuses to save admin@example.com</h3><p>This is the expected protection in NPM 2.12.4: the default email is not allowed to stay. Change it to a non-default login email you control, then save.</p>
       <h3>Problem 3: the new password and the confirmation do not match</h3><p>Clear both fields and refill them from the password manager with the same generated value. Do not switch to a short or reused password for convenience.</p>
       <h3>Problem 4: Current Password comes back as invalid</h3><p>Confirm that the account you are editing is your own, and enter the password that is still valid. If the email change went through but the password dialog was interrupted, go back to that account in Users and choose Change Password.</p>
       <h3>Problem 5: the new credentials still do not work after the change</h3><p>Stop retrying first, check whether the new email was saved and whether the password manager entry was updated, then try again from the trusted LAN. Do not post the form or a full log in a public channel.</p>
-      <h3>Problem 6: 81 turns out to open from outside your network</h3><p>That is not a convenience feature, it is exposure. Remove the router's WAN port forwarding and any over-broad firewall rule first, then check whether a public DNS entry or a proxy path still leads there.</p>
+      <h3>Problem 6: 81 turns out to be reachable from outside your network</h3><p>That is not a convenience feature; it is exposure. Remove the router's WAN port forwarding and any over-broad firewall rule first, then check whether a public DNS entry or a proxy path still leads there.</p>
     </section>
 
     <section id="faq" data-nav="FAQ">
@@ -177,7 +177,7 @@
       <details class="faq"><summary>Can I change only the password and keep the default email?</summary><div class="body">No. The task is to retire the publicly known default login identity and the default password together; the NPM 2.12.4 account form does not allow you to keep <code>admin@example.com</code> either.</div></details>
       <details class="faq"><summary>Is a password of at least 8 characters enough?</summary><div class="body">8 characters is the minimum enforced by that version's frontend field, not a security target. Use a password manager to generate a longer, random and unique password.</div></details>
       <details class="faq"><summary>Once I have a strong password, can I expose TCP 81?</summary><div class="body">No. A strong password does not remove the risk of vulnerabilities in the admin interface, brute-force attempts and misconfiguration; 81 stays limited to a trusted LAN or a controlled management channel.</div></details>
-      <details class="faq"><summary>If I forget the new password, can I delete the database and start over?</summary><div class="body">Do not. Deleting the database can also lose your Proxy Hosts, users and other settings. Preserve the current state and a backup first, then read the official support material for the matching version before you begin any recovery procedure.</div></details>
+      <details class="faq"><summary>If I forget the new password, can I delete the database and start over?</summary><div class="body">No. Deleting the database can also lose your Proxy Hosts, users and other settings. Preserve the current state and a backup first, then read the official support material for the matching version before you begin any recovery procedure.</div></details>
     </section>
 
     <section id="official-sources" data-nav="Official sources">

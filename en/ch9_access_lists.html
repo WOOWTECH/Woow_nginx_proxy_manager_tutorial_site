@@ -83,9 +83,9 @@
 
     <section id="goal" data-nav="Chapter goal">
       <h2 data-icon="why">An Access List is an extra gate, not a cure-all</h2>
-      <p>An NPM Access List can add HTTP Basic Authentication to one or more Proxy Hosts, and can apply allow/deny rules based on the client IP that Nginx sees. It fits small tools that have no login of their own, but it does not replace application updates, multi-factor authentication or full identity management.</p>
+      <p>An NPM Access List can add HTTP Basic Authentication to one or more Proxy Hosts, and can apply allow/deny rules based on the client IP that Nginx sees. It is a good fit for protecting small tools that have no login of their own, but it does not replace application updates, multi-factor authentication (MFA) or full identity management.</p>
       <div class="callout"><strong>What "done" looks like:</strong> you can create an Access List, apply it to a test Proxy Host, and separately verify the unauthorized case, the authorized case and the result from a different source network.</div>
-      <div class="callout danger"><strong>Admin security baseline:</strong> change <code>admin@example.com</code> / <code>changeme</code> immediately. Port 81 is only for trusted admin sources, it must never be exposed to the public internet, and wrapping it in an Access List does not make it safe to publish.</div>
+      <div class="callout danger"><strong>Admin security baseline:</strong> change <code>admin@example.com</code> / <code>changeme</code> immediately. Port 81 is only for trusted admin sources and must never be exposed to the public internet; wrapping it in an Access List does not make it safe to publish.</div>
     </section>
 
     <section id="model" data-nav="Two control types">
@@ -108,7 +108,7 @@
         <li><h3>Pick one test Proxy Host only</h3><p>Test against a non-critical service first. Do not apply the Access List to every host at once, and do not touch NPM's admin port 81 yet.</p></li>
         <li><h3>Decide the authentication logic</h3><p>Password only, source IP only, both, or either one: the four are completely different. Default to least privilege; when you are not sure, leave Satisfy Any off.</p></li>
         <li><h3>Collect the real source addresses</h3><p>Confirm what NPM really sees, using networks you control and redacted logs. Do not take a Cloudflare IP list you found online and use it as a visitor allowlist.</p></li>
-        <li><h3>Prepare a way back</h3><p>Keep an admin path from your trusted LAN to NPM port 81, and record which Access List each Proxy Host used before. If a rule is wrong, roll back that one host; do not delete a list whose purpose you are unsure of.</p></li>
+        <li><h3>Prepare a rollback plan</h3><p>Keep an admin path from your trusted LAN to NPM port 81, and record which Access List each Proxy Host used before. If a rule is wrong, roll back that one host; do not delete a list whose purpose you are unsure of.</p></li>
       </ol>
     </section>
 
@@ -118,8 +118,8 @@
         <li><h3>Add an Access List</h3><p>Go to <strong>Access Lists → Add Access List</strong> and give it a name that identifies its purpose without containing a real domain, a person's name or an internal IP.</p></li>
         <li><h3>Leave Satisfy Any off</h3><p>If you want every visitor to enter a password, leave <strong>Satisfy Any</strong> off to begin with. Once it is on, either the IP rules or the password is enough to get in.</p></li>
         <li><h3>Add Authorization credentials</h3><p>On the <strong>Authorization</strong> tab, create a dedicated password that is unique and long enough. Do not reuse the NPM admin password or an upstream service password, and never put credentials into a domain name, a comment or a screenshot.</p></li>
-        <li><h3>Handle the final deny in the Woow build</h3><p>The Woow add-on README currently states that it bundles NPM 2.12.4; the upstream Access template for that version ends with <code>deny all</code>. If your list relies on Basic Auth alone, go to the <strong>Access</strong> tab and add <code>allow all</code> first, so the IP condition permits every source, and let Basic Auth with Satisfy Any off ask for the password. After an interface update, go by what your tests show.</p></li>
-        <li><h3>Leave Pass Auth to Host off</h3><p>Unless the upstream application explicitly needs to receive the same Authorization header, do not forward the Basic credentials NPM received to the upstream; it causes conflicts and widens where the password is exposed.</p></li>
+        <li><h3>Handle the final deny in the Woow version</h3><p>The Woow add-on README currently states that it bundles NPM 2.12.4; the upstream Access template for that version ends with <code>deny all</code>. If your list relies on Basic Auth alone, go to the <strong>Access</strong> tab and add <code>allow all</code> first, so the IP condition permits every source, and let Basic Auth with Satisfy Any off ask for the password. After an interface update, go by what your tests show.</p></li>
+        <li><h3>Leave Pass Auth to Host off</h3><p>Unless the upstream application explicitly needs to receive the same Authorization header, do not forward the Basic credentials NPM received to the upstream, to avoid conflicts or a wider password exposure.</p></li>
       </ol>
       <div class="callout danger"><strong>Treat passwords as secrets:</strong> the NPM admin password, the Access List password and upstream passwords must never be reused for one another, and none of them belongs in a public log, a screen recording or a support ticket.</div>
     </section>
@@ -129,14 +129,14 @@
       <p>The official Nginx docs state that rules are checked in the order shown and stop at the first match. The NPM 2.12.4 template also ends with <code>deny all</code>, so the order changes the outcome directly.</p>
       <ol class="steps">
         <li><h3>Allowlist: allow the trusted CIDR first</h3><p>Create one <code>allow</code> entry per fixed source, using the smallest CIDR: <code>/32</code> for a single IPv4 address, <code>/128</code> for a single IPv6 address. Never paste a real IP into a public document.</p></li>
-        <li><h3>Cover IPv4 and IPv6 together</h3><p>Your device may use a different protocol on a different network. An IPv4-only allowlist says nothing about how IPv6 behaves, so test from both kinds of connection separately.</p></li>
+        <li><h3>Cover IPv4 and IPv6 together</h3><p>Your device may use a different protocol on a different network. An IPv4-only allowlist does not mean IPv6 behaves the way you expect, so you must test from both kinds of connection separately.</p></li>
         <li><h3>Denylist: put deny before allow all</h3><p>If what you want is "block a few sources and allow the rest", the order should be the specific <code>deny</code> entries first and <code>allow all</code> after them, because the first matching rule decides the outcome.</p></li>
         <li><h3>Do not widen the range for convenience</h3><p><code>allow all</code> is only for making Basic Auth the real gate, or for sitting after specific deny entries to form a denylist. On its own it gives no IP protection.</p></li>
       </ol>
       <table class="data-table">
         <thead><tr><th>What you want</th><th>Rule order</th><th>Satisfy Any</th></tr></thead>
         <tbody>
-          <tr><td>Only a fixed IP gets in, no password</td><td><code>allow &lt;可信任 CIDR&gt;</code>, with everything else stopped by the final deny all</td><td>Off; create no Authorization user</td></tr>
+          <tr><td>Only a fixed IP gets in, no password</td><td><code>allow &lt;可信任 CIDR&gt;</code>, with everything else stopped by the final deny all</td><td>Off; do not create an Authorization user</td></tr>
           <tr><td>Every source needs a password</td><td><code>allow all</code>, together with Authorization</td><td>Off, so both the IP condition and the password have to pass</td></tr>
           <tr><td>A fixed IP and a password as well</td><td><code>allow &lt;可信任 CIDR&gt;</code>, together with Authorization</td><td>Off, both have to pass</td></tr>
           <tr><td>A fixed IP skips the password, everyone else needs one</td><td>The trusted CIDR together with Authorization</td><td>On; this is a deliberate bypass, not a stricter setting</td></tr>
@@ -149,9 +149,9 @@
       <ol class="steps">
         <li><h3>Apply it to the test host only</h3><p>Edit the test entry under <strong>Hosts → Proxy Hosts</strong>, select the list you created in Access List, and save.</p></li>
         <li><h3>Test the unauthorized case</h3><p>Use a private window or a client with no cached credentials. Basic Auth should show a login prompt; when the IP does not match you should be refused, not shown the upstream application page.</p></li>
-        <li><h3>Test a correct and a wrong password</h3><p>Confirm that a wrong password does not get through and the correct one does. Close the test window afterwards, so a shared computer does not keep the Authorization state.</p></li>
+        <li><h3>Test a correct and a wrong password</h3><p>Confirm that a wrong password does not get through and the correct one does. Close the test window afterward, so a shared computer does not keep the Authorization state.</p></li>
         <li><h3>Test once from an allowed and once from a denied network</h3><p>For example, test from a trusted VPN and over mobile data. Record what kind of source NPM actually sees, without publishing the real IP or a full access log.</p></li>
-        <li><h3>Then roll it out one host at a time</h3><p>Only once the whole test matrix behaves as expected, apply the list one Proxy Host at a time. Keep a way back every time, so you do not lock yourself out of every service in one batch.</p></li>
+        <li><h3>Then roll it out one host at a time</h3><p>Apply the list one Proxy Host at a time only once the whole test matrix behaves as expected. Keep a rollback path every time, so you do not lock yourself out of every service in one batch.</p></li>
       </ol>
       <div class="callout warn"><strong>Do not delete an Access List that is in use:</strong> the NPM 2.12.4 interface warns explicitly that the Proxy Hosts attached to it become public once it is deleted. Take stock of what is attached, move each host to the correct list, and verify them one by one.</div>
     </section>
@@ -170,15 +170,15 @@
 
     <section id="proxy-limits" data-nav="Proxy and Tunnel limits">
       <h2 data-icon="warning">The IP NPM sees may not be the visitor's IP</h2>
-      <p>The Nginx access module decides on the address the connection came from; it does not automatically treat an arbitrary HTTP header as a trusted IP. When a Cloudflare Tunnel, another reverse proxy, a container network or NAT sits in front, NPM may only see the address of the connector, the proxy or the gateway.</p>
+      <p>The Nginx access module decides based on the address the connection came from; it does not automatically treat an arbitrary HTTP header as a trusted IP. When a Cloudflare Tunnel, another reverse proxy, a container network or NAT sits in front, NPM may only see the address of the connector, the proxy or the gateway.</p>
       <ul>
         <li><strong>Cloudflare Tunnel:</strong> the visitor's details can appear in a Cloudflare header, but what an NPM Access List judges by default may still be the source of the cloudflared connection. Do not build an allowlist from visitor public IPs without verifying that first.</li>
         <li><strong>NAT:</strong> several people behind one exit can look like a single IP; allowing it allows the whole exit, not one user.</li>
-        <li><strong>Dynamic IPs:</strong> home and mobile networks change, so a rule can suddenly lock you out, or later allow the old IP to somebody else.</li>
+        <li><strong>Dynamic IPs:</strong> home and mobile data connections change, so a rule can suddenly lock you out, or later allow the old IP to somebody else.</li>
         <li><strong>Spoofed headers:</strong> do not trust <code>CF-Connecting-IP</code> or <code>X-Forwarded-For</code> on the strength of a custom config alone. You have to restrict which proxy sources are trusted at the same time, or a client can forge them itself.</li>
       </ul>
       <div class="callout tip"><strong>Tunnel recommendation:</strong> to control access by real user identity, build an identity policy in Cloudflare Access first, or use the upstream application's own login and MFA. Use an IP allowlist only once you have confirmed what the source address NPM sees actually means.</div>
-      <div class="callout warn"><strong>Basic Auth on the internal hop:</strong> if Chapter 8 had cloudflared reach NPM over HTTP, the Authorization header travels in that unencrypted LAN traffic. The connector and NPM should sit in the same trusted/isolated environment; across an untrusted network, switch to a verifiable HTTPS origin hop or to Cloudflare Access.</div>
+      <div class="callout warn"><strong>Basic Auth on the internal hop:</strong> if you followed Chapter 8 and cloudflared reaches NPM over HTTP, the Authorization header travels in that unencrypted LAN traffic. The connector and NPM should sit in the same trusted/isolated environment; across an untrusted network, switch to a verifiable HTTPS origin hop or to Cloudflare Access.</div>
     </section>
 
     <section id="limitations" data-nav="Where it stops">

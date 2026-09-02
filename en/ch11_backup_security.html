@@ -81,12 +81,12 @@
 
       <section id="maintenance-boundary" data-nav="Operations boundary">
         <h2 data-icon="plan">Define a recoverable operations boundary first</h2>
-        <p>Woow Nginx Proxy Manager is a Home Assistant add-on, not the official NPM Docker Compose deployment as it comes. The add-on <code>config.yaml</code> currently maps <code>addon_config</code> into the container as writable, and publishes only 80, 81 and 443. Woow's patch changes the <code>/data</code> state path that upstream normally uses to <code>/config</code>.</p>
+        <p>Woow Nginx Proxy Manager is a Home Assistant add-on, not the official NPM Docker Compose deployment as-is. The add-on <code>config.yaml</code> currently maps <code>addon_config</code> into the container as writable, and publishes only 80, 81 and 443. Woow's patch moves the state path that upstream normally keeps at <code>/data</code> over to <code>/config</code>.</p>
         <table class="data-table">
           <thead><tr><th scope="col">Plane</th><th scope="col">What it holds</th><th scope="col">Operating rule</th></tr></thead>
           <tbody>
             <tr><td>Data plane</td><td>SQLite, the NPM objects, the generated Nginx config, certificates and keys</td><td>Protect it with HA backups; do not take it apart by hand and then assume it can be restored</td></tr>
-            <tr><td>Management plane</td><td>Port 81, the administrators and their permissions</td><td>Restrict it to a trusted network segment; it must never be exposed to the public internet</td></tr>
+            <tr><td>Management plane</td><td>Port 81, the administrators and their permissions</td><td>Restrict it to a trusted network segment; do not expose it to the public internet</td></tr>
             <tr><td>Traffic plane</td><td>80/443 and the public services you have explicitly approved</td><td>Expose only the entry points you need; keep the upstream private</td></tr>
             <tr><td>Audit plane</td><td>The HA add-on log and NPM audit information</td><td>Keep the minimum, redact it before you share it, and limit who can read it</td></tr>
           </tbody>
@@ -103,7 +103,7 @@
             <tr><td>SQLite database</td><td><code>/config/database.sqlite</code></td><td>The core state of your Hosts, users and NPM settings; treat it as sensitive data</td></tr>
             <tr><td>Application keys</td><td><code>/config/keys.json</code></td><td>Encryption-related keys; never paste them into a ticket or a public repository</td></tr>
             <tr><td>Nginx config</td><td><code>/config/nginx/</code></td><td>May reveal domains, private IPs, ports and your routing structure</td></tr>
-            <tr><td>Let's Encrypt data</td><td><code>/config/letsencrypt/</code></td><td>Holds certificate files and private keys; it must be protected strictly</td></tr>
+            <tr><td>Let's Encrypt data</td><td><code>/config/letsencrypt/</code></td><td>Holds certificate-related files and private keys; protect it strictly</td></tr>
             <tr><td>Custom certificates</td><td><code>/config/custom_ssl/</code></td><td>May contain private keys; never send it through ordinary messaging</td></tr>
             <tr><td>Access Lists</td><td><code>/config/access/</code></td><td>Holds access control data; do not treat it as publishable config</td></tr>
             <tr><td>Logs</td><td><code>*/logs</code></td><td>Excluded by the add-on's backup rule; the Woow patch already sends some Nginx logs to the add-on output</td></tr>
@@ -116,7 +116,7 @@
         <h2 data-icon="steps">Make a usable backup before updating</h2>
         <ol class="steps">
           <li><h3>Record the current state</h3><p>In a private operations record, write down the HA version, the version the Woow add-on shows, the test results for your key Proxy Hosts, and the time of the backup. Do not write down passwords, DNS API tokens, certificate private keys, full domains or unredacted IPs.</p></li>
-          <li><h3>Create the backup on the HA backups page</h3><p>Go to Settings / System / Backups and create a manual backup, or confirm that "backup before update" is enabled. If you use a partial backup, select the Woow Nginx Proxy Manager add-on explicitly.</p></li>
+          <li><h3>Create the backup on the HA backups page</h3><p>Go to Settings / System / Backups and create a manual backup, or confirm that "Backup before update" is enabled. If you use a partial backup, select the Woow Nginx Proxy Manager add-on explicitly.</p></li>
           <li><h3>Keep the emergency kit</h3><p>The official Home Assistant documentation notes that a backup can be encrypted, and that restoring an encrypted backup needs the matching encryption key. Store the Backup emergency kit somewhere safe, away from the HA host, and note which backups it applies to.</p></li>
           <li><h3>Keep a copy on another system</h3><p>Do not leave your only backup on the same HA storage device. The official advice is to keep at least one copy on another system, and ideally an off-site copy as well; both need access control.</p></li>
           <li><h3>Confirm it finished, not only that you pressed the button</h3><p>Check that the backup job succeeded, that the file exists and its size is plausible, and that the add-on is listed in the selected contents. If your environment allows it, schedule an isolated restore drill.</p></li>
@@ -127,9 +127,9 @@
         <h2 data-icon="restore">Turn "downloadable" into "restorable"</h2>
         <p>A backup you have never rehearsed only proves that a file was produced once; it does not prove that NPM can come back to a working state. Restoring directly on your live HA overwrites whatever you selected, so do it in a maintenance window or on an isolated test device. Do not experiment on production.</p>
         <ol class="steps">
-          <li><h3>Prepare an isolated environment</h3><p>Avoid having the restored 80/443 face the outside at the same time as your existing NPM, and avoid pointing test DNS at the live service.</p></li>
+          <li><h3>Prepare an isolated environment</h3><p>Avoid having the restored 80/443 public-facing at the same time as your existing NPM, and avoid pointing test DNS at the live service.</p></li>
           <li><h3>Use the official HA restore flow</h3><p>Select the matching backup and the Woow add-on, and supply the encryption key when prompted. Do not unpack it by hand and overwrite an incomplete directory.</p></li>
-          <li><h3>Verify the core objects</h3><p>Confirm that an administrator can log in, and that the counts of Proxy / Redirection Hosts, Certificates, Access Lists and Streams look right; compare against rewritten inventory data only.</p></li>
+          <li><h3>Verify the core objects</h3><p>Confirm that an administrator can log in, and that the counts of Proxy / Redirection Hosts, Certificates, Access Lists and Streams look right; compare only against inventory data you have already rewritten.</p></li>
           <li><h3>Test the service without exposing it</h3><p>Confirm that the add-on starts, that the Nginx config loads, and that a test upstream can be proxied. Shut the isolated instance down once you are finished, so you do not end up with two entry points.</p></li>
         </ol>
       </section>
@@ -179,10 +179,10 @@
         <table class="data-table">
           <thead><tr><th scope="col">Specific problem</th><th scope="col">How to confirm</th><th scope="col">What to do</th></tr></thead>
           <tbody>
-            <tr><td>The backup finished but has no Woow add-on in it</td><td>Look at the backup's content list</td><td>Create the partial backup again and select the add-on explicitly, or create a full backup if that suits you better</td></tr>
-            <tr><td>An encrypted backup will not restore</td><td>Check whether the emergency kit matches the time the backup was created</td><td>Use the key that goes with that backup; never rotate the key and throw the old kit away</td></tr>
+            <tr><td>The backup finished but has no Woow add-on in it</td><td>Look at the backup's content list</td><td>Create the partial backup again and select the add-on explicitly, or create a full backup as needed</td></tr>
+            <tr><td>An encrypted backup cannot be restored</td><td>Check whether the emergency kit matches the time the backup was created</td><td>Use the key that goes with that backup; do not rotate the key and then throw the old kit away</td></tr>
             <tr><td>Proxy Hosts are gone after an update</td><td>First check you are not logged into the wrong instance, then read the add-on startup and database messages</td><td>Stop making changes, keep a summary of the log, and go through the HA restore flow with a verified backup</td></tr>
-            <tr><td>Port 81 opens from an external network</td><td>Test over mobile data, and check the router NAT and Tunnel rules</td><td>Remove the WAN/Tunnel entry point to 81 immediately, tighten the firewall and rotate the admin password</td></tr>
+            <tr><td>Port 81 opens from an external network</td><td>Test over mobile data, and check the router NAT/Tunnel rules</td><td>Remove the WAN/Tunnel entry point to 81 immediately, tighten the firewall and rotate the admin password</td></tr>
             <tr><td>The UI shows version 0.0.0 after an update</td><td>Compare the HA add-on version with the Woow CHANGELOG</td><td>If the service works, treat it as the cosmetic limitation the documentation describes; do not overwrite the container image because of it</td></tr>
             <tr><td>You shared a log and then found sensitive data in it</td><td>Check the domains, IPs, Authorization, tokens and certificate content</td><td>Withdraw what you published, rotate the exposed passwords/tokens/certificates, and keep an incident record that holds no secrets</td></tr>
           </tbody>

@@ -81,7 +81,7 @@
 
     <section id="installation-scope" data-nav="Chapter scope">
       <h2 data-icon="what">What this chapter completes</h2>
-      <p>You will install the Home Assistant add-on called <strong>Woow Nginx Proxy Manager</strong>, start it, and confirm the admin interface works from a trusted LAN only. This chapter sets up no domain, requests no certificate, and does not ask you to open a router port first.</p>
+      <p>You will install the Home Assistant add-on called <strong>Woow Nginx Proxy Manager</strong>, start it, and then, from a trusted LAN only, confirm that the admin interface works. This chapter sets up no domain, requests no certificate, and does not ask you to open a router port first.</p>
       <p>The WOOWTECH repository currently states that this add-on is for Home Assistant OS (HAOS) or Home Assistant Supervised, supports <code>amd64</code> and <code>aarch64</code>, and needs TCP 80, 81 and 443. If you run Home Assistant Container or Core, these add-on steps do not apply.</p>
       <div class="callout"><strong>Version note:</strong> the repository updates the add-on. The version shown on the install page may differ from the config file this chapter was checked against; go by the latest README, changelog and config.yaml you can see.</div>
     </section>
@@ -89,7 +89,7 @@
     <section id="preflight" data-nav="Preflight">
       <h2 data-icon="plan">Take stock before installing</h2>
       <ol class="steps">
-        <li><h3>Confirm the installation type</h3><p>In Home Assistant's system information, confirm you are on HAOS or Supervised, and that you can open the Add-on Store under Settings.</p></li>
+        <li><h3>Confirm the installation type</h3><p>In Home Assistant's system information, confirm you are on HAOS or Supervised, and that you can open the Add-on Store under "Settings".</p></li>
         <li><h3>Confirm the CPU architecture</h3><p>Confirm the system is <code>amd64</code> or <code>aarch64</code>. The WOOWTECH config.yaml currently declares only those two architectures.</p></li>
         <li><h3>Take stock of the ports</h3><p>Check whether a service on the same Home Assistant host already uses TCP 80, 81 or 443. Record only what you need, and redact hostnames, private IPs and full logs before you share anything.</p></li>
         <li><h3>Keep what you need to roll back</h3><p>Write down the add-ons currently running and their port assignments. If you find a conflict, understand what the existing service is for first; do not disable or delete it outright.</p></li>
@@ -99,20 +99,20 @@
     <section id="add-repository" data-nav="Add repository">
       <h2 data-icon="addons">Add the official repository</h2>
       <ol class="steps">
-        <li><h3>Open the Add-on Store</h3><p>In Home Assistant, open Settings → Add-ons → Add-on Store. Note: a localized Home Assistant interface may label this differently; look for the Add-on Store.</p></li>
-        <li><h3>Open the repository list</h3><p>Open the menu at the top right, then open Repositories.</p></li>
+        <li><h3>Open the Add-on Store</h3><p>In Home Assistant, open "Settings" → "Add-ons" → "Add-on Store". Note: a localized Home Assistant interface may label this differently; look for the Add-on Store.</p></li>
+        <li><h3>Open the repository list</h3><p>Open the menu at the top right, then open "Repositories".</p></li>
         <li><h3>Paste the right URL</h3><p>Add <code>https://github.com/WOOWTECH/Woow_ha_nginxpm</code>. Check that the owner is <code>WOOWTECH</code>, and do not use a similarly named or archived old repository.</p></li>
         <li><h3>Wait for the list to refresh</h3><p>Close the repository dialog, wait for the store to reload, then search for <strong>Woow Nginx Proxy Manager</strong>.</p></li>
       </ol>
-      <div class="callout warn"><strong>Note on the old repository:</strong> the WOOWTECH README states that the project has migrated away from the old <code>Woow_nginxpm_docker_compose_all</code> and its <code>ha</code> branch; an archived repository no longer receives updates.</div>
+      <div class="callout warn"><strong>Note on the old repository:</strong> the WOOWTECH README states that the project has migrated away from the old <code>Woow_nginxpm_docker_compose_all</code> repository's <code>ha</code> branch; an archived repository no longer receives updates.</div>
     </section>
 
     <section id="install-addon" data-nav="Install add-on">
       <h2 data-icon="steps">Install the add-on</h2>
       <ol class="steps">
         <li><h3>Open the right entry</h3><p>Select <strong>Woow Nginx Proxy Manager</strong> and check once more that the source points at WOOWTECH's <code>Woow_ha_nginxpm</code>.</p></li>
-        <li><h3>Read the version information</h3><p>Read the README, the changelog, the supported architectures and the permissions, then press INSTALL.</p></li>
-        <li><h3>Wait for the install to finish</h3><p>How long it takes depends on your hardware and network. Do not press install again or reboot the host because the screen has stopped changing for a moment.</p></li>
+        <li><h3>Read the version information</h3><p>Read the README, the changelog, the supported architectures and the permissions, then press "INSTALL".</p></li>
+        <li><h3>Wait for the install to finish</h3><p>How long it takes depends on your hardware and network. Do not press install again or reboot the host just because the screen has not changed for a moment.</p></li>
         <li><h3>Do not set up WAN forwarding yet</h3><p>Stay on the add-on page once the install finishes. At this point no port needs to be exposed to the public internet, and TCP 81 must never be.</p></li>
       </ol>
       <p>The WOOWTECH add-on README states that this add-on needs no extra options; all administration happens in the Web UI on TCP 81.</p>
@@ -135,9 +135,9 @@
     <section id="start-and-check" data-nav="Start and check">
       <h2 data-icon="test">Start it and check from the LAN</h2>
       <ol class="steps">
-        <li><h3>Start the add-on</h3><p>On the add-on info page, press START and wait for the status to become running.</p></li>
+        <li><h3>Start the add-on</h3><p>On the add-on info page, press "START" and wait for the status to become running.</p></li>
         <li><h3>Read a short log first</h3><p>Check locally only, to see whether startup finished and whether there is a port conflict. A log can contain addresses, domains, certificates or request details, so do not post the whole thing publicly.</p></li>
-        <li><h3>Open the Web UI from a trusted LAN</h3><p>Use the add-on's OPEN WEB UI button. If the button is unavailable, try <code>http://&lt;HA區網位址&gt;:81</code> from a trusted LAN; never write your real address into public notes.</p></li>
+        <li><h3>Open the Web UI from a trusted LAN</h3><p>Use the add-on's "OPEN WEB UI" button. If the button is unavailable, try <code>http://&lt;HA區網位址&gt;:81</code> from a trusted LAN; never write your real address into public notes.</p></li>
         <li><h3>Stop at the login page</h3><p>Reaching the NPM login screen means this chapter's checks are done. You will use the default credentials in the next chapter, and you must change them immediately after you log in.</p></li>
       </ol>
       <div class="callout warn"><strong>The default credentials are not hardened yet:</strong> until you finish the next chapter, keep TCP 81 restricted to a trusted LAN, and do not start publishing a Proxy Host.</div>
@@ -160,7 +160,7 @@
       <h3>Problem 1: the store cannot find Woow Nginx Proxy Manager</h3><p>Confirm the repository URL is complete and the owner is WOOWTECH, reload the store, and check whether Home Assistant can reach GitHub. Do not add an unvetted mirror instead.</p>
       <h3>Problem 2: it says this architecture is not supported</h3><p>Check that the system is <code>amd64</code> or <code>aarch64</code>. The current config.yaml declares no other architecture; do not force the install with the wrong image.</p>
       <h3>Problem 3: it fails to start and mentions address already in use</h3><p>Usually TCP 80, 81 or 443 is already taken. Take stock of the services and add-on ports on the same host; understand what depends on what before you decide which side to change.</p>
-      <h3>Problem 4: the add-on is running but the Web UI will not open</h3><p>Use OPEN WEB UI first, then check <code>http://&lt;HA區網位址&gt;:81</code> from the same trusted LAN. Check the local firewall and the VLAN rules; do not use WAN forwarding to work around the problem.</p>
+      <h3>Problem 4: the add-on is running but the Web UI will not open</h3><p>Use "OPEN WEB UI" first, then check <code>http://&lt;HA區網位址&gt;:81</code> from the same trusted LAN. Check the local firewall and the VLAN rules; do not use WAN forwarding to work around the problem.</p>
       <h3>Problem 5: the install never finishes</h3><p>Check the free storage, the network and the Supervisor log for a specific error. Quote only the lines you need and redact sensitive values; do not paste the whole log.</p>
     </section>
 
@@ -168,7 +168,7 @@
       <h2 data-icon="faq">FAQ</h2>
       <details class="faq"><summary>Do I need a domain before I install?</summary><div class="body">No. You can install it on a trusted LAN and harden the account first, then create a Proxy Host once your architecture and DNS are ready.</div></details>
       <details class="faq"><summary>Why do I see three ports after installing?</summary><div class="body">80 and 443 are the entry points for proxied traffic; 81 is the admin interface. The add-on publishes them on the host, which does not mean the router should expose them all.</div></details>
-      <details class="faq"><summary>Can I move host port 81 to another number and expose that?</summary><div class="body">Changing the number is not a substitute for access control. Whatever the external number is, the admin interface must never be exposed directly to the public internet.</div></details>
+      <details class="faq"><summary>Can I move host port 81 to another number and expose that?</summary><div class="body">No. Changing the number is not a substitute for access control. Whatever the external number is, the admin interface must never be exposed directly to the public internet.</div></details>
       <details class="faq"><summary>Can I follow this chapter on Home Assistant Container?</summary><div class="body">No. The WOOWTECH README requires HAOS or Supervised; Container users should plan separately, following the official NPM Docker documentation.</div></details>
     </section>
 

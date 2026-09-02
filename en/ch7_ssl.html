@@ -84,7 +84,7 @@
       <h2 data-icon="why">Pick the right challenge first</h2>
       <p>Let's Encrypt issues a certificate only once it has confirmed that you control the domain. Nginx Proxy Manager (NPM) can prove that over HTTP or over DNS; which one you pick depends on port 80, the kind of domain and your DNS provider, not on which button is more convenient.</p>
       <div class="callout"><strong>What "done" looks like:</strong> a browser opens your service over HTTPS, HTTP redirects to HTTPS the way you planned, and you know that renewal still needs the challenge conditions you started with.</div>
-      <div class="callout danger"><strong>Admin security baseline:</strong> if you are still on <code>admin@example.com</code> / <code>changeme</code>, you must change it immediately. Port 81 is only reachable from a trusted LAN or a controlled management channel, and must never be forwarded to the public internet.</div>
+      <div class="callout danger"><strong>Admin security baseline:</strong> if you are still on <code>admin@example.com</code> / <code>changeme</code>, you must change it immediately. Port 81 must only be reachable from a trusted LAN or a controlled management channel, and must never be forwarded to the public internet.</div>
     </section>
 
     <section id="challenge-choice" data-nav="HTTP-01 vs DNS-01">
@@ -92,21 +92,21 @@
       <table class="data-table">
         <thead><tr><th>Item</th><th>HTTP-01</th><th>DNS-01</th></tr></thead>
         <tbody>
-          <tr><td>How the challenge works</td><td>Let's Encrypt reads the challenge content over HTTP</td><td>Let's Encrypt queries a temporary DNS TXT record</td></tr>
+          <tr><td>Challenge</td><td>Let's Encrypt reads the challenge content over HTTP</td><td>Let's Encrypt queries a temporary DNS TXT record</td></tr>
           <tr><td>Network conditions</td><td>The domain must point at NPM, and public TCP 80 must be able to reach NPM</td><td>No need to expose 80/443 to the internet</td></tr>
           <tr><td>Wildcard certificate</td><td>Not supported</td><td>Supported, for example <code>*.example.invalid</code></td></tr>
           <tr><td>Secrets required</td><td>No DNS API token needed</td><td>A DNS provider API credential is needed</td></tr>
           <tr><td>Typical use</td><td>Traditional port forwarding, a single hostname</td><td>CGNAT, port 80 unavailable, wildcards or a Tunnel architecture</td></tr>
         </tbody>
       </table>
-      <div class="callout warn"><strong>What HTTP-01 always requires:</strong> Let's Encrypt's own documentation states that this challenge can only be completed on port 80, and that it cannot issue a wildcard certificate. Once issuance succeeds, the HTTP challenge still has to stay reachable at renewal time.</div>
+      <div class="callout warn"><strong>What HTTP-01 always requires:</strong> Let's Encrypt's own documentation states that this challenge can only be completed on port 80, and that it cannot be used to get a wildcard certificate. Once issuance succeeds, the HTTP challenge still has to stay reachable at renewal time.</div>
     </section>
 
     <section id="prepare" data-nav="Before you request">
       <h2 data-icon="plan">Check before you request</h2>
       <ol class="steps">
         <li><h3>Confirm the account and the admin surface</h3><p>Change the default credentials first, and keep port 81 reachable only from a trusted network. Do not publish the admin interface through a public-facing Proxy Host.</p></li>
-        <li><h3>Check the domain</h3><p>Write the fully qualified hostname down using your own redacted placeholder. Do not paste the real domain, public or private IPs, or your internal topology into a public help forum.</p></li>
+        <li><h3>Check the domain</h3><p>Write the fully qualified domain name down using your own redacted placeholder. Do not paste the real domain, public or private IPs, or your internal topology into a public help forum.</p></li>
         <li><h3>Confirm the NPM user's email</h3><p>The upstream NPM code requires a user account to hold a valid email before it will request a certificate from Let's Encrypt. That email is personal data too.</p></li>
         <li><h3>Pick one path you can keep renewing</h3><p>HTTP-01 means keeping the port 80 challenge path in place for the long term; DNS-01 means keeping a valid, least-privilege DNS token for the long term. Do not test only the first issuance.</p></li>
       </ol>
@@ -126,8 +126,8 @@
     <section id="dns01" data-nav="Use DNS-01">
       <h2 data-icon="steps">Request a certificate with Cloudflare DNS-01</h2>
       <ol class="steps">
-        <li><h3>Create a dedicated API token</h3><p>In Cloudflare, create a token that only Certbot uses, authorized to edit DNS on the target zone and nothing more; do not use the over-privileged Global API Key. The Certbot Cloudflare plugin's own documentation also recommends an API Token that can be restricted to specific domains.</p></li>
-        <li><h3>Choose DNS Challenge</h3><p>Request the Let's Encrypt certificate on the Proxy Host's <strong>SSL</strong> tab, tick <strong>Use a DNS Challenge</strong>, and set DNS Provider to Cloudflare.</p></li>
+        <li><h3>Create a dedicated API token</h3><p>In Cloudflare, create a token that only Certbot uses, authorized to edit DNS on the target zone and nothing more; do not use the over-privileged Global API Key. The Certbot Cloudflare plugin's own documentation also recommends an API token that can be restricted to specific domains.</p></li>
+        <li><h3>Choose DNS Challenge</h3><p>Request the Let's Encrypt certificate on the Proxy Host's <strong>SSL</strong> tab, check <strong>Use a DNS Challenge</strong>, and set DNS Provider to Cloudflare.</p></li>
         <li><h3>Fill in the token format</h3><p>In Credentials File Content, use the token field the Cloudflare plugin supports. What follows is only a dummy value; do not replace it with a real token and then screenshot it or commit it to Git:</p><pre class="code-block"><code>dns_cloudflare_api_token = &lt;只限目標 zone 的 DNS token&gt;</code></pre></li>
         <li><h3>Wait for DNS propagation, then save</h3><p>Start with the default propagation wait; raise it step by step only when you have confirmed the TXT record has not propagated yet. Once issuance is done, do not delete the token NPM needs, or automatic renewal will fail.</p></li>
       </ol>
@@ -137,9 +137,9 @@
     <section id="force-ssl" data-nav="Force SSL">
       <h2 data-icon="assign">Apply the certificate and Force SSL</h2>
       <ol class="steps">
-        <li><h3>Select the right certificate</h3><p>Edit the Proxy Host and pick the certificate that covers that fully qualified domain under SSL Certificate. Do not assume a certificate that does not include the hostname will work anyway.</p></li>
+        <li><h3>Select the right certificate</h3><p>Edit the Proxy Host and pick the certificate that covers that fully qualified domain name under SSL Certificate. Do not assume a certificate that does not include the hostname will work anyway.</p></li>
         <li><h3>Test HTTPS first</h3><p>After saving, open <code>https://&lt;你的網域&gt;</code> directly and confirm the upstream service works, the certificate chain is valid, and there is no redirect loop.</p></li>
-        <li><h3>Then turn on Force SSL</h3><p>Once HTTPS is confirmed good, tick <strong>Force SSL</strong>. NPM's upstream template loads the forced-HTTPS configuration when a certificate is already in place.</p></li>
+        <li><h3>Then turn on Force SSL</h3><p>Once HTTPS is confirmed good, check <strong>Force SSL</strong>. NPM's upstream template loads the forced-HTTPS configuration when a certificate is already in place.</p></li>
         <li><h3>Test the HTTP entry point</h3><p>Open <code>http://&lt;你的網域&gt;</code> and confirm it redirects to HTTPS on the same host, not to the wrong domain and not into an endless loop.</p></li>
       </ol>
       <div class="callout warn"><strong>The Cloudflare Tunnel exception:</strong> if the Tunnel's internal Service URL is NPM's <code>http://…:80</code>, do not turn on Force SSL in NPM, or Cloudflare may keep getting an HTTPS redirect every time it connects back to the origin over HTTP. Handle the HTTP-to-HTTPS redirect at the Cloudflare edge instead; Chapter 8 covers it in full.</div>
@@ -162,7 +162,7 @@
         <li><h3>Check the expiry date under Certificates</h3><p>Record what the certificate covers and when it expires, but keep the real domain and the certificate contents out of any public document. The upstream NPM code checks Let's Encrypt certificates on a schedule and handles the ones that are about to expire.</p></li>
         <li><h3>Keep the original challenge conditions</h3><p>For HTTP-01, keep the DNS pointing where it does and public port 80 in place; for DNS-01, keep a valid, least-privilege DNS token. When a token is rotated, update NPM with it.</p></li>
         <li><h3>Check failure messages regularly</h3><p>Read the add-on and certificate logs only from a trusted admin surface. Before you share troubleshooting data, redact domains, public and private IPs, tokens, certificates, accounts and full logs.</p></li>
-        <li><h3>Schedule a human review before expiry</h3><p>Automation is not maintenance-free. A change to DNS provider permissions, to a router rule or to the domain's registration can all break the next renewal.</p></li>
+        <li><h3>Schedule a human review before expiry</h3><p>Automation is not maintenance-free. A change to DNS provider permissions, to a router rule or to the domain's own renewal can all break the next renewal.</p></li>
       </ol>
     </section>
 
@@ -172,7 +172,7 @@
         <thead><tr><th>Specific problem</th><th>Check first</th><th>Safe handling</th></tr></thead>
         <tbody>
           <tr><td>HTTP-01 reports a timeout or a failed connection</td><td>Public DNS, CGNAT, whether the ISP blocks port 80, whether router TCP 80 reaches NPM</td><td>Do not open port 81 instead; when port 80 cannot be provided, use DNS-01</td></tr>
-          <tr><td>HTTP-01 returns the wrong content or a 404</td><td>Whether the domain lands on another host, on the Cloudflare proxy or on an old forwarding rule</td><td>Check the Host and the entry point layer by layer; do not publish full config files or logs</td></tr>
+          <tr><td>HTTP-01 returns the wrong content or a 404</td><td>Whether the domain lands on another host, on the Cloudflare Proxy or on an old forwarding rule</td><td>Check the Host and the entry point layer by layer; do not publish full config files or logs</td></tr>
           <tr><td>DNS-01 cannot create the TXT record</td><td>Whether the token holds DNS edit permission on the target zone, and whether the credentials field is in the right format</td><td>Do not switch to the Global API Key for convenience; create a fresh least-privilege token</td></tr>
           <tr><td>DNS-01 waits for a challenge record that never appears</td><td>Whether the <code>_acme-challenge</code> TXT record has shown up on the authoritative DNS, and whether the propagation wait is too short</td><td>Query the authoritative DNS first, then raise the wait a little at a time, so repeated retries do not trigger a rate limit</td></tr>
           <tr><td>A redirect loop after turning on Force SSL</td><td>The Cloudflare SSL / Tunnel origin protocol, and the upstream application's own HTTPS redirect</td><td>Turn off whichever layer is duplicating the redirect; when the Tunnel connects back to the origin over HTTP, redirect at the Cloudflare edge</td></tr>
@@ -185,7 +185,7 @@
       <h2 data-icon="faq">SSL FAQ</h2>
       <details class="faq"><summary>Once HTTP-01 has succeeded, can I close port 80?</summary><div class="body">Not recommended. The official NPM certificate help states that a Proxy Host using HTTP validation must keep offering HTTP access for renewal to work. If you do not want port 80 exposed, use DNS-01 instead.</div></details>
       <details class="faq"><summary>Can a wildcard certificate use HTTP-01?</summary><div class="body">No. Let's Encrypt states explicitly that HTTP-01 does not support wildcards; use DNS-01.</div></details>
-      <details class="faq"><summary>Are Force SSL and HSTS the same thing?</summary><div class="body">No. Force SSL is the server redirecting an HTTP request to HTTPS; HSTS is a policy the browser remembers, that in future only HTTPS may be used.</div></details>
+      <details class="faq"><summary>Are Force SSL and HSTS the same thing?</summary><div class="body">No. Force SSL is the server redirecting an HTTP request to HTTPS; HSTS is a policy the browser remembers: from then on, only HTTPS may be used.</div></details>
       <details class="faq"><summary>With Cloudflare Tunnel, does NPM still need a public certificate?</summary><div class="body">If the Tunnel connects over HTTP to NPM port 80 on an isolated LAN, what the browser sees is the Cloudflare edge certificate, so NPM does not necessarily need a public certificate. If you move the origin hop to HTTPS, you then have to validate the origin certificate properly.</div></details>
       <details class="faq"><summary>Can I paste a DNS token into a support ticket and ask someone to look into it?</summary><div class="body">No. Tokens, certificates, domains, IPs and full logs are all sensitive data. Revoke any token that has leaked, and hand over only a redacted summary of the error.</div></details>
     </section>
@@ -200,7 +200,7 @@
           <tr><td><a href="https://github.com/NginxProxyManager/nginx-proxy-manager/blob/develop/frontend/src/locale/src/HelpDoc/en/Certificates.md" rel="noopener">NPM Certificates Help</a></td><td>HTTP / DNS validation requirements and the wildcard limitation</td></tr>
           <tr><td><a href="https://github.com/NginxProxyManager/nginx-proxy-manager/blob/develop/backend/internal/certificate.js" rel="noopener">NPM certificate handling code</a></td><td>A valid email, scheduled renewal and the validation flow</td></tr>
           <tr><td><a href="https://letsencrypt.org/docs/challenge-types/" rel="noopener">Let's Encrypt Challenge Types</a></td><td>HTTP-01 always uses port 80, plus DNS-01 and wildcards</td></tr>
-          <tr><td><a href="https://certbot-dns-cloudflare.readthedocs.io/en/stable/" rel="noopener">Certbot DNS Cloudflare documentation</a></td><td>The recommendation to use a restricted API Token, and the credentials format</td></tr>
+          <tr><td><a href="https://certbot-dns-cloudflare.readthedocs.io/en/stable/" rel="noopener">Certbot DNS Cloudflare documentation</a></td><td>The recommendation to use a restricted API token, and the credentials format</td></tr>
           <tr><td><a href="https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Strict-Transport-Security" rel="noopener">MDN HSTS</a></td><td>Browser memory, Include Subdomains and HTTPS-only behavior</td></tr>
         </tbody>
       </table>
