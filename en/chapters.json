@@ -1,14 +1,14 @@
 {
   "_readme": "Single source for the en/ site root (nav, SEO, catalog, sitemap). Human-readable fields are translation units tracked in i18n/ledger.json. Rebuild with: SITE_ROOT=en node scripts/build_nav.js",
   "site": {
-    "title": "Nginx Proxy Manager 反向代理指南",
-    "brand": "NPM 指南",
-    "subtitle": "把家中服務安全帶上網",
+    "title": "Nginx Proxy Manager reverse proxy guide",
+    "brand": "NPM Guide",
+    "subtitle": "Bring your home services online, safely",
     "baseUrl": "https://nginx-guide.woowtech.io/en",
     "repoUrl": "https://github.com/WOOWTECH/Woow_nginx_proxy_manager_tutorial_site",
     "locale": "en_US",
-    "description": "12 章繁體中文 Nginx Proxy Manager 教學：從 HAOS add-on 安裝、首次登入、Proxy Host、DNS 與 SSL，到 Cloudflare Tunnel、Access Lists、備份、安全與排錯。",
-    "footerMeta": "畫面與流程依 Nginx Proxy Manager 官方介面整理。Nginx Proxy Manager 為其權利人的商標，本站與其無隸屬關係。",
+    "description": "A 12-chapter Nginx Proxy Manager tutorial: HAOS add-on install, first login, Proxy Host, DNS and SSL, then Cloudflare Tunnel, Access Lists, backup, security and troubleshooting.",
+    "footerMeta": "Screens and workflows follow the official Nginx Proxy Manager interface. Nginx Proxy Manager is a trademark of its owner; this site is not affiliated with it.",
     "ogImage": "assets/og/npm-guide.en.png",
     "license": {
       "name": "CC BY 4.0",
@@ -21,7 +21,7 @@
       "pagerPrev": "<i class=\"mdi mdi-chevron-left\" aria-hidden=\"true\"></i> Previous",
       "pagerPrevAppendix": "<i class=\"mdi mdi-chevron-left\" aria-hidden=\"true\"></i> Appendix {n}",
       "pagerFirstPrev": "<i class=\"mdi mdi-view-grid-outline\" aria-hidden=\"true\"></i> Contents",
-      "pagerFirstPrevTitle": "View the full tutorial",
+      "pagerFirstPrevTitle": "See the full tutorial",
       "pagerNext": "Next <i class=\"mdi mdi-chevron-right\" aria-hidden=\"true\"></i>",
       "pagerNextAppendix": "Appendix {n} <i class=\"mdi mdi-chevron-right\" aria-hidden=\"true\"></i>",
       "pagerNextAppendixFromAppendix": "Next appendix <i class=\"mdi mdi-chevron-right\" aria-hidden=\"true\"></i>",
@@ -42,7 +42,7 @@
   },
   "hub": {
     "catalog": "tutorial.html",
-    "navLabel": "資源總覽",
+    "navLabel": "Resource Hub",
     "pages": [
       "sales.html",
       "prompts.html",
@@ -53,122 +53,122 @@
     {
       "file": "ch1_intro.html",
       "num": "01",
-      "navLabel": "開始前",
-      "title": "認識 Nginx Proxy Manager",
-      "pagerTitle": "01 · 需求與安全邊界",
-      "card": "先理解反向代理、網域、DNS 與 HTTPS，確認 NPM 能解決什麼問題。",
-      "description": "Nginx Proxy Manager 入門：反向代理、DNS、HTTPS、公開服務的安全邊界與部署方式比較。",
-      "part": "基礎：認識與安裝"
+      "navLabel": "Before you start",
+      "title": "Getting to know Nginx Proxy Manager",
+      "pagerTitle": "01 · Requirements and security boundaries",
+      "card": "Understand reverse proxies, domains, DNS and HTTPS first, then confirm what problems NPM solves.",
+      "description": "Nginx Proxy Manager basics: reverse proxy, DNS, HTTPS, the security boundaries of a public service, and deployment options compared.",
+      "part": "Basics: orientation and install"
     },
     {
       "file": "ch2_install.html",
       "num": "02",
-      "navLabel": "安裝",
-      "title": "安裝 Woow Nginx Proxy Manager",
-      "pagerTitle": "02 · 安裝 NPM add-on",
-      "card": "將 WoowTech NPM add-on 加入 Home Assistant，檢查 80、81、443 連接埠。",
-      "description": "Home Assistant OS 安裝 Woow Nginx Proxy Manager add-on：加入倉庫、安裝、連接埠與啟動檢查。",
-      "part": "基礎：認識與安裝"
+      "navLabel": "Install",
+      "title": "Install Woow Nginx Proxy Manager",
+      "pagerTitle": "02 · Install the NPM add-on",
+      "card": "Add the WoowTech NPM add-on to Home Assistant and check ports 80, 81 and 443.",
+      "description": "Install the Woow Nginx Proxy Manager add-on on Home Assistant OS: add the repository, install it, then check the ports and the startup.",
+      "part": "Basics: orientation and install"
     },
     {
       "file": "ch3_first_login.html",
       "num": "03",
-      "navLabel": "首次登入",
-      "title": "首次登入與帳號安全",
-      "pagerTitle": "03 · 首次登入與改密碼",
-      "card": "使用預設帳密登入後立即更改 email 與密碼，保護管理介面。",
-      "description": "Nginx Proxy Manager 首次登入：預設帳號、立即改密碼、管理 port 81 與基本安全設定。",
-      "part": "基礎：認識與安裝"
+      "navLabel": "First login",
+      "title": "First login and account security",
+      "pagerTitle": "03 · First login and password change",
+      "card": "Log in with the default credentials, then change the email and password immediately to protect the admin interface.",
+      "description": "Nginx Proxy Manager first login: the default account, changing the password immediately, admin port 81 and the basic security settings.",
+      "part": "Basics: orientation and install"
     },
     {
       "file": "ch4_dashboard.html",
       "num": "04",
-      "navLabel": "介面導覽",
-      "title": "管理介面與核心物件",
-      "pagerTitle": "04 · 管理介面導覽",
-      "card": "認識 Proxy Hosts、Certificates、Access Lists、Streams 與 Users。",
-      "description": "Nginx Proxy Manager 管理介面導覽：Hosts、SSL Certificates、Access Lists、Streams 與 Users。",
-      "part": "基礎：認識與安裝"
+      "navLabel": "Interface tour",
+      "title": "The admin interface and the core objects",
+      "pagerTitle": "04 · Admin interface tour",
+      "card": "Get to know Proxy Hosts, Certificates, Access Lists, Streams and Users.",
+      "description": "A tour of the Nginx Proxy Manager admin interface: Hosts, SSL Certificates, Access Lists, Streams and Users.",
+      "part": "Basics: orientation and install"
     },
     {
       "file": "ch5_proxy_host.html",
       "num": "05",
-      "navLabel": "第一個代理",
-      "title": "建立第一個 Proxy Host",
-      "pagerTitle": "05 · 建立 Proxy Host",
-      "card": "把外部網域導向 Home Assistant、NAS 或其他內部服務。",
-      "description": "Nginx Proxy Manager Proxy Host 教學：Domain Names、Forward Hostname/IP、Port、WebSocket 與測試。",
-      "part": "建置：公開第一個服務"
+      "navLabel": "First proxy",
+      "title": "Create your first Proxy Host",
+      "pagerTitle": "05 · Create a Proxy Host",
+      "card": "Point an external domain at Home Assistant, a NAS or another internal service.",
+      "description": "Nginx Proxy Manager Proxy Host guide: Domain Names, Forward Hostname/IP, Port, WebSocket and testing.",
+      "part": "Build: publish your first service"
     },
     {
       "file": "ch6_dns.html",
       "num": "06",
-      "navLabel": "DNS 解析",
-      "title": "DNS 與網域解析",
-      "pagerTitle": "06 · DNS 與網域解析",
-      "card": "建立 A／CNAME 記錄，理解公開 IP、Cloudflare Proxy 與 DNS 生效時間。",
-      "description": "Nginx Proxy Manager DNS 教學：A、CNAME、Cloudflare Proxy、公開 IP、NAT 與解析檢查。",
-      "part": "建置：公開第一個服務"
+      "navLabel": "DNS",
+      "title": "DNS and domain resolution",
+      "pagerTitle": "06 · DNS and domain resolution",
+      "card": "Create A/CNAME records, and understand public IPs, Cloudflare Proxy and DNS propagation time.",
+      "description": "Nginx Proxy Manager DNS guide: A records, CNAME records, Cloudflare Proxy, public IP, NAT and resolution checks.",
+      "part": "Build: publish your first service"
     },
     {
       "file": "ch7_ssl.html",
       "num": "07",
-      "navLabel": "SSL 憑證",
-      "title": "申請與管理 SSL 憑證",
+      "navLabel": "SSL certificates",
+      "title": "Request and manage SSL certificates",
       "pagerTitle": "07 · Let's Encrypt SSL",
-      "card": "使用 HTTP-01 或 DNS-01 取得憑證，啟用 Force SSL 並確認自動續期。",
-      "description": "Nginx Proxy Manager SSL 教學：Let's Encrypt、HTTP-01、DNS-01、Force SSL、HSTS 與憑證續期。",
-      "part": "建置：公開第一個服務"
+      "card": "Get a certificate with HTTP-01 or DNS-01, turn on Force SSL and confirm automatic renewal.",
+      "description": "Nginx Proxy Manager SSL guide: Let's Encrypt, HTTP-01, DNS-01, Force SSL, HSTS and certificate renewal.",
+      "part": "Build: publish your first service"
     },
     {
       "file": "ch8_cloudflare_tunnel.html",
       "num": "08",
       "navLabel": "CF Tunnel",
-      "title": "Cloudflare Tunnel 搭配 NPM",
-      "pagerTitle": "08 · Cloudflare Tunnel 架構",
-      "card": "不開路由器 port，以 Tunnel 對外，NPM 負責內部反向代理。",
-      "description": "Cloudflare Tunnel 搭配 Nginx Proxy Manager：不開 80/443、外部 HTTPS、內部反向代理與來源 IP。",
-      "part": "進階：安全與路由"
+      "title": "Cloudflare Tunnel with NPM",
+      "pagerTitle": "08 · Cloudflare Tunnel architecture",
+      "card": "Publish through a Tunnel instead of opening router ports, and let NPM handle the internal reverse proxy.",
+      "description": "Cloudflare Tunnel with Nginx Proxy Manager: no open 80/443, external HTTPS, the internal reverse proxy and the source IP.",
+      "part": "Advanced: security and routing"
     },
     {
       "file": "ch9_access_lists.html",
       "num": "09",
-      "navLabel": "存取控制",
-      "title": "Access Lists 與存取限制",
+      "navLabel": "Access control",
+      "title": "Access Lists and access restrictions",
       "pagerTitle": "09 · Access Lists",
-      "card": "用 Basic Auth、IP 白名單與黑名單保護受代理的 Web 服務。",
-      "description": "Nginx Proxy Manager Access Lists 教學：Basic Auth、IP 白名單、黑名單與最小暴露。",
-      "part": "進階：安全與路由"
+      "card": "Protect the web services you proxy with Basic Auth, IP allowlists and denylists.",
+      "description": "Nginx Proxy Manager Access Lists guide: Basic Auth, IP allowlists, denylists and minimal exposure.",
+      "part": "Advanced: security and routing"
     },
     {
       "file": "ch10_advanced_hosts.html",
       "num": "10",
-      "navLabel": "進階主機",
-      "title": "重導向、Streams 與 WebSocket",
-      "pagerTitle": "10 · 進階 Hosts 與 Streams",
-      "card": "處理 301/302、TCP/UDP 轉送、WebSocket 與自訂 Nginx 設定。",
-      "description": "Nginx Proxy Manager 進階功能：Redirection Hosts、Streams、WebSocket、Custom Locations 與 Nginx 設定。",
-      "part": "進階：安全與路由"
+      "navLabel": "Advanced hosts",
+      "title": "Redirects, Streams and WebSocket",
+      "pagerTitle": "10 · Advanced Hosts and Streams",
+      "card": "Handle 301/302, TCP/UDP forwarding, WebSocket and custom Nginx config.",
+      "description": "Advanced Nginx Proxy Manager features: Redirection Hosts, Streams, WebSocket, Custom Locations and Nginx config.",
+      "part": "Advanced: security and routing"
     },
     {
       "file": "ch11_backup_security.html",
       "num": "11",
-      "navLabel": "備份安全",
-      "title": "備份、更新與安全加固",
-      "pagerTitle": "11 · 備份與安全加固",
-      "card": "備份 SQLite、憑證與設定，規劃更新、管理介面保護與最小權限。",
-      "description": "Nginx Proxy Manager 維運：Home Assistant 備份、SQLite、SSL 憑證、更新、port 81 與安全加固。",
-      "part": "管理：維運與排錯"
+      "navLabel": "Backup and security",
+      "title": "Backup, updates and hardening",
+      "pagerTitle": "11 · Backup and hardening",
+      "card": "Back up SQLite, the certificates and the config, then plan updates, admin interface protection and least privilege.",
+      "description": "Nginx Proxy Manager operations: Home Assistant backups, SQLite, SSL certificates, updates, port 81 and hardening.",
+      "part": "Operations: maintenance and troubleshooting"
     },
     {
       "file": "ch12_troubleshooting.html",
       "num": "12",
-      "navLabel": "排錯維護",
-      "title": "常見錯誤與完整排查",
-      "pagerTitle": "12 · 排錯與維護",
-      "card": "從 DNS、port、upstream、502、SSL 到 Cloudflare 逐層定位問題。",
-      "description": "Nginx Proxy Manager 排錯：DNS、80/443、502 Bad Gateway、SSL、Cloudflare、WebSocket 與 log。",
-      "part": "管理：維運與排錯"
+      "navLabel": "Troubleshooting",
+      "title": "Common errors and full diagnosis",
+      "pagerTitle": "12 · Troubleshooting and maintenance",
+      "card": "Locate the problem layer by layer, from DNS, ports, upstream and 502 through to SSL and Cloudflare.",
+      "description": "Nginx Proxy Manager troubleshooting: DNS, 80/443, 502 Bad Gateway, SSL, Cloudflare, WebSocket and logs.",
+      "part": "Operations: maintenance and troubleshooting"
     }
   ],
   "appendices": [],

@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Nginx Proxy Manager 操作與 API 提示詞庫 · WoowTech</title>
-<meta name="description" content="45 條可複製的 Nginx Proxy Manager 自然語言提示詞，涵蓋 Proxy Hosts、DNS 與憑證、Access Lists、使用者、Redirection Hosts、Streams、備份與診斷。" />
+<title>Nginx Proxy Manager operations and API Prompt Library · WoowTech</title>
+<meta name="description" content="45 copy-and-paste natural-language prompts for Nginx Proxy Manager, covering Proxy Hosts, DNS and certificates, Access Lists, users, Redirection Hosts, Streams, backup and diagnostics." />
 <meta name="theme-color" content="#6183FC" />
 <link rel="canonical" href="https://nginx-guide.woowtech.io/en/prompts.html" />
   <meta name="robots" content="noindex, follow" />
@@ -18,78 +18,78 @@
 </head>
 <body>
 <div class="layout">
-<aside class="sidebar"><a class="brand" href="tutorial.html">Nginx Proxy Manager 指南</a><div class="brand-sub">可複製的操作與稽核需求</div>
+<aside class="sidebar"><a class="brand" href="tutorial.html">Nginx Proxy Manager Guide</a><div class="brand-sub">Copy-and-paste operations and audit requests</div>
 <!-- i18n:switch --><nav class="lang-switch" aria-label="Language"><a href="../prompts.html" lang="zh-Hant" hreflang="zh-Hant">中文</a><a class="active" href="prompts.html" lang="en" aria-current="page">EN</a></nav><!-- /i18n:switch -->
-<a class="hub-link" href="index.html">返回資源總覽</a><h2>本頁</h2><a class="toc" href="#rules">使用規則</a><a class="toc" href="#proxy">Proxy Hosts</a><a class="toc" href="#dns-cert">DNS 與憑證</a><a class="toc" href="#access">Access Lists 與使用者</a><a class="toc" href="#redirect-stream">Redirections 與 Streams</a><a class="toc" href="#backup-diagnose">備份與診斷</a></aside>
+<a class="hub-link" href="index.html">Back to the Resource Hub</a><h2>This page</h2><a class="toc" href="#rules">Ground rules</a><a class="toc" href="#proxy">Proxy Hosts</a><a class="toc" href="#dns-cert">DNS and certificates</a><a class="toc" href="#access">Access Lists and users</a><a class="toc" href="#redirect-stream">Redirections and Streams</a><a class="toc" href="#backup-diagnose">Backup and diagnostics</a></aside>
 <main class="content">
-<header><span class="kicker-script">describe, inspect, then act</span><div class="kicker">WoowTech · Nginx Proxy Manager 提示詞庫</div><h1>用清楚的一句話，安全管理 NPM</h1><p class="lead">以下 45 條提示詞可交給 AI Agent，也可當作你自己的操作清單。每條都要求先辨識環境與證據；涉及刪除、停用、覆寫或還原時，必須預覽影響並等待你明確確認。</p></header>
+<header><span class="kicker-script">describe, inspect, then act</span><div class="kicker">WoowTech · Nginx Proxy Manager Prompt Library</div><h1>Manage NPM safely, one clear sentence at a time</h1><p class="lead">Hand the 45 prompts below to an AI Agent, or use them as your own operations checklist. Every one of them asks for the environment and the evidence first; anything that deletes, disables, overwrites or restores has to preview the impact and wait for your explicit confirmation.</p></header>
 
-<section id="rules" data-nav="rules"><h2>先約定工具與安全界線</h2><p>Nginx Proxy Manager 有供其前端使用的介面，但不同版本可能變更，不能把未查證的路徑、欄位或權限當成穩定的公開 API。這些提示詞不指定 API endpoint。若 Agent 要用 API，必須先辨識你的 NPM 版本，從該版本的官方原始碼或實際可用 schema 驗證方法、路徑、欄位與回應；驗證不到就只提供網頁介面步驟，不得猜測或送出請求。</p><div class="callout"><strong>建議先附在每次對話：</strong>「預設唯讀。遮罩密碼、Token、Cookie 與私鑰。先說明資料來源；任何寫入先提供變更前後差異、影響範圍與回復方式，等我明確輸入『確認執行』才動作。」</div><div class="callout warn"><strong>權限提醒：</strong>把 Agent 帳號限制在任務所需的最低權限，不要把管理 Cookie 或密碼貼進對話。正式環境先備份，再於測試主機驗證自動化。</div></section>
+<section id="rules" data-nav="rules"><h2>Agree on tools and safety limits first</h2><p>Nginx Proxy Manager has an interface that its own front end uses, but it can change between versions, so an unverified path, field or permission is not a stable public API. These prompts name no API endpoint. If the agent wants to use the API, it has to identify your NPM version first and verify the method, path, fields and response against that version's official source or a schema that is actually available; where it cannot verify, it gives web interface steps only, and neither guesses nor sends a request.</p><div class="callout"><strong>Paste this at the start of every conversation:</strong> "Read-only by default. Redact passwords, tokens, cookies and private keys. State your data source first; before any write, give me the before-and-after diff, what it affects and the rollback plan, and act only after I explicitly type 'confirm'."</div><div class="callout warn"><strong>A note on permissions:</strong> Restrict the agent's account to the least privilege the task needs, and never paste an admin cookie or password into the conversation. Back up production first, then verify the automation on a test host.</div></section>
 
-<section id="proxy" data-nav="proxy"><h2>Proxy Hosts（10 條）</h2>
-<div class="pc"><div class="lbl">1. 主機清冊</div><pre>請唯讀盤點這台 NPM 的所有 Proxy Hosts，整理網域、轉送協定、目標主機、目標連接埠、指派憑證與 Access List；敏感資訊遮罩，並標示資料取得方式。</pre><button class="copy">複製</button></div>
-<div class="pc"><div class="lbl">2. 建立前規劃</div><pre>我要把「app.example.com」代理到區網的「192.0.2.20:8080」。先檢查 DNS、後端連通性、WebSocket 需求與 TLS 終止點，產生 NPM 表單填寫草稿；不要建立任何設定。</pre><button class="copy">複製</button></div>
-<div class="pc"><div class="lbl">3. 新增 Proxy Host</div><pre>依我提供的網域與後端建立 Proxy Host。先顯示完整預覽、衝突檢查與回復方式；等我輸入「確認執行」後，才透過已驗證適用本版本的方法建立，否則只給網頁介面步驟。</pre><button class="copy">複製</button></div>
-<div class="pc"><div class="lbl">4. 轉送目標變更</div><pre>準備把「app.example.com」的後端從舊位址改到新位址。先測試新後端健康狀態，列出目前值、預計值、受影響網域與回復值；等我確認才修改。</pre><button class="copy">複製</button></div>
-<div class="pc"><div class="lbl">5. WebSocket 排查</div><pre>「app.example.com」一般頁面正常但即時功能失效。請唯讀檢查 NPM Proxy Host、後端文件與瀏覽器錯誤，判斷是否需要 WebSocket 支援；提出最小變更，不要直接套用。</pre><button class="copy">複製</button></div>
-<div class="pc"><div class="lbl">6. 自訂設定稽核</div><pre>唯讀檢查所有 Proxy Hosts 的 Advanced 自訂 Nginx 設定，找出重複、互相衝突、可能覆蓋安全標頭或來源 IP 的片段；引用實際內容並提供改善建議，不要改檔。</pre><button class="copy">複製</button></div>
-<div class="pc"><div class="lbl">7. 未加密後端盤點</div><pre>盤點哪些 Proxy Hosts 由 NPM 以 HTTP 連到後端。依「同主機、可信區網、跨不可信網路」分類風險，提出後端 TLS 或網路隔離建議，不要假設 HTTP 一律不安全或一律可接受。</pre><button class="copy">複製</button></div>
-<div class="pc"><div class="lbl">8. 網域衝突檢查</div><pre>唯讀檢查 Proxy Hosts、Redirection Hosts 與其他入口是否重複使用相同網域，列出可能造成路由混淆的項目與證據；不要刪除或停用。</pre><button class="copy">複製</button></div>
-<div class="pc"><div class="lbl">9. 停用主機</div><pre>我要暫停「old.example.com」。先列出它的 DNS、憑證、Access List、後端與相依關係，說明停用後影響及重新啟用方式；等我輸入「確認執行」才停用。</pre><button class="copy">複製</button></div>
-<div class="pc"><div class="lbl">10. 刪除主機</div><pre>我要刪除「old.example.com」。先確認不是仍有流量的正式入口，顯示完整設定備份、相依資源、影響範圍與可回復方案；只有我輸入「確認刪除 old.example.com」後才能刪除。</pre><button class="copy">複製</button></div>
+<section id="proxy" data-nav="proxy"><h2>Proxy Hosts (10 prompts)</h2>
+<div class="pc"><div class="lbl">1. Host inventory</div><pre>請唯讀盤點這台 NPM 的所有 Proxy Hosts，整理網域、轉送協定、目標主機、目標連接埠、指派憑證與 Access List；敏感資訊遮罩，並標示資料取得方式。</pre><button class="copy">Copy</button></div>
+<div class="pc"><div class="lbl">2. Plan before you create</div><pre>我要把「app.example.com」代理到區網的「192.0.2.20:8080」。先檢查 DNS、後端連通性、WebSocket 需求與 TLS 終止點，產生 NPM 表單填寫草稿；不要建立任何設定。</pre><button class="copy">Copy</button></div>
+<div class="pc"><div class="lbl">3. Create a Proxy Host</div><pre>依我提供的網域與後端建立 Proxy Host。先顯示完整預覽、衝突檢查與回復方式；等我輸入「確認執行」後，才透過已驗證適用本版本的方法建立，否則只給網頁介面步驟。</pre><button class="copy">Copy</button></div>
+<div class="pc"><div class="lbl">4. Change the forward target</div><pre>準備把「app.example.com」的後端從舊位址改到新位址。先測試新後端健康狀態，列出目前值、預計值、受影響網域與回復值；等我確認才修改。</pre><button class="copy">Copy</button></div>
+<div class="pc"><div class="lbl">5. WebSocket troubleshooting</div><pre>「app.example.com」一般頁面正常但即時功能失效。請唯讀檢查 NPM Proxy Host、後端文件與瀏覽器錯誤，判斷是否需要 WebSocket 支援；提出最小變更，不要直接套用。</pre><button class="copy">Copy</button></div>
+<div class="pc"><div class="lbl">6. Custom config audit</div><pre>唯讀檢查所有 Proxy Hosts 的 Advanced 自訂 Nginx 設定，找出重複、互相衝突、可能覆蓋安全標頭或來源 IP 的片段；引用實際內容並提供改善建議，不要改檔。</pre><button class="copy">Copy</button></div>
+<div class="pc"><div class="lbl">7. Unencrypted backend inventory</div><pre>盤點哪些 Proxy Hosts 由 NPM 以 HTTP 連到後端。依「同主機、可信區網、跨不可信網路」分類風險，提出後端 TLS 或網路隔離建議，不要假設 HTTP 一律不安全或一律可接受。</pre><button class="copy">Copy</button></div>
+<div class="pc"><div class="lbl">8. Domain conflict check</div><pre>唯讀檢查 Proxy Hosts、Redirection Hosts 與其他入口是否重複使用相同網域，列出可能造成路由混淆的項目與證據；不要刪除或停用。</pre><button class="copy">Copy</button></div>
+<div class="pc"><div class="lbl">9. Disable a host</div><pre>我要暫停「old.example.com」。先列出它的 DNS、憑證、Access List、後端與相依關係，說明停用後影響及重新啟用方式；等我輸入「確認執行」才停用。</pre><button class="copy">Copy</button></div>
+<div class="pc"><div class="lbl">10. Delete a host</div><pre>我要刪除「old.example.com」。先確認不是仍有流量的正式入口，顯示完整設定備份、相依資源、影響範圍與可回復方案；只有我輸入「確認刪除 old.example.com」後才能刪除。</pre><button class="copy">Copy</button></div>
 </section>
 
-<section id="dns-cert" data-nav="dns-cert"><h2>DNS 與憑證（10 條）</h2>
-<div class="pc"><div class="lbl">11. DNS 解析核對</div><pre>查詢「app.example.com」公開的 A、AAAA 與 CNAME 結果，與預期入口比對；說明 DNS 是由外部供應商管理，不要在 NPM 中虛構 DNS 修改功能。</pre><button class="copy">複製</button></div>
-<div class="pc"><div class="lbl">12. 分割 DNS 規劃</div><pre>我希望「app.example.com」在家中解析到區網位址、外部解析到公開入口。請規劃 split DNS，列出快取、憑證名稱與故障排查方式；先只做設計。</pre><button class="copy">複製</button></div>
-<div class="pc"><div class="lbl">13. 憑證清冊</div><pre>唯讀列出 NPM 管理的憑證：名稱、涵蓋網域、簽發者、到期日、被哪些主機使用；不要輸出私鑰、DNS API Token 或完整憑證內容。</pre><button class="copy">複製</button></div>
-<div class="pc"><div class="lbl">14. 到期風險</div><pre>依 7、14、30 天分級整理即將到期的憑證，檢查其網域是否仍解析到正確入口，並列出續期前置條件；全程唯讀。</pre><button class="copy">複製</button></div>
-<div class="pc"><div class="lbl">15. HTTP Challenge 準備</div><pre>我要為「app.example.com」申請 Let's Encrypt 憑證。先驗證公開 DNS、TCP 80 可達性、NAT 與既有主機衝突，提供申請預覽；不要在檢查完成前送出申請。</pre><button class="copy">複製</button></div>
-<div class="pc"><div class="lbl">16. DNS Challenge 評估</div><pre>我的服務不開放 TCP 80。請先查證目前 NPM 版本是否支援我的 DNS 供應商與必要欄位，說明最小 Token 權限及祕密保存方式；不要猜供應商名稱或建立 Token。</pre><button class="copy">複製</button></div>
-<div class="pc"><div class="lbl">17. 指派既有憑證</div><pre>準備把已存在且涵蓋「app.example.com」的憑證指派給該 Proxy Host。先核對 SAN、有效期與目前 TLS 設定，顯示差異；等我確認才變更。</pre><button class="copy">複製</button></div>
-<div class="pc"><div class="lbl">18. HTTPS 強制轉址</div><pre>評估「app.example.com」是否適合啟用 Force SSL。先確認 HTTPS 已正常、後端不會產生轉址迴圈、Webhook 不受影響，列出測試計畫；等我確認才啟用。</pre><button class="copy">複製</button></div>
-<div class="pc"><div class="lbl">19. 憑證錯誤診斷</div><pre>瀏覽器顯示「app.example.com」憑證名稱不符。請蒐集實際送出的憑證鏈、SNI、DNS 與 NPM 主機對應，指出證據與最可能原因；不要先重發憑證。</pre><button class="copy">複製</button></div>
-<div class="pc"><div class="lbl">20. 移除憑證</div><pre>我要移除一張舊憑證。先列出所有引用它的 Proxy Hosts 與 Redirection Hosts、備份必要中繼資料並確認替代憑證；只有我輸入指定憑證名稱的確認句後才移除。</pre><button class="copy">複製</button></div>
+<section id="dns-cert" data-nav="dns-cert"><h2>DNS and certificates (10 prompts)</h2>
+<div class="pc"><div class="lbl">11. DNS resolution check</div><pre>查詢「app.example.com」公開的 A、AAAA 與 CNAME 結果，與預期入口比對；說明 DNS 是由外部供應商管理，不要在 NPM 中虛構 DNS 修改功能。</pre><button class="copy">Copy</button></div>
+<div class="pc"><div class="lbl">12. Split DNS plan</div><pre>我希望「app.example.com」在家中解析到區網位址、外部解析到公開入口。請規劃 split DNS，列出快取、憑證名稱與故障排查方式；先只做設計。</pre><button class="copy">Copy</button></div>
+<div class="pc"><div class="lbl">13. Certificate inventory</div><pre>唯讀列出 NPM 管理的憑證：名稱、涵蓋網域、簽發者、到期日、被哪些主機使用；不要輸出私鑰、DNS API Token 或完整憑證內容。</pre><button class="copy">Copy</button></div>
+<div class="pc"><div class="lbl">14. Expiry risk</div><pre>依 7、14、30 天分級整理即將到期的憑證，檢查其網域是否仍解析到正確入口，並列出續期前置條件；全程唯讀。</pre><button class="copy">Copy</button></div>
+<div class="pc"><div class="lbl">15. HTTP Challenge preparation</div><pre>我要為「app.example.com」申請 Let's Encrypt 憑證。先驗證公開 DNS、TCP 80 可達性、NAT 與既有主機衝突，提供申請預覽；不要在檢查完成前送出申請。</pre><button class="copy">Copy</button></div>
+<div class="pc"><div class="lbl">16. DNS Challenge assessment</div><pre>我的服務不開放 TCP 80。請先查證目前 NPM 版本是否支援我的 DNS 供應商與必要欄位，說明最小 Token 權限及祕密保存方式；不要猜供應商名稱或建立 Token。</pre><button class="copy">Copy</button></div>
+<div class="pc"><div class="lbl">17. Assign an existing certificate</div><pre>準備把已存在且涵蓋「app.example.com」的憑證指派給該 Proxy Host。先核對 SAN、有效期與目前 TLS 設定，顯示差異；等我確認才變更。</pre><button class="copy">Copy</button></div>
+<div class="pc"><div class="lbl">18. Force HTTPS redirect</div><pre>評估「app.example.com」是否適合啟用 Force SSL。先確認 HTTPS 已正常、後端不會產生轉址迴圈、Webhook 不受影響，列出測試計畫；等我確認才啟用。</pre><button class="copy">Copy</button></div>
+<div class="pc"><div class="lbl">19. Certificate error diagnosis</div><pre>瀏覽器顯示「app.example.com」憑證名稱不符。請蒐集實際送出的憑證鏈、SNI、DNS 與 NPM 主機對應，指出證據與最可能原因；不要先重發憑證。</pre><button class="copy">Copy</button></div>
+<div class="pc"><div class="lbl">20. Remove a certificate</div><pre>我要移除一張舊憑證。先列出所有引用它的 Proxy Hosts 與 Redirection Hosts、備份必要中繼資料並確認替代憑證；只有我輸入指定憑證名稱的確認句後才移除。</pre><button class="copy">Copy</button></div>
 </section>
 
-<section id="access" data-nav="access"><h2>Access Lists 與使用者（8 條）</h2>
-<div class="pc"><div class="lbl">21. Access List 清冊</div><pre>唯讀盤點所有 Access Lists，整理允許／拒絕來源規則、是否使用 HTTP 基本驗證、套用到哪些主機；使用者密碼一律遮罩。</pre><button class="copy">複製</button></div>
-<div class="pc"><div class="lbl">22. 過寬規則稽核</div><pre>檢查 Access Lists 是否存在過寬網段、規則順序疑慮或未被任何主機使用的清單。引用實際規則並說明風險，不要自動收緊。</pre><button class="copy">複製</button></div>
-<div class="pc"><div class="lbl">23. 新清單草稿</div><pre>我要讓「admin.example.com」只接受家中固定 IP 與 VPN 網段。請產生 Access List 草稿，先驗證 CIDR、備援登入路徑與鎖住自己的風險；不要建立。</pre><button class="copy">複製</button></div>
-<div class="pc"><div class="lbl">24. 套用清單</div><pre>準備把「trusted-only」Access List 套用到「admin.example.com」。先列出目前設定、規則計算結果、遠端管理風險與回復步驟；等我確認才套用。</pre><button class="copy">複製</button></div>
-<div class="pc"><div class="lbl">25. 基本驗證帳號輪替</div><pre>規劃輪替某 Access List 的 HTTP 基本驗證帳號。先盤點受影響主機、產生不中斷切換順序，密碼只透過核准的祕密管道處理；等我確認才執行任何變更。</pre><button class="copy">複製</button></div>
-<div class="pc"><div class="lbl">26. NPM 使用者盤點</div><pre>唯讀盤點可登入 NPM 管理介面的使用者、角色與啟用狀態，找出共用帳號與不再需要的帳號；不要顯示憑證資訊，也不要把 Access List 帳號混為管理使用者。</pre><button class="copy">複製</button></div>
-<div class="pc"><div class="lbl">27. 最小權限檢查</div><pre>比較每位 NPM 使用者的實際職責與目前權限，提出最小權限調整草稿。先說明目前版本可用的角色能力與查證來源，不要假設不存在的細部權限。</pre><button class="copy">複製</button></div>
-<div class="pc"><div class="lbl">28. 刪除使用者或清單</div><pre>我要刪除一位 NPM 使用者或一個 Access List。先列出擁有資源、引用關係、最後已知用途、影響與替代方案；只有我輸入含確切名稱的「確認刪除」後才執行。</pre><button class="copy">複製</button></div>
+<section id="access" data-nav="access"><h2>Access Lists and users (8 prompts)</h2>
+<div class="pc"><div class="lbl">21. Access List inventory</div><pre>唯讀盤點所有 Access Lists，整理允許／拒絕來源規則、是否使用 HTTP 基本驗證、套用到哪些主機；使用者密碼一律遮罩。</pre><button class="copy">Copy</button></div>
+<div class="pc"><div class="lbl">22. Over-broad rule audit</div><pre>檢查 Access Lists 是否存在過寬網段、規則順序疑慮或未被任何主機使用的清單。引用實際規則並說明風險，不要自動收緊。</pre><button class="copy">Copy</button></div>
+<div class="pc"><div class="lbl">23. Draft a new list</div><pre>我要讓「admin.example.com」只接受家中固定 IP 與 VPN 網段。請產生 Access List 草稿，先驗證 CIDR、備援登入路徑與鎖住自己的風險；不要建立。</pre><button class="copy">Copy</button></div>
+<div class="pc"><div class="lbl">24. Apply a list</div><pre>準備把「trusted-only」Access List 套用到「admin.example.com」。先列出目前設定、規則計算結果、遠端管理風險與回復步驟；等我確認才套用。</pre><button class="copy">Copy</button></div>
+<div class="pc"><div class="lbl">25. Basic Auth account rotation</div><pre>規劃輪替某 Access List 的 HTTP 基本驗證帳號。先盤點受影響主機、產生不中斷切換順序，密碼只透過核准的祕密管道處理；等我確認才執行任何變更。</pre><button class="copy">Copy</button></div>
+<div class="pc"><div class="lbl">26. NPM user inventory</div><pre>唯讀盤點可登入 NPM 管理介面的使用者、角色與啟用狀態，找出共用帳號與不再需要的帳號；不要顯示憑證資訊，也不要把 Access List 帳號混為管理使用者。</pre><button class="copy">Copy</button></div>
+<div class="pc"><div class="lbl">27. Least privilege check</div><pre>比較每位 NPM 使用者的實際職責與目前權限，提出最小權限調整草稿。先說明目前版本可用的角色能力與查證來源，不要假設不存在的細部權限。</pre><button class="copy">Copy</button></div>
+<div class="pc"><div class="lbl">28. Delete a user or a list</div><pre>我要刪除一位 NPM 使用者或一個 Access List。先列出擁有資源、引用關係、最後已知用途、影響與替代方案；只有我輸入含確切名稱的「確認刪除」後才執行。</pre><button class="copy">Copy</button></div>
 </section>
 
-<section id="redirect-stream" data-nav="redirect-stream"><h2>Redirection Hosts 與 Streams（8 條）</h2>
-<div class="pc"><div class="lbl">29. Redirection 清冊</div><pre>唯讀列出所有 Redirection Hosts，整理來源網域、目標網址、轉址碼、保留路徑設定與憑證，找出可能的迴圈或過期目標。</pre><button class="copy">複製</button></div>
-<div class="pc"><div class="lbl">30. 建立永久轉址</div><pre>我要把舊網域轉到新網域。先比較 301 與 302 對快取及搜尋索引的影響，測試目標並顯示 NPM 設定預覽；等我確認才建立。</pre><button class="copy">複製</button></div>
-<div class="pc"><div class="lbl">31. 轉址迴圈診斷</div><pre>「old.example.com」發生 too many redirects。請唯讀追蹤每一跳的狀態碼與 Location，檢查 CDN、NPM 與後端的 HTTPS 規則，找出第一個迴圈點。</pre><button class="copy">複製</button></div>
-<div class="pc"><div class="lbl">32. 移除轉址</div><pre>我要移除一個 Redirection Host。先記錄完整設定、查詢近期使用證據並說明 DNS 與憑證影響；只有我輸入含來源網域的確認句後才移除。</pre><button class="copy">複製</button></div>
-<div class="pc"><div class="lbl">33. Stream 清冊</div><pre>唯讀盤點 NPM Streams，整理對外連接埠、轉送主機、轉送連接埠、TCP／UDP 選擇與可能的連接埠衝突；不要進行連線掃描超出我授權的範圍。</pre><button class="copy">複製</button></div>
-<div class="pc"><div class="lbl">34. 新增 Stream 規劃</div><pre>我要轉送一個非 HTTP 服務。請先確認協定是 TCP、UDP 或兩者、來源限制、防火牆與後端逾時需求，產生 Stream 設定草稿；不要先建立或開防火牆。</pre><button class="copy">複製</button></div>
-<div class="pc"><div class="lbl">35. Stream 連線診斷</div><pre>某個 Stream 從外部無法連線。請依 DNS、上游防火牆、NAT、NPM 監聽、TCP／UDP 選擇與後端服務逐層唯讀檢查，標出每層證據。</pre><button class="copy">複製</button></div>
-<div class="pc"><div class="lbl">36. 停用或刪除 Stream</div><pre>我要停用或刪除某個 Stream。先列出使用情形、監聽連接埠、後端、監控與回復方式；只有我輸入含連接埠及名稱的明確確認後才執行。</pre><button class="copy">複製</button></div>
+<section id="redirect-stream" data-nav="redirect-stream"><h2>Redirection Hosts and Streams (8 prompts)</h2>
+<div class="pc"><div class="lbl">29. Redirection inventory</div><pre>唯讀列出所有 Redirection Hosts，整理來源網域、目標網址、轉址碼、保留路徑設定與憑證，找出可能的迴圈或過期目標。</pre><button class="copy">Copy</button></div>
+<div class="pc"><div class="lbl">30. Create a permanent redirect</div><pre>我要把舊網域轉到新網域。先比較 301 與 302 對快取及搜尋索引的影響，測試目標並顯示 NPM 設定預覽；等我確認才建立。</pre><button class="copy">Copy</button></div>
+<div class="pc"><div class="lbl">31. Redirect loop diagnosis</div><pre>「old.example.com」發生 too many redirects。請唯讀追蹤每一跳的狀態碼與 Location，檢查 CDN、NPM 與後端的 HTTPS 規則，找出第一個迴圈點。</pre><button class="copy">Copy</button></div>
+<div class="pc"><div class="lbl">32. Remove a redirect</div><pre>我要移除一個 Redirection Host。先記錄完整設定、查詢近期使用證據並說明 DNS 與憑證影響；只有我輸入含來源網域的確認句後才移除。</pre><button class="copy">Copy</button></div>
+<div class="pc"><div class="lbl">33. Stream inventory</div><pre>唯讀盤點 NPM Streams，整理對外連接埠、轉送主機、轉送連接埠、TCP／UDP 選擇與可能的連接埠衝突；不要進行連線掃描超出我授權的範圍。</pre><button class="copy">Copy</button></div>
+<div class="pc"><div class="lbl">34. Plan a new Stream</div><pre>我要轉送一個非 HTTP 服務。請先確認協定是 TCP、UDP 或兩者、來源限制、防火牆與後端逾時需求，產生 Stream 設定草稿；不要先建立或開防火牆。</pre><button class="copy">Copy</button></div>
+<div class="pc"><div class="lbl">35. Stream connection diagnosis</div><pre>某個 Stream 從外部無法連線。請依 DNS、上游防火牆、NAT、NPM 監聽、TCP／UDP 選擇與後端服務逐層唯讀檢查，標出每層證據。</pre><button class="copy">Copy</button></div>
+<div class="pc"><div class="lbl">36. Disable or delete a Stream</div><pre>我要停用或刪除某個 Stream。先列出使用情形、監聽連接埠、後端、監控與回復方式；只有我輸入含連接埠及名稱的明確確認後才執行。</pre><button class="copy">Copy</button></div>
 </section>
 
-<section id="backup-diagnose" data-nav="backup-diagnose"><h2>備份與診斷（9 條）</h2>
-<div class="pc"><div class="lbl">37. 備份範圍盤點</div><pre>依我的 NPM 部署方式唯讀辨識設定、資料庫、憑證與日誌所在的持久化位置，產生備份範圍清單；不要假設 Docker、HAOS 與其他安裝方式使用相同路徑。</pre><button class="copy">複製</button></div>
-<div class="pc"><div class="lbl">38. 建立加密備份計畫</div><pre>為這台 NPM 設計加密備份：定義頻率、保留期、離機副本、私鑰存取、完整性檢查與失敗告警。先輸出計畫及測試命令，不要讀取或上傳真實祕密。</pre><button class="copy">複製</button></div>
-<div class="pc"><div class="lbl">39. 備份驗證</div><pre>驗證最近一份 NPM 備份是否包含預期資料、可解密且校驗值一致。只在隔離暫存區測試，不覆寫正式環境，並遮罩資料庫密碼與私鑰。</pre><button class="copy">複製</button></div>
-<div class="pc"><div class="lbl">40. 還原演練</div><pre>規劃在隔離環境還原 NPM 備份。先列出版本相容性、停機需求、DNS 隔離、驗證項目與回復點；等我確認測試環境後才執行，絕不直接覆寫正式環境。</pre><button class="copy">複製</button></div>
-<div class="pc"><div class="lbl">41. 502 診斷</div><pre>「app.example.com」出現 502。請依 NPM 日誌時間戳、後端 DNS／IP、連接埠、協定、TLS 與後端健康狀態逐項唯讀檢查，區分事實與推測。</pre><button class="copy">複製</button></div>
-<div class="pc"><div class="lbl">42. 504 診斷</div><pre>「app.example.com」出現 504。請比對請求耗時、後端回應、網路路徑與逾時設定，先找根因再建議調整；不要只把逾時數值調大。</pre><button class="copy">複製</button></div>
-<div class="pc"><div class="lbl">43. 日誌隱私稽核</div><pre>抽樣檢查 NPM 存取與錯誤日誌是否記錄 Token、Cookie、查詢字串個資或內部位址。輸出時遮罩敏感值，並提出最小化、輪替與存取權限建議。</pre><button class="copy">複製</button></div>
-<div class="pc"><div class="lbl">44. 容量與健康</div><pre>唯讀檢查 NPM 主機的 CPU、記憶體、磁碟、資料庫與憑證續期相關錯誤，整理近 24 小時異常時間線；只使用現有監控與日誌，不自行安裝 Agent。</pre><button class="copy">複製</button></div>
-<div class="pc"><div class="lbl">45. 安全更新計畫</div><pre>辨識目前 NPM 版本與部署方式，對照官方發布資訊規劃更新。先列出備份、相容性、維護窗、驗證與回復步驟；等我明確確認後才更新，不使用未驗證映像。</pre><button class="copy">複製</button></div>
+<section id="backup-diagnose" data-nav="backup-diagnose"><h2>Backup and diagnostics (9 prompts)</h2>
+<div class="pc"><div class="lbl">37. Backup scope inventory</div><pre>依我的 NPM 部署方式唯讀辨識設定、資料庫、憑證與日誌所在的持久化位置，產生備份範圍清單；不要假設 Docker、HAOS 與其他安裝方式使用相同路徑。</pre><button class="copy">Copy</button></div>
+<div class="pc"><div class="lbl">38. Build an encrypted backup plan</div><pre>為這台 NPM 設計加密備份：定義頻率、保留期、離機副本、私鑰存取、完整性檢查與失敗告警。先輸出計畫及測試命令，不要讀取或上傳真實祕密。</pre><button class="copy">Copy</button></div>
+<div class="pc"><div class="lbl">39. Backup verification</div><pre>驗證最近一份 NPM 備份是否包含預期資料、可解密且校驗值一致。只在隔離暫存區測試，不覆寫正式環境，並遮罩資料庫密碼與私鑰。</pre><button class="copy">Copy</button></div>
+<div class="pc"><div class="lbl">40. Restore drill</div><pre>規劃在隔離環境還原 NPM 備份。先列出版本相容性、停機需求、DNS 隔離、驗證項目與回復點；等我確認測試環境後才執行，絕不直接覆寫正式環境。</pre><button class="copy">Copy</button></div>
+<div class="pc"><div class="lbl">41. 502 diagnosis</div><pre>「app.example.com」出現 502。請依 NPM 日誌時間戳、後端 DNS／IP、連接埠、協定、TLS 與後端健康狀態逐項唯讀檢查，區分事實與推測。</pre><button class="copy">Copy</button></div>
+<div class="pc"><div class="lbl">42. 504 diagnosis</div><pre>「app.example.com」出現 504。請比對請求耗時、後端回應、網路路徑與逾時設定，先找根因再建議調整；不要只把逾時數值調大。</pre><button class="copy">Copy</button></div>
+<div class="pc"><div class="lbl">43. Log privacy audit</div><pre>抽樣檢查 NPM 存取與錯誤日誌是否記錄 Token、Cookie、查詢字串個資或內部位址。輸出時遮罩敏感值，並提出最小化、輪替與存取權限建議。</pre><button class="copy">Copy</button></div>
+<div class="pc"><div class="lbl">44. Capacity and health</div><pre>唯讀檢查 NPM 主機的 CPU、記憶體、磁碟、資料庫與憑證續期相關錯誤，整理近 24 小時異常時間線；只使用現有監控與日誌，不自行安裝 Agent。</pre><button class="copy">Copy</button></div>
+<div class="pc"><div class="lbl">45. Security update plan</div><pre>辨識目前 NPM 版本與部署方式，對照官方發布資訊規劃更新。先列出備份、相容性、維護窗、驗證與回復步驟；等我明確確認後才更新，不使用未驗證映像。</pre><button class="copy">Copy</button></div>
 </section>
-<footer>《Nginx Proxy Manager 指南》由 <a href="https://github.com/WOOWTECH/Woow_nginx_proxy_manager_tutorial_site" rel="noopener">WoowTech</a> 製作，以 CC BY 4.0 授權釋出。提示詞不能取代版本文件、變更審查與備份。</footer>
+<footer>Nginx Proxy Manager Guide is produced by <a href="https://github.com/WOOWTECH/Woow_nginx_proxy_manager_tutorial_site" rel="noopener">WoowTech</a> and released under CC BY 4.0. A prompt is no substitute for the documentation for your version, change review and backups.</footer>
 </main>
 </div>
 <script>
-document.querySelectorAll('.copy').forEach(function(button){button.addEventListener('click',function(){var text=button.parentElement.querySelector('pre').innerText;function status(message){button.textContent=message;setTimeout(function(){button.textContent='複製'},1800)}function fallback(){var area=document.createElement('textarea');area.value=text;area.setAttribute('readonly','');area.style.position='fixed';area.style.opacity='0';document.body.appendChild(area);area.select();var copied=false;try{copied=document.execCommand('copy')}catch(error){copied=false}document.body.removeChild(area);status(copied?'已複製':'複製失敗，請手動選取')}if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(text).then(function(){status('已複製')},fallback)}else{fallback()}})});
+document.querySelectorAll('.copy').forEach(function(button){button.addEventListener('click',function(){var text=button.parentElement.querySelector('pre').innerText;function status(message){button.textContent=message;setTimeout(function(){button.textContent='Copy'},1800)}function fallback(){var area=document.createElement('textarea');area.value=text;area.setAttribute('readonly','');area.style.position='fixed';area.style.opacity='0';document.body.appendChild(area);area.select();var copied=false;try{copied=document.execCommand('copy')}catch(error){copied=false}document.body.removeChild(area);status(copied?'Copied':'Copy failed — select the text manually')}if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(text).then(function(){status('Copied')},fallback)}else{fallback()}})});
 </script>
 </body>
 </html>

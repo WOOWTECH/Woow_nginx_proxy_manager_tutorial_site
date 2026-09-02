@@ -3,22 +3,22 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Chapter 5 · 建立第一個 Proxy Host · Nginx Proxy Manager 反向代理指南</title>
-  <meta name="description" content="Nginx Proxy Manager Proxy Host 教學：Domain Names、Forward Hostname/IP、Port、WebSocket 與測試。" />
+  <title>Chapter 5 · Create your first Proxy Host · Nginx Proxy Manager reverse proxy guide</title>
+  <meta name="description" content="Nginx Proxy Manager Proxy Host guide: Domain Names, Forward Hostname/IP, Port, WebSocket and testing." />
   <meta name="author" content="WoowTech" />
   <link rel="canonical" href="https://nginx-guide.woowtech.io/en/ch5_proxy_host.html" />
   <meta name="robots" content="noindex, follow" />
   <meta property="og:type" content="article" />
-  <meta property="og:site_name" content="Nginx Proxy Manager 反向代理指南" />
+  <meta property="og:site_name" content="Nginx Proxy Manager reverse proxy guide" />
   <meta property="og:locale" content="en_US" />
   <meta property="og:locale:alternate" content="zh_TW" />
-  <meta property="og:title" content="Chapter 5 · 建立第一個 Proxy Host · Nginx Proxy Manager 反向代理指南" />
-  <meta property="og:description" content="Nginx Proxy Manager Proxy Host 教學：Domain Names、Forward Hostname/IP、Port、WebSocket 與測試。" />
+  <meta property="og:title" content="Chapter 5 · Create your first Proxy Host · Nginx Proxy Manager reverse proxy guide" />
+  <meta property="og:description" content="Nginx Proxy Manager Proxy Host guide: Domain Names, Forward Hostname/IP, Port, WebSocket and testing." />
   <meta property="og:url" content="https://nginx-guide.woowtech.io/en/ch5_proxy_host.html" />
   <meta property="og:image" content="https://nginx-guide.woowtech.io/assets/og/npm-guide.en.png" />
   <meta name="twitter:card" content="summary_large_image" />
-  <meta name="twitter:title" content="Chapter 5 · 建立第一個 Proxy Host · Nginx Proxy Manager 反向代理指南" />
-  <meta name="twitter:description" content="Nginx Proxy Manager Proxy Host 教學：Domain Names、Forward Hostname/IP、Port、WebSocket 與測試。" />
+  <meta name="twitter:title" content="Chapter 5 · Create your first Proxy Host · Nginx Proxy Manager reverse proxy guide" />
+  <meta name="twitter:description" content="Nginx Proxy Manager Proxy Host guide: Domain Names, Forward Hostname/IP, Port, WebSocket and testing." />
   <meta name="twitter:image" content="https://nginx-guide.woowtech.io/assets/og/npm-guide.en.png" />
   <meta name="theme-color" content="#6183FC" />
   <link rel="license" href="https://creativecommons.org/licenses/by/4.0/deed.en" />
@@ -32,28 +32,28 @@
 <body>
   <div class="layout">
     <aside class="sidebar">
-    <a class="brand" href="tutorial.html">NPM 指南</a>
-    <div class="brand-sub">把家中服務安全帶上網</div>
+    <a class="brand" href="tutorial.html">NPM Guide</a>
+    <div class="brand-sub">Bring your home services online, safely</div>
     <nav class="lang-switch" aria-label="Language"><a href="../ch5_proxy_host.html" lang="zh-Hant" hreflang="zh-Hant">中文</a><a class="active" href="ch5_proxy_host.html" lang="en" aria-current="page">EN</a></nav>
-    <a class="hub-link" href="index.html"><i class="mdi mdi-view-grid-outline" aria-hidden="true"></i> 資源總覽</a>
+    <a class="hub-link" href="index.html"><i class="mdi mdi-view-grid-outline" aria-hidden="true"></i> Resource Hub</a>
     <h2>Chapters</h2>
     <ol>
-      <li class="part-label">基礎：認識與安裝</li>
-      <li data-i18n="pending"><a href="ch1_intro.html">開始前</a></li>
-      <li data-i18n="pending"><a href="ch2_install.html">安裝</a></li>
-      <li data-i18n="pending"><a href="ch3_first_login.html">首次登入</a></li>
-      <li data-i18n="pending"><a href="ch4_dashboard.html">介面導覽</a></li>
-      <li class="part-label">建置：公開第一個服務</li>
-      <li data-i18n="pending"><a href="ch5_proxy_host.html" class="active">第一個代理</a></li>
-      <li data-i18n="pending"><a href="ch6_dns.html">DNS 解析</a></li>
-      <li data-i18n="pending"><a href="ch7_ssl.html">SSL 憑證</a></li>
-      <li class="part-label">進階：安全與路由</li>
+      <li class="part-label">Basics: orientation and install</li>
+      <li data-i18n="pending"><a href="ch1_intro.html">Before you start</a></li>
+      <li data-i18n="pending"><a href="ch2_install.html">Install</a></li>
+      <li data-i18n="pending"><a href="ch3_first_login.html">First login</a></li>
+      <li data-i18n="pending"><a href="ch4_dashboard.html">Interface tour</a></li>
+      <li class="part-label">Build: publish your first service</li>
+      <li data-i18n="pending"><a href="ch5_proxy_host.html" class="active">First proxy</a></li>
+      <li data-i18n="pending"><a href="ch6_dns.html">DNS</a></li>
+      <li data-i18n="pending"><a href="ch7_ssl.html">SSL certificates</a></li>
+      <li class="part-label">Advanced: security and routing</li>
       <li data-i18n="pending"><a href="ch8_cloudflare_tunnel.html">CF Tunnel</a></li>
-      <li data-i18n="pending"><a href="ch9_access_lists.html">存取控制</a></li>
-      <li data-i18n="pending"><a href="ch10_advanced_hosts.html">進階主機</a></li>
-      <li class="part-label">管理：維運與排錯</li>
-      <li data-i18n="pending"><a href="ch11_backup_security.html">備份安全</a></li>
-      <li data-i18n="pending"><a href="ch12_troubleshooting.html">排錯維護</a></li>
+      <li data-i18n="pending"><a href="ch9_access_lists.html">Access control</a></li>
+      <li data-i18n="pending"><a href="ch10_advanced_hosts.html">Advanced hosts</a></li>
+      <li class="part-label">Operations: maintenance and troubleshooting</li>
+      <li data-i18n="pending"><a href="ch11_backup_security.html">Backup and security</a></li>
+      <li data-i18n="pending"><a href="ch12_troubleshooting.html">Troubleshooting</a></li>
     </ol>
     <div class="toc-in-chapter">
       <h2>This chapter</h2>
@@ -198,17 +198,17 @@ nslookup app.example.net</code></pre>
       <div class="pager">
       <a class="prev" href="ch4_dashboard.html">
         <span class="label"><i class="mdi mdi-chevron-left" aria-hidden="true"></i> Previous</span>
-        <span class="title">04 · 管理介面導覽</span>
+        <span class="title">04 · Admin interface tour</span>
       </a>
       <a class="next" href="ch6_dns.html">
         <span class="label">Next <i class="mdi mdi-chevron-right" aria-hidden="true"></i></span>
-        <span class="title">06 · DNS 與網域解析</span>
+        <span class="title">06 · DNS and domain resolution</span>
       </a>
     </div>
 
     <footer class="site-footer">
-      <p>Nginx Proxy Manager 反向代理指南 is produced by <a href="https://github.com/WOOWTECH/Woow_nginx_proxy_manager_tutorial_site" rel="noopener">WoowTech</a> and released under <a rel="license noopener" href="https://creativecommons.org/licenses/by/4.0/deed.en">CC BY 4.0</a> — share and adapt freely, with attribution.</p>
-      <p class="footer-meta">畫面與流程依 Nginx Proxy Manager 官方介面整理。Nginx Proxy Manager 為其權利人的商標，本站與其無隸屬關係。 · <a href="https://github.com/WOOWTECH/Woow_nginx_proxy_manager_tutorial_site" rel="noopener">Source &amp; errata</a></p>
+      <p>Nginx Proxy Manager reverse proxy guide is produced by <a href="https://github.com/WOOWTECH/Woow_nginx_proxy_manager_tutorial_site" rel="noopener">WoowTech</a> and released under <a rel="license noopener" href="https://creativecommons.org/licenses/by/4.0/deed.en">CC BY 4.0</a> — share and adapt freely, with attribution.</p>
+      <p class="footer-meta">Screens and workflows follow the official Nginx Proxy Manager interface. Nginx Proxy Manager is a trademark of its owner; this site is not affiliated with it. · <a href="https://github.com/WOOWTECH/Woow_nginx_proxy_manager_tutorial_site" rel="noopener">Source &amp; errata</a></p>
     </footer>
     </main>
   </div>
