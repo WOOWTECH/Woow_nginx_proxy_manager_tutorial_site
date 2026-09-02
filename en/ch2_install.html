@@ -39,21 +39,21 @@
     <h2>Chapters</h2>
     <ol>
       <li class="part-label">Basics: orientation and install</li>
-      <li data-i18n="pending"><a href="ch1_intro.html">Before you start</a></li>
-      <li data-i18n="pending"><a href="ch2_install.html" class="active">Install</a></li>
-      <li data-i18n="pending"><a href="ch3_first_login.html">First login</a></li>
-      <li data-i18n="pending"><a href="ch4_dashboard.html">Interface tour</a></li>
+      <li><a href="ch1_intro.html">Before you start</a></li>
+      <li><a href="ch2_install.html" class="active">Install</a></li>
+      <li><a href="ch3_first_login.html">First login</a></li>
+      <li><a href="ch4_dashboard.html">Interface tour</a></li>
       <li class="part-label">Build: publish your first service</li>
-      <li data-i18n="pending"><a href="ch5_proxy_host.html">First proxy</a></li>
-      <li data-i18n="pending"><a href="ch6_dns.html">DNS</a></li>
-      <li data-i18n="pending"><a href="ch7_ssl.html">SSL certificates</a></li>
+      <li><a href="ch5_proxy_host.html">First proxy</a></li>
+      <li><a href="ch6_dns.html">DNS</a></li>
+      <li><a href="ch7_ssl.html">SSL certificates</a></li>
       <li class="part-label">Advanced: security and routing</li>
-      <li data-i18n="pending"><a href="ch8_cloudflare_tunnel.html">CF Tunnel</a></li>
-      <li data-i18n="pending"><a href="ch9_access_lists.html">Access control</a></li>
-      <li data-i18n="pending"><a href="ch10_advanced_hosts.html">Advanced hosts</a></li>
+      <li><a href="ch8_cloudflare_tunnel.html">CF Tunnel</a></li>
+      <li><a href="ch9_access_lists.html">Access control</a></li>
+      <li><a href="ch10_advanced_hosts.html">Advanced hosts</a></li>
       <li class="part-label">Operations: maintenance and troubleshooting</li>
-      <li data-i18n="pending"><a href="ch11_backup_security.html">Backup and security</a></li>
-      <li data-i18n="pending"><a href="ch12_troubleshooting.html">Troubleshooting</a></li>
+      <li><a href="ch11_backup_security.html">Backup and security</a></li>
+      <li><a href="ch12_troubleshooting.html">Troubleshooting</a></li>
     </ol>
     <div class="toc-in-chapter">
       <h2>This chapter</h2>
@@ -72,7 +72,6 @@
   </aside>
 
   <main class="content">
-    <div class="callout i18n-pending"><strong>This chapter has not been translated yet.</strong> You are reading the original Chinese text. <a href="../ch2_install.html" hreflang="zh-Hant">Open the Chinese version</a></div>
     <div class="chapter-header">
       <div class="kicker">Chapter 2</div>
       <h1>Install Woow Nginx Proxy Manager</h1>
@@ -137,7 +136,7 @@
       <ol class="steps">
         <li><h3>Start the add-on</h3><p>On the add-on info page, press "START" and wait for the status to become running.</p></li>
         <li><h3>Read a short log first</h3><p>Check locally only, to see whether startup finished and whether there is a port conflict. A log can contain addresses, domains, certificates or request details, so do not post the whole thing publicly.</p></li>
-        <li><h3>Open the Web UI from a trusted LAN</h3><p>Use the add-on's "OPEN WEB UI" button. If the button is unavailable, try <code>http://&lt;HA區網位址&gt;:81</code> from a trusted LAN; never write your real address into public notes.</p></li>
+        <li><h3>Open the Web UI from a trusted LAN</h3><p>Use the add-on's "OPEN WEB UI" button. If the button is unavailable, try <code>http://&lt;HA-LAN-address&gt;:81</code> from a trusted LAN; never write your real address into public notes.</p></li>
         <li><h3>Stop at the login page</h3><p>Reaching the NPM login screen means this chapter's checks are done. You will use the default credentials in the next chapter, and you must change them immediately after you log in.</p></li>
       </ol>
       <div class="callout warn"><strong>The default credentials are not hardened yet:</strong> until you finish the next chapter, keep TCP 81 restricted to a trusted LAN, and do not start publishing a Proxy Host.</div>
@@ -160,7 +159,7 @@
       <h3>Problem 1: the store cannot find Woow Nginx Proxy Manager</h3><p>Confirm the repository URL is complete and the owner is WOOWTECH, reload the store, and check whether Home Assistant can reach GitHub. Do not add an unvetted mirror instead.</p>
       <h3>Problem 2: it says this architecture is not supported</h3><p>Check that the system is <code>amd64</code> or <code>aarch64</code>. The current config.yaml declares no other architecture; do not force the install with the wrong image.</p>
       <h3>Problem 3: it fails to start and mentions address already in use</h3><p>Usually TCP 80, 81 or 443 is already taken. Take stock of the services and add-on ports on the same host; understand what depends on what before you decide which side to change.</p>
-      <h3>Problem 4: the add-on is running but the Web UI will not open</h3><p>Use "OPEN WEB UI" first, then check <code>http://&lt;HA區網位址&gt;:81</code> from the same trusted LAN. Check the local firewall and the VLAN rules; do not use WAN forwarding to work around the problem.</p>
+      <h3>Problem 4: the add-on is running but the Web UI will not open</h3><p>Use "OPEN WEB UI" first, then check <code>http://&lt;HA-LAN-address&gt;:81</code> from the same trusted LAN. Check the local firewall and the VLAN rules; do not use WAN forwarding to work around the problem.</p>
       <h3>Problem 5: the install never finishes</h3><p>Check the free storage, the network and the Supervisor log for a specific error. Quote only the lines you need and redact sensitive values; do not paste the whole log.</p>
     </section>
 

@@ -39,21 +39,21 @@
     <h2>Chapters</h2>
     <ol>
       <li class="part-label">Basics: orientation and install</li>
-      <li data-i18n="pending"><a href="ch1_intro.html">Before you start</a></li>
-      <li data-i18n="pending"><a href="ch2_install.html">Install</a></li>
-      <li data-i18n="pending"><a href="ch3_first_login.html">First login</a></li>
-      <li data-i18n="pending"><a href="ch4_dashboard.html">Interface tour</a></li>
+      <li><a href="ch1_intro.html">Before you start</a></li>
+      <li><a href="ch2_install.html">Install</a></li>
+      <li><a href="ch3_first_login.html">First login</a></li>
+      <li><a href="ch4_dashboard.html">Interface tour</a></li>
       <li class="part-label">Build: publish your first service</li>
-      <li data-i18n="pending"><a href="ch5_proxy_host.html">First proxy</a></li>
-      <li data-i18n="pending"><a href="ch6_dns.html">DNS</a></li>
-      <li data-i18n="pending"><a href="ch7_ssl.html">SSL certificates</a></li>
+      <li><a href="ch5_proxy_host.html">First proxy</a></li>
+      <li><a href="ch6_dns.html">DNS</a></li>
+      <li><a href="ch7_ssl.html">SSL certificates</a></li>
       <li class="part-label">Advanced: security and routing</li>
-      <li data-i18n="pending"><a href="ch8_cloudflare_tunnel.html" class="active">CF Tunnel</a></li>
-      <li data-i18n="pending"><a href="ch9_access_lists.html">Access control</a></li>
-      <li data-i18n="pending"><a href="ch10_advanced_hosts.html">Advanced hosts</a></li>
+      <li><a href="ch8_cloudflare_tunnel.html" class="active">CF Tunnel</a></li>
+      <li><a href="ch9_access_lists.html">Access control</a></li>
+      <li><a href="ch10_advanced_hosts.html">Advanced hosts</a></li>
       <li class="part-label">Operations: maintenance and troubleshooting</li>
-      <li data-i18n="pending"><a href="ch11_backup_security.html">Backup and security</a></li>
-      <li data-i18n="pending"><a href="ch12_troubleshooting.html">Troubleshooting</a></li>
+      <li><a href="ch11_backup_security.html">Backup and security</a></li>
+      <li><a href="ch12_troubleshooting.html">Troubleshooting</a></li>
     </ol>
     <div class="toc-in-chapter">
       <h2>This chapter</h2>
@@ -74,7 +74,6 @@
   </aside>
 
   <main class="content">
-    <div class="callout i18n-pending"><strong>This chapter has not been translated yet.</strong> You are reading the original Chinese text. <a href="../ch8_cloudflare_tunnel.html" hreflang="zh-Hant">Open the Chinese version</a></div>
     <div class="chapter-header">
       <div class="kicker">Chapter 8</div>
       <h1>Cloudflare Tunnel with NPM</h1>
@@ -90,19 +89,19 @@
 
     <section id="topology" data-nav="Recommended topology">
       <h2 data-icon="network">Read every hop of the traffic</h2>
-      <pre class="code-block"><code>訪客瀏覽器
-  │ HTTPS（Cloudflare 邊緣憑證）
+      <pre class="code-block"><code>Visitor's browser
+  │ HTTPS (Cloudflare edge certificate)
   ▼
-Cloudflare 邊緣
+Cloudflare edge
   │ Cloudflare Tunnel
   ▼
 cloudflared
-  │ HTTP，僅在受信任／隔離內網送到 NPM port 80
+  │ HTTP, only over a trusted/isolated LAN to NPM port 80
   ▼
 NPM Proxy Host
-  │ 依內部服務實際支援的 HTTP 或 HTTPS
+  │ HTTP or HTTPS, whichever the internal service supports
   ▼
-內部服務</code></pre>
+Internal service</code></pre>
       <table class="data-table">
         <thead><tr><th>Component</th><th>Responsibility</th><th>What not to do</th></tr></thead>
         <tbody>
@@ -148,7 +147,7 @@ NPM Proxy Host
       <h2 data-icon="assign">Point the public hostname at NPM</h2>
       <ol class="steps">
         <li><h3>Add a Published application</h3><p>Add a public hostname on that Tunnel. The Subdomain and Domain together must be exactly the same as the Domain Names on the NPM Proxy Host.</p></li>
-        <li><h3>Set Service Type to HTTP</h3><p>In URL, enter the address at which NPM is reachable on the LAN together with port 80, for example <code>http://&lt;NPM 私有位址&gt;:80</code>. That is only a format example; do not commit a real private IP to a public document.</p></li>
+        <li><h3>Set Service Type to HTTP</h3><p>In URL, enter the address at which NPM is reachable on the LAN together with port 80, for example <code>http://&lt;npm-private-address&gt;:80</code>. That is only a format example; do not commit a real private IP to a public document.</p></li>
         <li><h3>Save it and confirm DNS</h3><p>Cloudflare routes the hostname to the Tunnel; the official documentation explains that this is really a CNAME pointing at <code>&lt;UUID&gt;.cfargotunnel.com</code>. One Tunnel can serve several hostnames.</p></li>
         <li><h3>Create one NPM entry per hostname</h3><p>When you add a service, add the Published application and the matching NPM Proxy Host together. Do not send every unmatched hostname to the admin interface.</p></li>
       </ol>

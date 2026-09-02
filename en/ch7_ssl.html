@@ -39,21 +39,21 @@
     <h2>Chapters</h2>
     <ol>
       <li class="part-label">Basics: orientation and install</li>
-      <li data-i18n="pending"><a href="ch1_intro.html">Before you start</a></li>
-      <li data-i18n="pending"><a href="ch2_install.html">Install</a></li>
-      <li data-i18n="pending"><a href="ch3_first_login.html">First login</a></li>
-      <li data-i18n="pending"><a href="ch4_dashboard.html">Interface tour</a></li>
+      <li><a href="ch1_intro.html">Before you start</a></li>
+      <li><a href="ch2_install.html">Install</a></li>
+      <li><a href="ch3_first_login.html">First login</a></li>
+      <li><a href="ch4_dashboard.html">Interface tour</a></li>
       <li class="part-label">Build: publish your first service</li>
-      <li data-i18n="pending"><a href="ch5_proxy_host.html">First proxy</a></li>
-      <li data-i18n="pending"><a href="ch6_dns.html">DNS</a></li>
-      <li data-i18n="pending"><a href="ch7_ssl.html" class="active">SSL certificates</a></li>
+      <li><a href="ch5_proxy_host.html">First proxy</a></li>
+      <li><a href="ch6_dns.html">DNS</a></li>
+      <li><a href="ch7_ssl.html" class="active">SSL certificates</a></li>
       <li class="part-label">Advanced: security and routing</li>
-      <li data-i18n="pending"><a href="ch8_cloudflare_tunnel.html">CF Tunnel</a></li>
-      <li data-i18n="pending"><a href="ch9_access_lists.html">Access control</a></li>
-      <li data-i18n="pending"><a href="ch10_advanced_hosts.html">Advanced hosts</a></li>
+      <li><a href="ch8_cloudflare_tunnel.html">CF Tunnel</a></li>
+      <li><a href="ch9_access_lists.html">Access control</a></li>
+      <li><a href="ch10_advanced_hosts.html">Advanced hosts</a></li>
       <li class="part-label">Operations: maintenance and troubleshooting</li>
-      <li data-i18n="pending"><a href="ch11_backup_security.html">Backup and security</a></li>
-      <li data-i18n="pending"><a href="ch12_troubleshooting.html">Troubleshooting</a></li>
+      <li><a href="ch11_backup_security.html">Backup and security</a></li>
+      <li><a href="ch12_troubleshooting.html">Troubleshooting</a></li>
     </ol>
     <div class="toc-in-chapter">
       <h2>This chapter</h2>
@@ -73,7 +73,6 @@
   </aside>
 
   <main class="content">
-    <div class="callout i18n-pending"><strong>This chapter has not been translated yet.</strong> You are reading the original Chinese text. <a href="../ch7_ssl.html" hreflang="zh-Hant">Open the Chinese version</a></div>
     <div class="chapter-header">
       <div class="kicker">Chapter 7</div>
       <h1>Request and manage SSL certificates</h1>
@@ -128,7 +127,7 @@
       <ol class="steps">
         <li><h3>Create a dedicated API token</h3><p>In Cloudflare, create a token that only Certbot uses, authorized to edit DNS on the target zone and nothing more; do not use the over-privileged Global API Key. The Certbot Cloudflare plugin's own documentation also recommends an API token that can be restricted to specific domains.</p></li>
         <li><h3>Choose DNS Challenge</h3><p>Request the Let's Encrypt certificate on the Proxy Host's <strong>SSL</strong> tab, check <strong>Use a DNS Challenge</strong>, and set DNS Provider to Cloudflare.</p></li>
-        <li><h3>Fill in the token format</h3><p>In Credentials File Content, use the token field the Cloudflare plugin supports. What follows is only a dummy value; do not replace it with a real token and then screenshot it or commit it to Git:</p><pre class="code-block"><code>dns_cloudflare_api_token = &lt;只限目標 zone 的 DNS token&gt;</code></pre></li>
+        <li><h3>Fill in the token format</h3><p>In Credentials File Content, use the token field the Cloudflare plugin supports. What follows is only a dummy value; do not replace it with a real token and then screenshot it or commit it to Git:</p><pre class="code-block"><code>dns_cloudflare_api_token = &lt;dns-token-scoped-to-the-target-zone&gt;</code></pre></li>
         <li><h3>Wait for DNS propagation, then save</h3><p>Start with the default propagation wait; raise it step by step only when you have confirmed the TXT record has not propagated yet. Once issuance is done, do not delete the token NPM needs, or automatic renewal will fail.</p></li>
       </ol>
       <div class="callout danger"><strong>A token is a secret:</strong> do not put it in a browser bookmark, a tutorial screenshot, a chat log, Git or a support ticket. If you suspect a leak, revoke it at your DNS provider immediately, create a new least-privilege token, and then update NPM.</div>
@@ -138,9 +137,9 @@
       <h2 data-icon="assign">Apply the certificate and Force SSL</h2>
       <ol class="steps">
         <li><h3>Select the right certificate</h3><p>Edit the Proxy Host and pick the certificate that covers that fully qualified domain name under SSL Certificate. Do not assume a certificate that does not include the hostname will work anyway.</p></li>
-        <li><h3>Test HTTPS first</h3><p>After saving, open <code>https://&lt;你的網域&gt;</code> directly and confirm the upstream service works, the certificate chain is valid, and there is no redirect loop.</p></li>
+        <li><h3>Test HTTPS first</h3><p>After saving, open <code>https://&lt;your-domain&gt;</code> directly and confirm the upstream service works, the certificate chain is valid, and there is no redirect loop.</p></li>
         <li><h3>Then turn on Force SSL</h3><p>Once HTTPS is confirmed good, check <strong>Force SSL</strong>. NPM's upstream template loads the forced-HTTPS configuration when a certificate is already in place.</p></li>
-        <li><h3>Test the HTTP entry point</h3><p>Open <code>http://&lt;你的網域&gt;</code> and confirm it redirects to HTTPS on the same host, not to the wrong domain and not into an endless loop.</p></li>
+        <li><h3>Test the HTTP entry point</h3><p>Open <code>http://&lt;your-domain&gt;</code> and confirm it redirects to HTTPS on the same host, not to the wrong domain and not into an endless loop.</p></li>
       </ol>
       <div class="callout warn"><strong>The Cloudflare Tunnel exception:</strong> if the Tunnel's internal Service URL is NPM's <code>http://…:80</code>, do not turn on Force SSL in NPM, or Cloudflare may keep getting an HTTPS redirect every time it connects back to the origin over HTTP. Handle the HTTP-to-HTTPS redirect at the Cloudflare edge instead; Chapter 8 covers it in full.</div>
     </section>

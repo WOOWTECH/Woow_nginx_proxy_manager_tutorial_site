@@ -39,21 +39,21 @@
     <h2>Chapters</h2>
     <ol>
       <li class="part-label">Basics: orientation and install</li>
-      <li data-i18n="pending"><a href="ch1_intro.html">Before you start</a></li>
-      <li data-i18n="pending"><a href="ch2_install.html">Install</a></li>
-      <li data-i18n="pending"><a href="ch3_first_login.html">First login</a></li>
-      <li data-i18n="pending"><a href="ch4_dashboard.html">Interface tour</a></li>
+      <li><a href="ch1_intro.html">Before you start</a></li>
+      <li><a href="ch2_install.html">Install</a></li>
+      <li><a href="ch3_first_login.html">First login</a></li>
+      <li><a href="ch4_dashboard.html">Interface tour</a></li>
       <li class="part-label">Build: publish your first service</li>
-      <li data-i18n="pending"><a href="ch5_proxy_host.html">First proxy</a></li>
-      <li data-i18n="pending"><a href="ch6_dns.html" class="active">DNS</a></li>
-      <li data-i18n="pending"><a href="ch7_ssl.html">SSL certificates</a></li>
+      <li><a href="ch5_proxy_host.html">First proxy</a></li>
+      <li><a href="ch6_dns.html" class="active">DNS</a></li>
+      <li><a href="ch7_ssl.html">SSL certificates</a></li>
       <li class="part-label">Advanced: security and routing</li>
-      <li data-i18n="pending"><a href="ch8_cloudflare_tunnel.html">CF Tunnel</a></li>
-      <li data-i18n="pending"><a href="ch9_access_lists.html">Access control</a></li>
-      <li data-i18n="pending"><a href="ch10_advanced_hosts.html">Advanced hosts</a></li>
+      <li><a href="ch8_cloudflare_tunnel.html">CF Tunnel</a></li>
+      <li><a href="ch9_access_lists.html">Access control</a></li>
+      <li><a href="ch10_advanced_hosts.html">Advanced hosts</a></li>
       <li class="part-label">Operations: maintenance and troubleshooting</li>
-      <li data-i18n="pending"><a href="ch11_backup_security.html">Backup and security</a></li>
-      <li data-i18n="pending"><a href="ch12_troubleshooting.html">Troubleshooting</a></li>
+      <li><a href="ch11_backup_security.html">Backup and security</a></li>
+      <li><a href="ch12_troubleshooting.html">Troubleshooting</a></li>
     </ol>
     <div class="toc-in-chapter">
       <h2>This chapter</h2>
@@ -72,7 +72,6 @@
 
   </aside>
     <main class="content">
-      <div class="callout i18n-pending"><strong>This chapter has not been translated yet.</strong> You are reading the original Chinese text. <a href="../ch6_dns.html" hreflang="zh-Hant">Open the Chinese version</a></div>
       <div class="chapter-header">
         <div class="kicker">Chapter 6</div>
         <h1>DNS and domain resolution</h1>
@@ -83,9 +82,9 @@
         <h2 data-icon="concept">Where DNS sits in the proxy path</h2>
         <p>DNS turns a domain name into a destination the client can connect to. It does not hold NPM's upstream port, and it does not create NAT on your router for you. The full path in the traditional public setup is "domain → public IP → router 80/443 NAT → NPM → internal service".</p>
         <pre class="code-block"><code>app.example.net
-  └─ DNS → [路由器公開 IP]
-       └─ TCP 80/443 NAT → [NPM 位址]
-            └─ Proxy Host → [內部服務位址]:[服務連接埠]</code></pre>
+  └─ DNS → [router-public-ip]
+       └─ TCP 80/443 NAT → [npm-address]
+            └─ Proxy Host → [internal-service-address]:[service-port]</code></pre>
         <div class="callout warn"><strong>Security boundary:</strong> admin port 81 is not part of this public path, and must never get a public NAT rule. You must also change the default <code>admin@example.com</code> / <code>changeme</code> immediately, before you publish any service.</div>
       </section>
 
@@ -101,7 +100,7 @@
             <tr><td>The DNS target hostname</td><td>An existing dynamic DNS name or the platform's docs</td><td>Used when you need a CNAME pointing at another name</td></tr>
           </tbody>
         </table>
-        <p>All of this is sensitive data. In notes you make public, use placeholders such as <code>app.example.net</code>, <code>[公開 IP]</code> and <code>[內部 IP]</code>; passwords, DNS API tokens, certificates and full logs must not be attached at all.</p>
+        <p>All of this is sensitive data. In notes you make public, use placeholders such as <code>app.example.net</code>, <code>[public-ip]</code> and <code>[internal-ip]</code>; passwords, DNS API tokens, certificates and full logs must not be attached at all.</p>
       </section>
 
       <section id="a-vs-cname" data-nav="A vs CNAME">

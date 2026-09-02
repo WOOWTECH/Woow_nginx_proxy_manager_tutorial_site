@@ -39,21 +39,21 @@
     <h2>Chapters</h2>
     <ol>
       <li class="part-label">Basics: orientation and install</li>
-      <li data-i18n="pending"><a href="ch1_intro.html">Before you start</a></li>
-      <li data-i18n="pending"><a href="ch2_install.html">Install</a></li>
-      <li data-i18n="pending"><a href="ch3_first_login.html">First login</a></li>
-      <li data-i18n="pending"><a href="ch4_dashboard.html">Interface tour</a></li>
+      <li><a href="ch1_intro.html">Before you start</a></li>
+      <li><a href="ch2_install.html">Install</a></li>
+      <li><a href="ch3_first_login.html">First login</a></li>
+      <li><a href="ch4_dashboard.html">Interface tour</a></li>
       <li class="part-label">Build: publish your first service</li>
-      <li data-i18n="pending"><a href="ch5_proxy_host.html" class="active">First proxy</a></li>
-      <li data-i18n="pending"><a href="ch6_dns.html">DNS</a></li>
-      <li data-i18n="pending"><a href="ch7_ssl.html">SSL certificates</a></li>
+      <li><a href="ch5_proxy_host.html" class="active">First proxy</a></li>
+      <li><a href="ch6_dns.html">DNS</a></li>
+      <li><a href="ch7_ssl.html">SSL certificates</a></li>
       <li class="part-label">Advanced: security and routing</li>
-      <li data-i18n="pending"><a href="ch8_cloudflare_tunnel.html">CF Tunnel</a></li>
-      <li data-i18n="pending"><a href="ch9_access_lists.html">Access control</a></li>
-      <li data-i18n="pending"><a href="ch10_advanced_hosts.html">Advanced hosts</a></li>
+      <li><a href="ch8_cloudflare_tunnel.html">CF Tunnel</a></li>
+      <li><a href="ch9_access_lists.html">Access control</a></li>
+      <li><a href="ch10_advanced_hosts.html">Advanced hosts</a></li>
       <li class="part-label">Operations: maintenance and troubleshooting</li>
-      <li data-i18n="pending"><a href="ch11_backup_security.html">Backup and security</a></li>
-      <li data-i18n="pending"><a href="ch12_troubleshooting.html">Troubleshooting</a></li>
+      <li><a href="ch11_backup_security.html">Backup and security</a></li>
+      <li><a href="ch12_troubleshooting.html">Troubleshooting</a></li>
     </ol>
     <div class="toc-in-chapter">
       <h2>This chapter</h2>
@@ -72,7 +72,6 @@
 
   </aside>
     <main class="content">
-      <div class="callout i18n-pending"><strong>This chapter has not been translated yet.</strong> You are reading the original Chinese text. <a href="../ch5_proxy_host.html" hreflang="zh-Hant">Open the Chinese version</a></div>
       <div class="chapter-header">
         <div class="kicker">Chapter 5</div>
         <h1>Create your first Proxy Host</h1>
@@ -82,7 +81,7 @@
       <section id="request-path" data-nav="Request path">
         <h2 data-icon="concept">Understand the request path first</h2>
         <p>The Proxy Host path is "client → the NPM entry point DNS points at → NPM matches the domain against its rules → the internal web service". NPM does not create DNS for you, and it does not automatically open NAT on your router; every layer has to be set up correctly on its own.</p>
-        <pre class="code-block"><code>app.example.net → NPM 的 80/tcp → http://[內部服務位址]:[服務連接埠]</code></pre>
+        <pre class="code-block"><code>app.example.net → NPM's 80/tcp → http://[internal-service-address]:[service-port]</code></pre>
         <p><code>example.net</code> and everything in square brackets are placeholders. Real domains, public and private IPs, passwords, certificates and logs are all sensitive data; redact them in your notes and in anything you post when asking for help.</p>
       </section>
 
@@ -107,8 +106,8 @@
           <tbody>
             <tr><td>Domain Names</td><td><code>app.example.net</code></td><td>Enter the fully qualified domain name only, with no protocol, port or path</td></tr>
             <tr><td>Scheme</td><td>Pick <code>http</code> or <code>https</code> to match the actual upstream service</td><td>This is the protocol from NPM to the upstream, not a certificate option for visitors</td></tr>
-            <tr><td>Forward Hostname / IP</td><td><code>[內部服務位址]</code></td><td>It must be a host NPM itself can resolve and reach; do not enter <code>127.0.0.1</code> for a remote upstream</td></tr>
-            <tr><td>Forward Port</td><td><code>[服務連接埠]</code></td><td>Enter the port the upstream actually listens on, not a fixed 80</td></tr>
+            <tr><td>Forward Hostname / IP</td><td><code>[internal-service-address]</code></td><td>It must be a host NPM itself can resolve and reach; do not enter <code>127.0.0.1</code> for a remote upstream</td></tr>
+            <tr><td>Forward Port</td><td><code>[service-port]</code></td><td>Enter the port the upstream actually listens on, not a fixed 80</td></tr>
             <tr><td>Access List</td><td>To start with, decide by the risk of the service; Public means no Access List is applied</td><td>Public does not mean the service is inherently safe</td></tr>
           </tbody>
         </table>

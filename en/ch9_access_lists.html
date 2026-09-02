@@ -39,21 +39,21 @@
     <h2>Chapters</h2>
     <ol>
       <li class="part-label">Basics: orientation and install</li>
-      <li data-i18n="pending"><a href="ch1_intro.html">Before you start</a></li>
-      <li data-i18n="pending"><a href="ch2_install.html">Install</a></li>
-      <li data-i18n="pending"><a href="ch3_first_login.html">First login</a></li>
-      <li data-i18n="pending"><a href="ch4_dashboard.html">Interface tour</a></li>
+      <li><a href="ch1_intro.html">Before you start</a></li>
+      <li><a href="ch2_install.html">Install</a></li>
+      <li><a href="ch3_first_login.html">First login</a></li>
+      <li><a href="ch4_dashboard.html">Interface tour</a></li>
       <li class="part-label">Build: publish your first service</li>
-      <li data-i18n="pending"><a href="ch5_proxy_host.html">First proxy</a></li>
-      <li data-i18n="pending"><a href="ch6_dns.html">DNS</a></li>
-      <li data-i18n="pending"><a href="ch7_ssl.html">SSL certificates</a></li>
+      <li><a href="ch5_proxy_host.html">First proxy</a></li>
+      <li><a href="ch6_dns.html">DNS</a></li>
+      <li><a href="ch7_ssl.html">SSL certificates</a></li>
       <li class="part-label">Advanced: security and routing</li>
-      <li data-i18n="pending"><a href="ch8_cloudflare_tunnel.html">CF Tunnel</a></li>
-      <li data-i18n="pending"><a href="ch9_access_lists.html" class="active">Access control</a></li>
-      <li data-i18n="pending"><a href="ch10_advanced_hosts.html">Advanced hosts</a></li>
+      <li><a href="ch8_cloudflare_tunnel.html">CF Tunnel</a></li>
+      <li><a href="ch9_access_lists.html" class="active">Access control</a></li>
+      <li><a href="ch10_advanced_hosts.html">Advanced hosts</a></li>
       <li class="part-label">Operations: maintenance and troubleshooting</li>
-      <li data-i18n="pending"><a href="ch11_backup_security.html">Backup and security</a></li>
-      <li data-i18n="pending"><a href="ch12_troubleshooting.html">Troubleshooting</a></li>
+      <li><a href="ch11_backup_security.html">Backup and security</a></li>
+      <li><a href="ch12_troubleshooting.html">Troubleshooting</a></li>
     </ol>
     <div class="toc-in-chapter">
       <h2>This chapter</h2>
@@ -74,7 +74,6 @@
   </aside>
 
   <main class="content">
-    <div class="callout i18n-pending"><strong>This chapter has not been translated yet.</strong> You are reading the original Chinese text. <a href="../ch9_access_lists.html" hreflang="zh-Hant">Open the Chinese version</a></div>
     <div class="chapter-header">
       <div class="kicker">Chapter 9</div>
       <h1>Access Lists and access restrictions</h1>
@@ -136,9 +135,9 @@
       <table class="data-table">
         <thead><tr><th>What you want</th><th>Rule order</th><th>Satisfy Any</th></tr></thead>
         <tbody>
-          <tr><td>Only a fixed IP gets in, no password</td><td><code>allow &lt;可信任 CIDR&gt;</code>, with everything else stopped by the final deny all</td><td>Off; do not create an Authorization user</td></tr>
+          <tr><td>Only a fixed IP gets in, no password</td><td><code>allow &lt;trusted-CIDR&gt;</code>, with everything else stopped by the final deny all</td><td>Off; do not create an Authorization user</td></tr>
           <tr><td>Every source needs a password</td><td><code>allow all</code>, together with Authorization</td><td>Off, so both the IP condition and the password have to pass</td></tr>
-          <tr><td>A fixed IP and a password as well</td><td><code>allow &lt;可信任 CIDR&gt;</code>, together with Authorization</td><td>Off, both have to pass</td></tr>
+          <tr><td>A fixed IP and a password as well</td><td><code>allow &lt;trusted-CIDR&gt;</code>, together with Authorization</td><td>Off, both have to pass</td></tr>
           <tr><td>A fixed IP skips the password, everyone else needs one</td><td>The trusted CIDR together with Authorization</td><td>On; this is a deliberate bypass, not a stricter setting</td></tr>
         </tbody>
       </table>

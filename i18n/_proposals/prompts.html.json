@@ -5,7 +5,7 @@
     {
       "unit": "#proxy",
       "zh": "<pre>請唯讀盤點這台 NPM 的所有 Proxy Hosts，整理網域、轉送協定、目標主機、目標連接埠、指派憑證與 Access List；敏感資訊遮罩，並標示資料取得方式。</pre>",
-      "en": "<pre>Take a read-only inventory of every Proxy Host on this NPM, listing the domain, the forward scheme, the forward hostname, the forward port, the assigned certificate and the Access List; redact sensitive information and state how you obtained the data. Answer in English.</pre>"
+      "en": "<pre>Take a read-only inventory of every Proxy Host on this NPM, listing the domain, the Forward Scheme, the Forward Hostname / IP, the Forward Port, the assigned certificate and the Access List; redact sensitive information and state how you obtained the data. Answer in English.</pre>"
     },
     {
       "unit": "#proxy",
@@ -35,7 +35,7 @@
     {
       "unit": "#proxy",
       "zh": "<pre>盤點哪些 Proxy Hosts 由 NPM 以 HTTP 連到後端。依「同主機、可信區網、跨不可信網路」分類風險，提出後端 TLS 或網路隔離建議，不要假設 HTTP 一律不安全或一律可接受。</pre>",
-      "en": "<pre>Take stock of which Proxy Hosts NPM reaches over HTTP to the backend. Classify the risk as \"same host\", \"trusted LAN\" or \"across an untrusted network\", then recommend backend TLS or network isolation; do not assume HTTP is always unsafe or always acceptable. Answer in English.</pre>"
+      "en": "<pre>Take stock of the Proxy Hosts where NPM connects to the backend over HTTP. Classify the risk as \"same host\", \"trusted LAN\" or \"across an untrusted network\", then recommend backend TLS or network isolation; do not assume HTTP is always unsafe or always acceptable. Answer in English.</pre>"
     },
     {
       "unit": "#proxy",
@@ -110,7 +110,7 @@
     {
       "unit": "#access",
       "zh": "<pre>檢查 Access Lists 是否存在過寬網段、規則順序疑慮或未被任何主機使用的清單。引用實際規則並說明風險，不要自動收緊。</pre>",
-      "en": "<pre>Check the Access Lists for over-broad network ranges, questionable rule order, and lists no host uses. Quote the actual rules and explain the risk; do not tighten anything on your own. Answer in English.</pre>"
+      "en": "<pre>Check the Access Lists for over-broad network ranges, questionable rule order and lists that no host uses. Quote the actual rules and explain the risk; do not tighten anything on your own. Answer in English.</pre>"
     },
     {
       "unit": "#access",
@@ -135,7 +135,7 @@
     {
       "unit": "#access",
       "zh": "<pre>比較每位 NPM 使用者的實際職責與目前權限，提出最小權限調整草稿。先說明目前版本可用的角色能力與查證來源，不要假設不存在的細部權限。</pre>",
-      "en": "<pre>Compare what each NPM user actually does with the permissions they hold, and draft a least privilege adjustment. First explain the role capabilities the current version offers and where you verified them; do not assume fine-grained permissions that do not exist. Answer in English.</pre>"
+      "en": "<pre>Compare what each NPM user actually does with the permissions they hold, and draft a least-privilege adjustment. First explain the role capabilities the current version offers and where you verified them; do not assume fine-grained permissions that do not exist. Answer in English.</pre>"
     },
     {
       "unit": "#access",
@@ -145,7 +145,7 @@
     {
       "unit": "#redirect-stream",
       "zh": "<pre>唯讀列出所有 Redirection Hosts，整理來源網域、目標網址、轉址碼、保留路徑設定與憑證，找出可能的迴圈或過期目標。</pre>",
-      "en": "<pre>Read-only: list every Redirection Host with its source domain, target URL, redirect status code, path preservation setting and certificate, and find any loop or stale target. Answer in English.</pre>"
+      "en": "<pre>Read-only: list every Redirection Host with its source domain, target URL, redirect status code, path preservation setting and certificate, and find any potential loop or stale target. Answer in English.</pre>"
     },
     {
       "unit": "#redirect-stream",
@@ -165,7 +165,7 @@
     {
       "unit": "#redirect-stream",
       "zh": "<pre>唯讀盤點 NPM Streams，整理對外連接埠、轉送主機、轉送連接埠、TCP／UDP 選擇與可能的連接埠衝突；不要進行連線掃描超出我授權的範圍。</pre>",
-      "en": "<pre>Take a read-only inventory of the NPM Streams, covering the incoming port, the forwarding host, the forwarding port, the TCP/UDP choice and any port conflict; do not run connection scans beyond what I have authorized. Answer in English.</pre>"
+      "en": "<pre>Take a read-only inventory of the NPM Streams, covering the Incoming Port, the Forwarding Host, the Forwarding Port, the TCP/UDP choice and any port conflict; do not run connection scans beyond what I have authorized. Answer in English.</pre>"
     },
     {
       "unit": "#redirect-stream",
@@ -195,7 +195,7 @@
     {
       "unit": "#backup-diagnose",
       "zh": "<pre>驗證最近一份 NPM 備份是否包含預期資料、可解密且校驗值一致。只在隔離暫存區測試，不覆寫正式環境，並遮罩資料庫密碼與私鑰。</pre>",
-      "en": "<pre>Verify that the most recent NPM backup holds the data I expect, decrypts, and matches its checksum. Test only in an isolated scratch area, never overwrite production, and redact the database password and the private keys. Answer in English.</pre>"
+      "en": "<pre>Verify that the most recent NPM backup holds the data I expect, decrypts and matches its checksum. Test only in an isolated scratch area, never overwrite production, and redact the database password and the private keys. Answer in English.</pre>"
     },
     {
       "unit": "#backup-diagnose",
@@ -205,7 +205,7 @@
     {
       "unit": "#backup-diagnose",
       "zh": "<pre>「app.example.com」出現 502。請依 NPM 日誌時間戳、後端 DNS／IP、連接埠、協定、TLS 與後端健康狀態逐項唯讀檢查，區分事實與推測。</pre>",
-      "en": "<pre>\"app.example.com\" is returning 502. Work read-only through the NPM log timestamps, the backend DNS/IP, the port, the scheme, TLS and the backend health, one item at a time, and separate fact from guesswork. Answer in English.</pre>"
+      "en": "<pre>\"app.example.com\" is returning 502. Work read-only through the NPM log timestamps, the backend DNS/IP, the port, the protocol, TLS and the backend health, one item at a time, and separate fact from guesswork. Answer in English.</pre>"
     },
     {
       "unit": "#backup-diagnose",
@@ -220,12 +220,12 @@
     {
       "unit": "#backup-diagnose",
       "zh": "<pre>唯讀檢查 NPM 主機的 CPU、記憶體、磁碟、資料庫與憑證續期相關錯誤，整理近 24 小時異常時間線；只使用現有監控與日誌，不自行安裝 Agent。</pre>",
-      "en": "<pre>Read-only: check the NPM host for errors relating to CPU, memory, disk, the database and certificate renewal, and build a timeline of the anomalies in the last 24 hours; use only the monitoring and logs that already exist, and install no agent of your own. Answer in English.</pre>"
+      "en": "<pre>Read-only: check the NPM host for errors relating to CPU, memory, disk, the database and certificate renewal, and build a timeline of the anomalies in the last 24 hours; use only the monitoring and logs that already exist, and install no monitoring agent of your own. Answer in English.</pre>"
     },
     {
       "unit": "#backup-diagnose",
       "zh": "<pre>辨識目前 NPM 版本與部署方式，對照官方發布資訊規劃更新。先列出備份、相容性、維護窗、驗證與回復步驟；等我明確確認後才更新，不使用未驗證映像。</pre>",
-      "en": "<pre>Identify the NPM version and deployment option in use and plan an update against the official release notes. First list the backup, the compatibility, the maintenance window, the verification and the rollback steps; update only after I explicitly confirm, and never use an unverified image. Answer in English.</pre>"
+      "en": "<pre>Identify the NPM version and deployment option in use and plan an update against the official release information. First list the backup, the compatibility, the maintenance window, the verification and the rollback steps; update only after I explicitly confirm, and never use an unverified image. Answer in English.</pre>"
     }
   ]
 }

@@ -41,34 +41,34 @@
 
 <section id="workflow" data-nav="workflow"><h2>Four automation levels, starting read-only</h2><table><tr><th>Layer</th><th>What the agent can do</th><th>Condition to move up</th></tr><tr><td><strong>L0 Advice</strong></td><td>Read the redacted data you provide and produce a list and the steps to follow.</td><td>The output is stable, with no invented fields or tools.</td></tr><tr><td><strong>L1 Read-only</strong></td><td>Scheduled inventory, expiry checks, log queries and alerts.</td><td>Sources are verified, permissions are isolated, sensitive data is redacted and the false positives are acceptable.</td></tr><tr><td><strong>L2 Approved writes</strong></td><td>Make a previewed, reversible change to a single resource.</td><td>It passes in a test environment, the diff is bound to the approval, and post-write verification and a rollback drill are done.</td></tr><tr><td><strong>L3 Low-risk auto-remediation</strong></td><td>Handle only pre-approved, narrowly scoped, idempotent events.</td><td>There is an error budget, a rate limit, a kill switch and human on-call; high-risk actions stay excluded.</td></tr></table></section>
 
-<section id="template" data-nav="template"><h2>A portable Skill spec template</h2><p>File names and metadata formats differ from one agent to the next, so the template below is neutral and does not stand for any particular product's installation format:</p><pre>名稱：npm-certificate-auditor
-目的：唯讀盤點 NPM 憑證，依到期日與引用關係產生報告
+<section id="template" data-nav="template"><h2>A portable Skill spec template</h2><p>File names and metadata formats differ from one agent to the next, so the template below is neutral and does not stand for any particular product's installation format:</p><pre>name: npm-certificate-auditor
+purpose: take a read-only inventory of NPM certificates and report on them by expiry date and reference
 
-輸入：
-- NPM 實例識別與環境標籤
-- 經驗證、版本相符的唯讀資料取得方式
-- 告警門檻：7、14、30 天
+inputs:
+- NPM instance identifier and environment label
+- a verified, version-matched, read-only way to get the data
+- alert thresholds: 7, 14, 30 days
 
-前置檢查：
-1. 驗證目標實例、版本、部署方式與唯讀權限
-2. 驗證介面 schema；不能驗證就停止，不猜 endpoint
-3. 確認輸出位置不會洩漏祕密
+preflight checks:
+1. Verify the target instance, the version, the deployment option and the read-only permissions
+2. Verify the interface schema; stop if you cannot verify it, and never guess an endpoint
+3. Confirm the output location cannot leak secrets
 
-步驟：
-1. 取得憑證中繼資料與主機引用關係
-2. 計算到期天數，核對網域名稱與最近續期錯誤
-3. 依門檻分級，產生含資料時間與證據的報告
-4. 遮罩 Token、Cookie、私鑰與不必要個資
+steps:
+1. Fetch the certificate metadata and the hosts that reference each certificate
+2. Compute the days to expiry, and check the domain names and any recent renewal errors
+3. Grade against the thresholds and produce a report carrying the data time and the evidence
+4. Redact tokens, cookies, private keys and any unnecessary personal data
 
-輸出：
-- 摘要、風險項、證據、建議人工處置
-- 不直接申請、續期、刪除或重新指派憑證
+outputs:
+- a summary, the risk items, the evidence and the suggested manual handling
+- never request, renew, delete or reassign a certificate directly
 
-停止條件：
-- 版本或 schema 不符
-- 回應缺少必要欄位
-- 目標不是核准的實例
-- 取得資料時要求提升權限</pre></section>
+stop conditions:
+- the version or the schema does not match
+- the response is missing a required field
+- the target is not an approved instance
+- fetching the data would require elevated permissions</pre></section>
 
 <section id="review" data-nav="review"><h2>Pre-adoption checklist</h2><ul><li>You can point to the verified source behind every data field, rather than the agent's guess.</li><li>The agent has its own least-privilege identity; its secrets live in an approved secret manager and can be rotated.</li><li>Every inventory, certificate, Access List, backup and log report states which instance it came from and when the data was taken.</li><li>Your test data covers API failures, version drift, partial responses, repeated runs and timeouts.</li><li>Every write has a concrete diff, human approval, post-write verification, an audit record and a rollback plan.</li><li>Deletion, production restores and bulk permission changes are never in scope for unattended automation.</li><li>You have set up a kill switch, and you know who takes over when the agent fails.</li></ul><div class="callout warn"><strong>Run L1 for at least one full operations cycle first.</strong> Once you have confirmed that the reports are accurate, that nothing leaks and that false positives stay manageable, pick one low-risk, reversible task and move it to L2. Do not hand the agent every administrative right at once.</div></section>
 <footer>Nginx Proxy Manager Guide is produced by <a href="https://github.com/WOOWTECH/Woow_nginx_proxy_manager_tutorial_site" rel="noopener">WoowTech</a> and released under CC BY 4.0. This page offers repeatable Skill patterns; it does not endorse any third-party tool it has not named and verified.</footer>
