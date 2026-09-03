@@ -121,7 +121,7 @@
           <li><h3>Choose a test name</h3><p>Use a separate subdomain, such as <code>app.example.net</code>, so you avoid changing a production record that is still in use.</p></li>
           <li><h3>Decide on the record type</h3><p>If you have a public IPv4 you can keep up to date, create an A record. If you already have a maintained target hostname, create a CNAME pointing at that name.</p></li>
           <li><h3>Fill in the name and the target</h3><p>The content of an A record is a public IPv4; the content of a CNAME is another hostname. Do not enter NPM's internal upstream IP unless the design was internal-DNS-only from the start.</p></li>
-          <li><h3>Choose the TTL and the proxy status</h3><p>TTL controls how long a resolver may cache the record. On Cloudflare, use the later part of this chapter to decide between Proxied and DNS-only; do not treat the orange cloud as just a cosmetic option.</p></li>
+          <li><h3>Choose the TTL and the proxy status</h3><p>TTL controls how long a resolver may cache the record. On Cloudflare, use the later part of this chapter to decide between Proxied and DNS-only; do not treat the orange cloud as a cosmetic option.</p></li>
           <li><h3>Save it, then query it</h3><p>Query from the LAN and over mobile data separately, and keep only the result of "does this match the design". Redact the real domain and IPs when you share anything.</p></li>
         </ol>
       </section>
@@ -182,7 +182,7 @@ nslookup app.example.net</code></pre>
             <tr><td>Timeouts from outside, fine on the LAN</td><td>NAT / firewall / CGNAT</td><td>Compare the WAN address with the externally observed one and check TCP 80/443; never open 81 instead</td></tr>
             <tr><td>Fine from outside, fails on the LAN</td><td>Hairpin NAT / split DNS</td><td>Check whether the router supports NAT loopback, or create an internal answer for the same name in internal DNS you control</td></tr>
             <tr><td>The connection fails after switching to the orange cloud</td><td>Cloudflare to the origin server</td><td>Confirm you are on a supported proxy port, and check the origin server's firewall and NPM's 80/443; do not assume the orange cloud proxies 81 or an arbitrary Stream</td></tr>
-            <tr><td>Under the orange cloud, <code>dig CNAME</code> does not show the original target</td><td>The Cloudflare proxy's answer</td><td>A Proxied record answering with a Cloudflare IP is normal; check the record in the Cloudflare console rather than leaving the origin server exposed on DNS-only just to see the target</td></tr>
+            <tr><td>Under the orange cloud, <code>dig CNAME</code> does not show the original target</td><td>The Cloudflare proxy's answer</td><td>A Proxied record answering with a Cloudflare IP is normal; check the record in the Cloudflare console rather than leaving the origin server exposed on DNS-only merely to see the target</td></tr>
           </tbody>
         </table>
       </section>
@@ -192,7 +192,7 @@ nslookup app.example.net</code></pre>
         <details class="faq"><summary>Should the A record hold NPM's internal IP or the public IP?</summary><div class="body">In the traditional NAT architecture with public DNS it usually holds the router's public IP, and 80/443 are then forwarded to NPM. Only a split DNS design, on internal DNS you control, answers with an internal address on the inside.</div></details>
         <details class="faq"><summary>Can a CNAME hold an IP or a full URL?</summary><div class="body">No. A CNAME's target is another hostname; use an A record for IPv4, and a URL path is not part of a DNS record at all.</div></details>
         <details class="faq"><summary>Does the Cloudflare orange cloud proxy admin port 81?</summary><div class="body">That is not a design you should build. Port 81 is NPM's admin port and must not be exposed; the ordinary Cloudflare HTTP proxy also only supports the ports listed in the official documentation.</div></details>
-        <details class="faq"><summary>How long do I have to wait after changing DNS?</summary><div class="body">There is no fixed time that applies to every environment. Check the authoritative answer, the TTL and the caches at each layer, rather than just waiting or rebuilding the record over and over.</div></details>
+        <details class="faq"><summary>How long do I have to wait after changing DNS?</summary><div class="body">There is no fixed time that applies to every environment. Check the authoritative answer, the TTL and the caches at each layer, rather than waiting or rebuilding the record over and over.</div></details>
         <details class="faq"><summary>Without a public IPv4, is NPM unusable altogether?</summary><div class="body">NPM still works on the LAN. To go public, you can look at an inbound-capable address from your ISP, at planning IPv6 properly, or at an outbound approach such as Cloudflare Tunnel; do not expose 81 to get around CGNAT.</div></details>
       </section>
 

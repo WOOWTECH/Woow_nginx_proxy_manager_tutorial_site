@@ -168,7 +168,7 @@
           <li><h3>If issuance fails, check the challenge path</h3><p>For HTTP-01, check DNS and port 80 from outside; for DNS-01, check the DNS provider, the zone permissions and the least-privilege token. Never paste a token into a log or a support ticket.</p></li>
           <li><h3>Rule out clock and renewal problems</h3><p>Confirm that the clock on the HA host is correct, and read the add-on log from around the renewal time. Do not repeat a failed request over and over, or you may run into the CA rate limit.</p></li>
         </ol>
-        <div class="callout warn">Do not turn off client certificate validation just to make the warning go away, and do not confuse a self-signed certificate problem on the origin with the public-facing Let's Encrypt certificate. Confirm each TLS hop on its own.</div>
+        <div class="callout warn">Do not turn off client certificate validation to make the warning go away, and do not confuse a self-signed certificate problem on the origin with the public-facing Let's Encrypt certificate. Confirm each TLS hop on its own.</div>
       </section>
 
       <section id="cloudflare-diagnosis" data-nav="Cloudflare diagnosis">

@@ -135,9 +135,9 @@
       <table class="data-table">
         <thead><tr><th>What you want</th><th>Rule order</th><th>Satisfy Any</th></tr></thead>
         <tbody>
-          <tr><td>Only a fixed IP gets in, no password</td><td><code>allow &lt;trusted-CIDR&gt;</code>, with everything else stopped by the final deny all</td><td>Off; do not create an Authorization user</td></tr>
+          <tr><td>Only a fixed IP gets in, no password</td><td><code>allow &lt;trusted-cidr&gt;</code>, with everything else stopped by the final deny all</td><td>Off; do not create an Authorization user</td></tr>
           <tr><td>Every source needs a password</td><td><code>allow all</code>, together with Authorization</td><td>Off, so both the IP condition and the password have to pass</td></tr>
-          <tr><td>A fixed IP and a password as well</td><td><code>allow &lt;trusted-CIDR&gt;</code>, together with Authorization</td><td>Off, both have to pass</td></tr>
+          <tr><td>A fixed IP and a password as well</td><td><code>allow &lt;trusted-cidr&gt;</code>, together with Authorization</td><td>Off, both have to pass</td></tr>
           <tr><td>A fixed IP skips the password, everyone else needs one</td><td>The trusted CIDR together with Authorization</td><td>On; this is a deliberate bypass, not a stricter setting</td></tr>
         </tbody>
       </table>

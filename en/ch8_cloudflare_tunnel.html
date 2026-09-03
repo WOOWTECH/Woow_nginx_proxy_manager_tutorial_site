@@ -119,7 +119,7 @@ Internal service</code></pre>
         <li><h3>Confirm Cloudflare manages the domain</h3><p>You need to be able to create a Tunnel and a public hostname in your own Cloudflare account. Treat the domain, the account ID and the zone ID as sensitive data.</p></li>
         <li><h3>Prepare a connector that can run long term</h3><p>Run <code>cloudflared</code> on a trusted device that can reach NPM over the network. This chapter does not tie you to any particular third-party add-on; use an installation method Cloudflare officially supports, or a package you have reviewed yourself.</p></li>
         <li><h3>Confirm the internal path</h3><p>The connector must be able to reach NPM port 80, and NPM must be able to reach the upstream service. Both hops only need to work inside the LAN, which is not the same as opening them to every LAN device.</p></li>
-        <li><h3>Take stock of the port forwards you already have</h3><p>If you already use public 80/443, record what depends on it and how to roll back. Only once every hostname has been migrated and tested should you disable the old rules, following your change process; do not simply delete them while you are unsure of the impact.</p></li>
+        <li><h3>Take stock of the port forwards you already have</h3><p>If you already use public 80/443, record what depends on it and how to roll back. Only once every hostname has been migrated and tested should you disable the old rules, following your change process; do not delete them outright while you are unsure of the impact.</p></li>
       </ol>
     </section>
 
@@ -138,7 +138,7 @@ Internal service</code></pre>
       <ol class="steps">
         <li><h3>Create a named Tunnel in Cloudflare</h3><p>Create the Tunnel through the Zero Trust / Networks / Tunnels flow in the Cloudflare Dashboard; the interface names may have changed, so go by the current official documentation.</p></li>
         <li><h3>Choose the connector environment</h3><p>Use the official installation method Cloudflare shows for your platform. The tunnel token on that screen is the secret that can start a connector, so never paste it into a chat, a command history, a screenshot or a repository.</p></li>
-        <li><h3>Supply the token safely</h3><p>Store the token in that platform's secret or protected settings, readable only by the connector process. If it has ever leaked, rotate or revoke it in Cloudflare immediately rather than just deleting the message.</p></li>
+        <li><h3>Supply the token safely</h3><p>Store the token in that platform's secret or protected settings, readable only by the connector process. If it has ever leaked, rotate or revoke it in Cloudflare immediately rather than deleting the message alone.</p></li>
         <li><h3>Confirm the status is Healthy</h3><p>The connector needs outbound DNS, and it connects to port 7844 as described in Cloudflare's official firewall documentation (UDP for QUIC, TCP for HTTP/2). No public inbound rule is needed.</p></li>
       </ol>
     </section>
@@ -172,7 +172,7 @@ Internal service</code></pre>
       <h2 data-icon="security">A Tunnel is not full authentication</h2>
       <ul>
         <li><strong>Never publish port 81:</strong> a Tunnel's public hostname points only at the proxy entry on NPM port 80/443, never at the admin interface.</li>
-        <li><strong>Minimal exposure for every hostname:</strong> publish only the services you genuinely need to use from the public internet. A database, SSH or a NAS admin page should not go public alongside them just because a Tunnel is easy to set up.</li>
+        <li><strong>Minimal exposure for every hostname:</strong> publish only the services you genuinely need to use from the public internet. A database, SSH or a NAS admin page should not go public alongside them merely because a Tunnel can be set up quickly.</li>
         <li><strong>Redact sensitive values at every step:</strong> domains, public and private IPs, the tunnel token, DNS API tokens, passwords, certificates and full logs must all stay private.</li>
         <li><strong>Add Cloudflare Access when you need user identity:</strong> a Tunnel only builds the transport path; if a service should not be used anonymously, you still need suitable controls in the application, in Cloudflare Access, or in the Access List from Chapter 9.</li>
         <li><strong>Limit the network between the connector and NPM:</strong> allow only the connector-to-NPM and NPM-to-upstream traffic you need, and do not treat the whole LAN as trusted.</li>
@@ -182,7 +182,7 @@ Internal service</code></pre>
     <section id="verify" data-nav="Verify hop by hop">
       <h2 data-icon="test">Verify hop by hop, inside out</h2>
       <ol class="steps">
-        <li><h3>Test NPM to the upstream</h3><p>First confirm from the LAN that the upstream service is reachable and that the Scheme and port are right. Do not open more public ports just because you got a 502.</p></li>
+        <li><h3>Test NPM to the upstream</h3><p>First confirm from the LAN that the upstream service is reachable and that the Scheme and port are right. Do not open more public ports merely because you got a 502.</p></li>
         <li><h3>Test Host routing</h3><p>From a trusted LAN, request NPM with that hostname and confirm it lands on the right Proxy Host rather than on the default site.</p></li>
         <li><h3>Confirm the connector is healthy</h3><p>In Cloudflare, check whether the Tunnel has a connector currently connected. Record only the status and the time; do not publish the UUID, the token or a full diagnostic log.</p></li>
         <li><h3>Test HTTPS from outside</h3><p>Open the public hostname over mobile data and confirm HTTPS, login, WebSocket and any function you need; then test whether HTTP is redirected to HTTPS at the Cloudflare edge.</p></li>

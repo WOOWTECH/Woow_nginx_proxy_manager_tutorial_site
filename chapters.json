@@ -1,5 +1,8 @@
 {
   "_readme": "導覽、SEO、教學目錄與 sitemap 的單一來源；變更後執行 node scripts/build_nav.js。",
+  "i18n": {
+    "xDefault": "en"
+  },
   "site": {
     "title": "Nginx Proxy Manager 反向代理指南",
     "brand": "NPM 指南",

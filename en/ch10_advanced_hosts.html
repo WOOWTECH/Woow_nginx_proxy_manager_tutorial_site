@@ -126,7 +126,7 @@
             <tr><td>Public exposure</td><td>A non-HTTP service usually has no NPM Access List protecting it</td><td>Use a VPN first; if it really must be public, narrow it down with source IP rules and the service's own authentication</td></tr>
           </tbody>
         </table>
-        <div class="callout danger"><strong>What the Woow add-on actually allows:</strong> right now <code>config.yaml</code> declares only 80/tcp, 81/tcp and 443/tcp, with no option for an arbitrary Stream port. Creating a Stream in the NPM UI does not mean the HA host has published that incoming port. Do not take over port 81, and never forward the admin port to the public internet to make a Stream work; check the settings of a newer add-on release first, or move to a managed deployment that can map the ports you need explicitly.</div>
+        <div class="callout danger"><strong>What the Woow add-on actually allows:</strong> right now <code>config.yaml</code> declares only 80/tcp, 81/tcp and 443/tcp, with no option for an arbitrary Stream port. Creating a Stream in the NPM UI does not mean the HA host has published that incoming port. Do not take over port 81, and never forward the admin port to the public internet to make a Stream work; check the settings of a newer add-on release first, or move to a controlled deployment that can map the ports you need explicitly.</div>
       </section>
 
       <section id="websocket" data-nav="WebSocket settings">

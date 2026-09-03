@@ -1,5 +1,8 @@
 {
   "_readme": "Single source for the en/ site root (nav, SEO, catalog, sitemap). Human-readable fields are translation units tracked in i18n/ledger.json. Rebuild with: SITE_ROOT=en node scripts/build_nav.js",
+  "i18n": {
+    "xDefault": "en"
+  },
   "site": {
     "title": "Nginx Proxy Manager reverse proxy guide",
     "brand": "NPM Guide",

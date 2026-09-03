@@ -353,19 +353,19 @@
       "file": "ch2_install.html",
       "unit": "#start-and-check",
       "zh": "<code>http://&lt;HA區網位址&gt;:81</code>",
-      "en": "<code>http://&lt;HA-LAN-address&gt;:81</code>"
+      "en": "<code>http://&lt;ha-lan-address&gt;:81</code>"
     },
     {
       "file": "ch9_access_lists.html",
       "unit": "#ip-rules",
       "zh": "<code>allow &lt;可信任 CIDR&gt;</code>",
-      "en": "<code>allow &lt;trusted-CIDR&gt;</code>"
+      "en": "<code>allow &lt;trusted-cidr&gt;</code>"
     },
     {
       "file": "ch2_install.html",
       "unit": "#troubleshooting",
       "zh": "<code>http://&lt;HA區網位址&gt;:81</code>",
-      "en": "<code>http://&lt;HA-LAN-address&gt;:81</code>"
+      "en": "<code>http://&lt;ha-lan-address&gt;:81</code>"
     }
   ]
 }

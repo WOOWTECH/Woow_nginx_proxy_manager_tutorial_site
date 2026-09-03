@@ -111,7 +111,7 @@
       <ol class="steps">
         <li><h3>Open the right entry</h3><p>Select <strong>Woow Nginx Proxy Manager</strong> and check once more that the source points at WOOWTECH's <code>Woow_ha_nginxpm</code>.</p></li>
         <li><h3>Read the version information</h3><p>Read the README, the changelog, the supported architectures and the permissions, then press "INSTALL".</p></li>
-        <li><h3>Wait for the install to finish</h3><p>How long it takes depends on your hardware and network. Do not press install again or reboot the host just because the screen has not changed for a moment.</p></li>
+        <li><h3>Wait for the install to finish</h3><p>How long it takes depends on your hardware and network. Do not press install again or reboot the host merely because the screen has not changed for a moment.</p></li>
         <li><h3>Do not set up WAN forwarding yet</h3><p>Stay on the add-on page once the install finishes. At this point no port needs to be exposed to the public internet, and TCP 81 must never be.</p></li>
       </ol>
       <p>The WOOWTECH add-on README states that this add-on needs no extra options; all administration happens in the Web UI on TCP 81.</p>
@@ -136,7 +136,7 @@
       <ol class="steps">
         <li><h3>Start the add-on</h3><p>On the add-on info page, press "START" and wait for the status to become running.</p></li>
         <li><h3>Read a short log first</h3><p>Check locally only, to see whether startup finished and whether there is a port conflict. A log can contain addresses, domains, certificates or request details, so do not post the whole thing publicly.</p></li>
-        <li><h3>Open the Web UI from a trusted LAN</h3><p>Use the add-on's "OPEN WEB UI" button. If the button is unavailable, try <code>http://&lt;HA-LAN-address&gt;:81</code> from a trusted LAN; never write your real address into public notes.</p></li>
+        <li><h3>Open the Web UI from a trusted LAN</h3><p>Use the add-on's "OPEN WEB UI" button. If the button is unavailable, try <code>http://&lt;ha-lan-address&gt;:81</code> from a trusted LAN; never write your real address into public notes.</p></li>
         <li><h3>Stop at the login page</h3><p>Reaching the NPM login screen means this chapter's checks are done. You will use the default credentials in the next chapter, and you must change them immediately after you log in.</p></li>
       </ol>
       <div class="callout warn"><strong>The default credentials are not hardened yet:</strong> until you finish the next chapter, keep TCP 81 restricted to a trusted LAN, and do not start publishing a Proxy Host.</div>
@@ -159,7 +159,7 @@
       <h3>Problem 1: the store cannot find Woow Nginx Proxy Manager</h3><p>Confirm the repository URL is complete and the owner is WOOWTECH, reload the store, and check whether Home Assistant can reach GitHub. Do not add an unvetted mirror instead.</p>
       <h3>Problem 2: it says this architecture is not supported</h3><p>Check that the system is <code>amd64</code> or <code>aarch64</code>. The current config.yaml declares no other architecture; do not force the install with the wrong image.</p>
       <h3>Problem 3: it fails to start and mentions address already in use</h3><p>Usually TCP 80, 81 or 443 is already taken. Take stock of the services and add-on ports on the same host; understand what depends on what before you decide which side to change.</p>
-      <h3>Problem 4: the add-on is running but the Web UI will not open</h3><p>Use "OPEN WEB UI" first, then check <code>http://&lt;HA-LAN-address&gt;:81</code> from the same trusted LAN. Check the local firewall and the VLAN rules; do not use WAN forwarding to work around the problem.</p>
+      <h3>Problem 4: the add-on is running but the Web UI will not open</h3><p>Use "OPEN WEB UI" first, then check <code>http://&lt;ha-lan-address&gt;:81</code> from the same trusted LAN. Check the local firewall and the VLAN rules; do not use WAN forwarding to work around the problem.</p>
       <h3>Problem 5: the install never finishes</h3><p>Check the free storage, the network and the Supervisor log for a specific error. Quote only the lines you need and redact sensitive values; do not paste the whole log.</p>
     </section>
 
