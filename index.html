@@ -7,6 +7,12 @@
   <meta name="description" content="WoowTech 製作的 Nginx Proxy Manager 台灣繁體中文資源總站：12 章教學、銷售手冊、操作提示詞庫與 AI Agent Skill 手冊。" />
   <meta name="author" content="WoowTech" />
   <link rel="canonical" href="https://nginx-guide.woowtech.io/" />
+  <!-- i18n:alternates -->
+  <link rel="alternate" hreflang="zh-Hant" href="https://nginx-guide.woowtech.io/" />
+  <link rel="alternate" hreflang="zh" href="https://nginx-guide.woowtech.io/" />
+  <link rel="alternate" hreflang="en" href="https://nginx-guide.woowtech.io/en/" />
+  <link rel="alternate" hreflang="x-default" href="https://nginx-guide.woowtech.io/en/" />
+  <!-- /i18n:alternates -->
   <meta name="robots" content="index, follow" />
   <meta property="og:type" content="website" />
   <meta property="og:site_name" content="Nginx Proxy Manager 指南" />
@@ -20,6 +26,7 @@
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&family=Poppins:wght@400;500;600;700&family=Noto+Sans+TC:wght@400;500;600;700&family=Yellowtail&display=swap" />
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@mdi/font@7.4.47/css/materialdesignicons.min.css" />
   <link rel="stylesheet" href="assets/css/style.css" />
+  <!-- i18n:css --><link rel="stylesheet" href="assets/css/i18n.css" /><!-- /i18n:css -->
   <style>
     .res-grid{display:grid;grid-template-columns:1fr 1fr;gap:22px}.res-card{display:flex;flex-direction:column;padding:28px 26px;border:1px solid var(--hairline);border-radius:var(--radius);background:var(--surface-card);box-shadow:var(--shadow-sm)}.res-card .tile{display:inline-flex;width:48px;height:48px;border-radius:12px;background:var(--ww-blue-050);align-items:center;justify-content:center;margin-bottom:14px}.res-card .tile .mdi{font-size:26px;color:var(--ww-blue)}.res-card h3{margin:0 0 6px;font-family:Poppins,sans-serif;font-size:20px;font-weight:700}.res-card .aud{font-size:12.5px;color:var(--text-secondary);margin-bottom:10px}.res-card p{margin:0 0 18px;color:var(--ww-black);font-size:14.5px;flex:1}.res-actions{display:flex;gap:10px;flex-wrap:wrap}.btn-pill,.btn-ghost{display:inline-flex;align-items:center;gap:6px;font-family:Poppins,sans-serif;font-weight:600;font-size:14px;padding:10px 22px;border-radius:999px;text-decoration:none}.btn-pill{background:var(--ww-blue);color:#fff}.btn-pill:hover{background:var(--ww-blue-700);color:#fff;text-decoration:none}.btn-ghost{background:var(--surface-card);color:var(--ww-black);border:1.5px solid var(--hairline)}.btn-ghost:hover{border-color:var(--ww-blue);color:var(--ww-blue-700);text-decoration:none}.dl-note{margin:26px 0 0;padding:14px 18px;border-radius:var(--radius-sm);background:var(--ww-blue-050);border:1px solid rgba(97,131,252,.18);font-size:13.5px;color:var(--ww-black)}.link-row{display:flex;gap:22px;flex-wrap:wrap;margin-top:14px;font-size:14px}@media(max-width:720px){.res-grid{grid-template-columns:1fr}}
   </style>
@@ -27,6 +34,9 @@
 <body>
   <main class="home">
     <div class="hero">
+      <!-- i18n:switch -->
+      <nav class="lang-switch" aria-label="語言"><a class="active" href="index.html" lang="zh-Hant" aria-current="page">中文</a><a href="en/" lang="en" hreflang="en">EN</a></nav>
+      <!-- /i18n:switch -->
       <span class="kicker-script">publish with confidence</span>
       <div class="kicker">WoowTech · Nginx Proxy Manager</div>
       <h1>Nginx Proxy Manager 資源總覽</h1>

@@ -7,6 +7,10 @@
   <meta name="description" content="12 章繁體中文 Nginx Proxy Manager 教學：從 HAOS add-on 安裝、首次登入、Proxy Host、DNS 與 SSL，到 Cloudflare Tunnel、Access Lists、備份、安全與排錯。" />
   <meta name="author" content="WoowTech" />
   <link rel="canonical" href="https://nginx-guide.woowtech.io/tutorial.html" />
+  <link rel="alternate" hreflang="zh-Hant" href="https://nginx-guide.woowtech.io/tutorial.html" />
+  <link rel="alternate" hreflang="zh" href="https://nginx-guide.woowtech.io/tutorial.html" />
+  <link rel="alternate" hreflang="en" href="https://nginx-guide.woowtech.io/en/tutorial.html" />
+  <link rel="alternate" hreflang="x-default" href="https://nginx-guide.woowtech.io/en/tutorial.html" />
   <meta name="robots" content="index, follow, max-image-preview:large" />
   <meta property="og:type" content="article" />
   <meta property="og:site_name" content="Nginx Proxy Manager 反向代理指南" />
@@ -26,10 +30,14 @@
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&family=Poppins:wght@400;500;600;700&family=Noto+Sans+TC:wght@400;500;600;700&family=Yellowtail&display=swap" />
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@mdi/font@7.4.47/css/materialdesignicons.min.css" />
   <link rel="stylesheet" href="assets/css/style.css" />
+  <link rel="stylesheet" href="assets/css/i18n.css" />
 </head>
 <body>
   <main class="home">
     <div class="hero">
+      <!-- i18n:switch -->
+      <nav class="lang-switch" aria-label="語言"><a class="active" href="tutorial.html" lang="zh-Hant" aria-current="page">中文</a><a href="en/tutorial.html" lang="en" hreflang="en">EN</a></nav>
+      <!-- /i18n:switch -->
       <span class="kicker-script">one friendly front door</span>
       <div class="kicker">Nginx Proxy Manager 反向代理指南</div>
       <h1>把家中服務安全帶上網</h1>
